@@ -2,7 +2,7 @@
  * @Author: lizesheng
  * @Date: 2023-02-23 14:08:48
  * @LastEditors: lizesheng
- * @LastEditTime: 2023-02-23 15:40:32
+ * @LastEditTime: 2023-02-23 15:48:54
  * @important: 重要提醒
  * @Description: 备注内容
  * @FilePath: /commerce_egg/app/controller/menu.js
@@ -34,8 +34,9 @@ class MenuController extends Controller {
   }
   async get() {
     const { ctx } = this;
-    const user = await this.app.mysql.select('menu')
-    ctx.body = successMsg(user);
+    const menuList = await this.app.mysql.select('menu')
+    console.log(menu)
+    ctx.body = successMsg();
   }
 }
 
