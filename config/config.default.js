@@ -2,7 +2,7 @@
  * @Author: lizesheng
  * @Date: 2023-02-23 14:08:48
  * @LastEditors: lizesheng
- * @LastEditTime: 2023-02-23 15:01:42
+ * @LastEditTime: 2023-02-23 15:20:40
  * @important: 重要提醒
  * @Description: 备注内容
  * @FilePath: /commerce_egg/config/config.default.js
@@ -43,8 +43,7 @@ module.exports = appInfo => {
   config.keys = appInfo.name + '_1677132511139_1119';
 
   // add your middleware config here
-  config.middleware = [];
-
+  config.middleware = ['errorHandler'];
   // add your user config here
   const userConfig = {
     // myAppName: 'egg',
