@@ -2,7 +2,7 @@
  * @Author: lizesheng
  * @Date: 2023-02-23 14:08:48
  * @LastEditors: lizesheng
- * @LastEditTime: 2023-02-23 16:06:55
+ * @LastEditTime: 2023-02-26 22:15:02
  * @important: 重要提醒
  * @Description: 备注内容
  * @FilePath: /commerce_egg/config/config.default.js
@@ -24,7 +24,7 @@ module.exports = appInfo => {
     // 单数据库信息配置
     client: {
       // host
-      host: '192.168.64.203',
+      host: 'localhost',
       // 端口号
       port: '3306',
       // 用户名
@@ -48,7 +48,11 @@ module.exports = appInfo => {
   const userConfig = {
     // myAppName: 'egg',
   };
-
+  config.security = {
+    csrf: {
+      enable: false,
+    }
+  }
   return {
     ...config,
     ...userConfig,

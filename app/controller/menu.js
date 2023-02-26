@@ -2,7 +2,7 @@
  * @Author: lizesheng
  * @Date: 2023-02-23 14:08:48
  * @LastEditors: lizesheng
- * @LastEditTime: 2023-02-23 15:48:54
+ * @LastEditTime: 2023-02-26 12:50:05
  * @important: 重要提醒
  * @Description: 备注内容
  * @FilePath: /commerce_egg/app/controller/menu.js
@@ -34,9 +34,20 @@ class MenuController extends Controller {
   }
   async get() {
     const { ctx } = this;
-    const menuList = await this.app.mysql.select('menu')
-    console.log(menu)
-    ctx.body = successMsg();
+    let menuList = await this.app.mysql.select('menu')
+    menuList && menuList.forEach((item, index) => {
+      if (item.parentId) {
+        const parentItem = menuList.find((element) => item.parentId === element.id)
+        if (!parentItem?.children) {
+          parentItem.children = []
+        }
+        parentItem.children.push(item)
+      }
+    })
+    menuList = menuList.filter(item => !item.parentId)
+    ctx.body = successMsg({
+      list: menuList
+    });
   }
 }
 
