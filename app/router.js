@@ -22,6 +22,8 @@ module.exports = app => {
   router.get('/api/manage/getGoods', controller.goods.get);
   router.post('/api/manage/addGoods', controller.goods.add);
   router.post('/api/manage/updateGoods', controller.goods.update);
+  router.post('/api/manage/deleteGoods', controller.goods.deleteGoodsInfo);
+  router.get('/api/manage/getDetails', controller.goods.getDetails);
 
   // 分类获取 
   router.get('/api/getClassiFication', controller.constant.getClassiFication);

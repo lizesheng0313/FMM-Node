@@ -2,7 +2,7 @@
  * @Author: lizesheng
  * @Date: 2023-02-23 16:10:04
  * @LastEditors: lizesheng
- * @LastEditTime: 2023-02-26 22:24:11
+ * @LastEditTime: 2023-02-28 14:16:33
  * @important: 重要提醒
  * @Description: 备注内容
  * @FilePath: /commerce_egg/app/middleware/error_handler.js
@@ -11,11 +11,9 @@
 
 module.exports = () => {
   return async function errorHandler(ctx, next) {
-    console.log(ctx)
     try {
       await next();
     } catch (err) {
-      console.log(err, '---err')
       // 所有的异常都在 app 上触发一个 error 事件，框架会记录一条错误日志
       ctx.logger.info('发生错误', err, ctx);
 
