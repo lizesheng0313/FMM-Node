@@ -2,7 +2,7 @@
  * @Author: lizesheng
  * @Date: 2023-02-23 14:08:48
  * @LastEditors: lizesheng
- * @LastEditTime: 2023-03-04 21:14:53
+ * @LastEditTime: 2023-03-06 21:18:29
  * @important: 重要提醒
  * @Description: 备注内容
  * @FilePath: /commerce_egg/config/config.default.js
@@ -55,9 +55,19 @@ module.exports = appInfo => {
 
   config.security = {
     csrf: {
-      ignoreJSON: true,
-    },
-  };
+      ignore: ctx => {
+        // 忽略所有 GET 请求和 /api/user/login 请求的 CSRF 校验
+        if (ctx.path === '/api/user/login') {
+          return true;
+        }
+        // 忽略 authorization 头带有 JWT Token 的请求的 CSRF 校验
+        if (ctx.get('authorization')) {
+          return true;
+        }
+        return false;
+      }
+    }
+  }
 
   return {
     ...config,

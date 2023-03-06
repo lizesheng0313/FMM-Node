@@ -2,7 +2,7 @@
  * @Author: lizesheng
  * @Date: 2023-03-04 18:34:47
  * @LastEditors: lizesheng
- * @LastEditTime: 2023-03-05 15:22:55
+ * @LastEditTime: 2023-03-06 20:15:11
  * @important: 重要提醒
  * @Description: 备注内容
  * @FilePath: /commerce_egg/app/middleware/jwtErr.js
@@ -22,7 +22,7 @@ module.exports = options => {
         if (error.message === 'jwt expired' || error.message === 'jwt malformed') {
           ctx.body = {
             code: 403,
-            message: '无效token,请重新登录',
+            message: '未登录,请重新登录',
           };
           return;
         }
@@ -35,7 +35,7 @@ module.exports = options => {
     } else {
       ctx.body = {
         code: 2007,
-        message: '用户登录已过期',
+        message: '用户登录已过期,请重新登录',
       };
       return;
     }

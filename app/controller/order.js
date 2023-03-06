@@ -2,7 +2,7 @@
  * @Author: lizesheng
  * @Date: 2023-02-23 14:08:48
  * @LastEditors: lizesheng
- * @LastEditTime: 2023-03-05 20:36:14
+ * @LastEditTime: 2023-03-06 15:01:23
  * @important: 重要提醒
  * @Description: 备注内容
  * @FilePath: /commerce_egg/app/controller/order.js
@@ -10,6 +10,7 @@
 'use strict';
 const { successMsg } = require('../../utils/utils')
 const { Controller } = require('egg');
+const { ORDERSTATUS, PAYSTATUS } = require('../../const/index')
 
 class OrderController extends Controller {
   async createOrder() {
@@ -59,7 +60,7 @@ class OrderController extends Controller {
   async deleteGoodsInfo() {
     const { ctx } = this
     const { id } = ctx.request.body
-    const SQL = `DELETE g, p FROM goods g LEFT JOIN goods_picture_list p ON g.id = p.goodsId WHERE g.id = ${id}`
+    const SQL = `DELETE g, p FROM goods g LEFT JOIN goods_picture_list p ON o.id = p.goodsId WHERE o.id = ${id}`
     const result = await this.app.mysql.query(SQL)
     if (result.affectedRows > 0) {
       ctx.body = successMsg();
@@ -68,18 +69,88 @@ class OrderController extends Controller {
   // 订单列表
   async getOrder() {
     const { ctx } = this;
-    const { pageIndex = 1, pageSize = 10 } = ctx.query
-    const SQL = `select g.id, g.name, g.picture, g.price, g.number, g.volume, g.createTime, g.updateTime, g.classiFication, g.online,g.latest, g.quantity, g.recommend, g.order, GROUP_CONCAT(p.url) as pictureList from goods g left join goods_picture_list p on g.id = p.goodsId  WHERE g.isDelete = 1 GROUP BY g.id ORDER BY g.createTime desc limit ${parseInt(pageSize)} offset ${(pageIndex - 1) * pageSize}`
-    const totalResult = await this.app.mysql.query(`SELECT COUNT(*) AS total FROM goods WHERE isDelete = 1`)
-    const result = await this.app.mysql.query(SQL)
-    result.forEach((item) => {
-      if (item.pictureList) {
-        item.pictureList = item.pictureList.split(",")
-      }
-    });
+    const role = ctx.user.role
+    const { pageIndex = 1, pageSize = 10, payStatus = null, orderStatus = null, orderId = null, username = null } = ctx.query
+    let whereClause = '';
+    if (payStatus) {
+      whereClause += ` AND pay_status = '${payStatus}'`;
+    }
+    if (orderStatus) {
+      whereClause += ` AND order_status = '${orderStatus}'`;
+    }
+    if (orderId) {
+      whereClause += ` AND o.id = '${orderId}'`;
+    }
+    if (username) {
+      whereClause += ` AND p.name = '${username}'`;
+    }
+    const SQL = `
+      SELECT
+        o.id,
+        o.user_id,
+        o.total_price,
+        o.totao_quantity,
+        o.pay_status,
+        o.payment_time,
+        o.delivery_time,
+        o.receive_time,
+        o.create_time,
+        o.goods_id,
+        g.name,
+        g.href,
+        o.order_status,
+        ${role === '0' || role === '1' ? 'o.cost_price,' : ''}
+        o.address_id,
+        p.name AS address_name,
+        p.phone AS address_phone,
+        p.address AS address_detail,
+        s.skuId,
+        s.goods_picture,
+        (SELECT COUNT(*) FROM goods_order) AS total
+      FROM
+        goods_order o
+        LEFT JOIN address p ON o.address_id = p.id
+        INNER JOIN goods g ON o.goods_id = g.id
+        INNER JOIN sku_goods s ON o.sku_id = s.id
+      WHERE
+        1 = 1 ${whereClause}
+      GROUP BY
+        o.id,
+        o.user_id,
+        o.total_price,
+        o.totao_quantity,
+        o.pay_status,
+        o.payment_time,
+        o.delivery_time,
+        o.receive_time,
+        o.create_time,
+        o.goods_id,
+        g.name,
+        g.href,
+        o.order_status,
+        o.cost_price,
+        o.address_id,
+        p.name,
+        p.phone,
+        p.address,
+        s.skuId,
+        s.goods_picture
+      ORDER BY
+        o.create_time DESC
+      LIMIT
+        ${parseInt(pageSize)}
+      OFFSET
+        ${(pageIndex - 1) * pageSize}
+    `;
+
+    let result = (await this.app.mysql.query(SQL)).map(item => ({
+      ...item,
+      order_status_str: ORDERSTATUS[item.order_status],
+      pay_status_str: PAYSTATUS[item.pay_status],
+    }));
     ctx.body = successMsg({
       list: result,
-      total: totalResult[0].total,
+      total: result[0]?.total || 0,
       pageSize: pageSize,
       pageIndex
     });

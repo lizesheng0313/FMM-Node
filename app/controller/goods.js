@@ -2,7 +2,7 @@
  * @Author: lizesheng
  * @Date: 2023-02-23 14:08:48
  * @LastEditors: lizesheng
- * @LastEditTime: 2023-03-04 18:17:46
+ * @LastEditTime: 2023-03-06 14:47:09
  * @important: 重要提醒
  * @Description: 备注内容
  * @FilePath: /commerce_egg/app/controller/goods.js
@@ -104,22 +104,22 @@ class GoodsController extends Controller {
   }
   async get() {
     const { ctx } = this;
-    const { pageIndex = 1, pageSize = 10 } = ctx.query
-    const SQL = `select g.id, g.name, g.picture, g.price, g.number, g.volume, g.createTime, g.updateTime, g.classiFication, g.online,g.latest, g.quantity, g.recommend, g.order, GROUP_CONCAT(p.url) as pictureList from goods g left join goods_picture_list p on g.id = p.goodsId  WHERE g.isDelete = 1 GROUP BY g.id ORDER BY g.createTime desc limit ${parseInt(pageSize)} offset ${(pageIndex - 1) * pageSize}`
-    const totalResult = await this.app.mysql.query(`SELECT COUNT(*) AS total FROM goods WHERE isDelete = 1`)
-    const result = await this.app.mysql.query(SQL)
+    const { pageIndex = 1, pageSize = 10 } = ctx.query;
+    const SQL = `SELECT g.id, g.name, g.price, g.number, g.volume, g.createTime, g.updateTime, g.classiFication, g.online, g.latest, g.quantity, g.recommend, g.order, GROUP_CONCAT(p.url) AS pictureList, COUNT(*) OVER() AS total FROM goods g LEFT JOIN goods_picture_list p ON g.id = p.goodsId WHERE g.isDelete = 1 GROUP BY g.id ORDER BY g.createTime DESC LIMIT ? OFFSET ?`;
+    const result = await this.app.mysql.query(SQL, [parseInt(pageSize), (parseInt(pageIndex) - 1) * parseInt(pageSize)]);
     result.forEach((item) => {
       if (item.pictureList) {
-        item.pictureList = item.pictureList.split(",")
+        item.pictureList = item.pictureList.split(",");
       }
     });
     ctx.body = successMsg({
       list: result,
-      total: totalResult[0].total,
+      total: result[0]?.total || 0,
       pageSize: pageSize,
       pageIndex
     });
   }
+
 }
 async function skuProcess(goodsId, pictureList, sku, that) {
   // 图片插入
