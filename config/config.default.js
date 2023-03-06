@@ -2,7 +2,7 @@
  * @Author: lizesheng
  * @Date: 2023-02-23 14:08:48
  * @LastEditors: lizesheng
- * @LastEditTime: 2023-02-26 22:15:02
+ * @LastEditTime: 2023-03-04 21:14:53
  * @important: 重要提醒
  * @Description: 备注内容
  * @FilePath: /commerce_egg/config/config.default.js
@@ -48,11 +48,17 @@ module.exports = appInfo => {
   const userConfig = {
     // myAppName: 'egg',
   };
+
+  config.jwt = { // jwt配置项
+    secret: '@xiaoze_secret_13932377015@',
+  };
+
   config.security = {
     csrf: {
-      enable: false,
-    }
-  }
+      ignoreJSON: true,
+    },
+  };
+
   return {
     ...config,
     ...userConfig,
