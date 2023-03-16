@@ -2,7 +2,7 @@
  * @Author: lizesheng
  * @Date: 2023-02-23 14:08:48
  * @LastEditors: lizesheng
- * @LastEditTime: 2023-03-06 14:47:09
+ * @LastEditTime: 2023-03-07 10:08:39
  * @important: 重要提醒
  * @Description: 备注内容
  * @FilePath: /commerce_egg/app/controller/goods.js
@@ -75,7 +75,7 @@ class GoodsController extends Controller {
     const skuResult = await this.app.mysql.query(skuSQL);
     const sku = skuResult.map(item => {
       const skuIdArr = item.skuId.split(',');
-      const skuObj = { skuStock: item.skuStock, skuPrice: item.skuPrice };
+      const skuObj = { skuStock: item.skuStock, skuPrice: item.skuPrice, goods_picture: item.goods_picture };
       skuIdArr.forEach((name, index) => {
         skuObj[`name${index}`] = name;
       });
@@ -136,6 +136,7 @@ async function skuProcess(goodsId, pictureList, sku, that) {
       goodsId,
       skuStock: item.skuStock,
       skuPrice: item.skuPrice,
+      goods_picture: item.goods_picture,
       skuId: nameList.map(key => item[key]).join(',')
     }
   })

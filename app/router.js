@@ -2,7 +2,7 @@
  * @Author: lizesheng
  * @Date: 2023-02-23 14:08:48
  * @LastEditors: lizesheng
- * @LastEditTime: 2023-03-06 15:12:40
+ * @LastEditTime: 2023-03-16 14:43:55
  * @important: 重要提醒
  * @Description: 备注内容
  * @FilePath: /commerce_egg/app/router.js
@@ -31,8 +31,17 @@ module.exports = app => {
 
   // 订单
   router.get('/api/order/list', jwtErr, controller.order.getOrder);
-
+  router.get('/api/order/returnList', jwtErr, controller.order.getReturnOrder)
+  router.post('/api/order/shipGoods', jwtErr, controller.order.shipGoods);
+  router.post('/api/order/agreen', jwtErr, controller.order.goodsAgreenOperation);
+  router.post('/api/order/refuse', jwtErr, controller.order.goodsRefuseOperation);
 
   // 登录
   router.post('/api/user/login', controller.user.login)
+
+
+  // 小程序接口
+  router.get('/api/home/getBanner', controller.programHome.getBanner)
+  router.get('/api/home/getClassifcation', controller.programHome.getClassifcation)
+
 };
