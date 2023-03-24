@@ -2,7 +2,7 @@
  * @Author: lizesheng
  * @Date: 2023-02-23 14:08:48
  * @LastEditors: lizesheng
- * @LastEditTime: 2023-03-16 17:16:00
+ * @LastEditTime: 2023-03-17 17:29:46
  * @important: 重要提醒
  * @Description: 备注内容
  * @FilePath: /commerce_egg/app/controller/order.js
@@ -17,6 +17,7 @@ class OrderController extends Controller {
   async createOrder() {
     const { ctx } = this;
     const { pictureList, sku } = ctx.request.body
+    const orderId = generateOrderId()
     if (result.affectedRows === 1) {
       ctx.body = successMsg();
     }
@@ -238,6 +239,7 @@ class OrderController extends Controller {
       ...item,
       order_status_str: ORDERSTATUS[item.order_status],
       order_return_status_start: RETURNSTATUS[item.status],
+      picture_list: item.picture_list?.split(',')
     }));
     ctx.body = successMsg({
       list: result,
@@ -272,7 +274,42 @@ class OrderController extends Controller {
       ctx.body = successMsg();
     }
   }
+  // 生成订单id
+  async generateOrderId() {
+    const ORDER_ID_LENGTH = 20; // 订单号长度
+
+    let orderId;
+    let isExist;
+
+    do {
+      // 生成前14位时间串
+      const date = new Date();
+      const year = date.getFullYear().toString().slice(-2);
+      const month = (date.getMonth() + 1).toString().padStart(2, '0');
+      const day = date.getDate().toString().padStart(2, '0');
+      const hour = date.getHours().toString().padStart(2, '0');
+      const minute = date.getMinutes().toString().padStart(2, '0');
+      const second = date.getSeconds().toString().padStart(2, '0');
+      const timeString = year + month + day + hour + minute + second;
+
+      // 生成后6位随机数
+      const randomString = Math.floor(Math.random() * 1000000).toString().padStart(6, '0');
+
+      // 拼接生成订单号
+      orderId = timeString + randomString;
+
+      // 查询数据库中是否已存在该订单号
+      isExist = await this.ctx.model.GoodsOrder.findOne({
+        where: { id: orderId },
+      });
+    } while (isExist || orderId.length !== ORDER_ID_LENGTH);
+
+    // 返回生成的订单号
+    return orderId;
+  }
 }
+
+
 
 
 module.exports = OrderController;

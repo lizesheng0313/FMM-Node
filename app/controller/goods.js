@@ -2,13 +2,13 @@
  * @Author: lizesheng
  * @Date: 2023-02-23 14:08:48
  * @LastEditors: lizesheng
- * @LastEditTime: 2023-03-07 10:08:39
+ * @LastEditTime: 2023-03-21 14:12:11
  * @important: 重要提醒
  * @Description: 备注内容
  * @FilePath: /commerce_egg/app/controller/goods.js
  */
 'use strict';
-const { successMsg } = require('../../utils/utils')
+const { successMsg, errorMsg } = require('../../utils/utils')
 const { Controller } = require('egg');
 
 class GoodsController extends Controller {
@@ -18,8 +18,8 @@ class GoodsController extends Controller {
     const rows = {
       ...ctx.request.body,
       createTime: Date.now(),
-      isDelete: 1,
-      latest: false,
+      is_deleted: 0,
+      latest: true,
       online: false,
       recommend: false,
     }
@@ -29,6 +29,9 @@ class GoodsController extends Controller {
     await skuProcess(result.insertId, pictureList, sku, this)
     if (result.affectedRows === 1) {
       ctx.body = successMsg();
+    }
+    else {
+      ctx.body = errorMsg('添加错误')
     }
   }
 
@@ -55,13 +58,16 @@ class GoodsController extends Controller {
     if (result.affectedRows === 1) {
       ctx.body = successMsg();
     }
+    else {
+      ctx.body = errorMsg('更新错误')
+    }
   }
   async getDetails() {
     const { ctx } = this;
     const { id } = ctx.query;
 
     // 获取商品信息
-    const goodsSQL = `SELECT * FROM goods WHERE id = ${id} AND isDelete = 1`;
+    const goodsSQL = `SELECT * FROM goods WHERE id = ${id} AND is_deleted != 1`;
     const goodsResult = await this.app.mysql.query(goodsSQL);
     const goods = goodsResult[0];
 
@@ -75,7 +81,7 @@ class GoodsController extends Controller {
     const skuResult = await this.app.mysql.query(skuSQL);
     const sku = skuResult.map(item => {
       const skuIdArr = item.skuId.split(',');
-      const skuObj = { skuStock: item.skuStock, skuPrice: item.skuPrice, goods_picture: item.goods_picture };
+      const skuObj = { skuStock: item.skuStock, skuPrice: item.skuPrice, goods_picture: item.goods_picture, cost_price: item.cost_price, skuOriginPrice: item.skuOriginPrice };
       skuIdArr.forEach((name, index) => {
         skuObj[`name${index}`] = name;
       });
@@ -93,19 +99,21 @@ class GoodsController extends Controller {
   }
 
 
-  async deleteGoodsInfo() {
-    const { ctx } = this
-    const { id } = ctx.request.body
-    const SQL = `DELETE g, p FROM goods g LEFT JOIN goods_picture_list p ON g.id = p.goodsId WHERE g.id = ${id}`
-    const result = await this.app.mysql.query(SQL)
+  async delete() {
+    const { ctx } = this;
+    const { id } = ctx.request.body;
+    const SQL = `UPDATE goods SET is_deleted = 1 WHERE id = ${id}`;
+    const result = await this.app.mysql.query(SQL);
     if (result.affectedRows > 0) {
       ctx.body = successMsg();
+    } else {
+      ctx.body = errorMsg('Delete failed');
     }
   }
   async get() {
     const { ctx } = this;
     const { pageIndex = 1, pageSize = 10 } = ctx.query;
-    const SQL = `SELECT g.id, g.name, g.price, g.number, g.volume, g.createTime, g.updateTime, g.classiFication, g.online, g.latest, g.quantity, g.recommend, g.order, GROUP_CONCAT(p.url) AS pictureList, COUNT(*) OVER() AS total FROM goods g LEFT JOIN goods_picture_list p ON g.id = p.goodsId WHERE g.isDelete = 1 GROUP BY g.id ORDER BY g.createTime DESC LIMIT ? OFFSET ?`;
+    const SQL = `SELECT g.id, g.name,g.number, g.volume, g.createTime, g.updateTime, g.classiFication, g.online, g.latest, g.recommend, g.order, GROUP_CONCAT(p.url) AS pictureList, COUNT(*) OVER() AS total FROM goods g LEFT JOIN goods_picture_list p ON g.id = p.goodsId WHERE g.is_deleted != 1 GROUP BY g.id ORDER BY g.createTime DESC LIMIT ? OFFSET ?`;
     const result = await this.app.mysql.query(SQL, [parseInt(pageSize), (parseInt(pageIndex) - 1) * parseInt(pageSize)]);
     result.forEach((item) => {
       if (item.pictureList) {
@@ -136,7 +144,9 @@ async function skuProcess(goodsId, pictureList, sku, that) {
       goodsId,
       skuStock: item.skuStock,
       skuPrice: item.skuPrice,
+      skuOriginPrice: item.skuOriginPrice,
       goods_picture: item.goods_picture,
+      cost_price: item.cost_price,
       skuId: nameList.map(key => item[key]).join(',')
     }
   })

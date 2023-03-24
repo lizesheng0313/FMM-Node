@@ -2,7 +2,7 @@
  * @Author: lizesheng
  * @Date: 2023-02-23 15:21:17
  * @LastEditors: lizesheng
- * @LastEditTime: 2023-02-26 21:03:49
+ * @LastEditTime: 2023-03-17 11:05:57
  * @important: 重要提醒
  * @Description: 备注内容
  * @FilePath: /commerce_egg/utils/utils.js
@@ -13,6 +13,13 @@ module.exports = {
       code: 0,
       message: '',
       data: data || null,
+    };
+  },
+  errorMsg: (message) => {
+    return {
+      code: -1,
+      message: message || 'Error',
+      data: null,
     };
   },
   getCurrentDate: () => {

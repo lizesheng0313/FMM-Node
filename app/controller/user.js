@@ -2,7 +2,7 @@
  * @Author: lizesheng
  * @Date: 2023-02-23 14:08:48
  * @LastEditors: lizesheng
- * @LastEditTime: 2023-03-06 09:44:12
+ * @LastEditTime: 2023-03-17 10:56:54
  * @important: 重要提醒
  * @Description: 备注内容
  * @FilePath: /commerce_egg/app/controller/user.js
@@ -18,11 +18,7 @@ class ConstantController extends Controller {
 
     const user = await app.mysql.query('SELECT id, username,avatar,role FROM user WHERE username = ? AND password = ?', [username, password]);
     if (user && user?.length > 0) {
-      const token = app.jwt.sign({ username, role: user[0].role }, app.config.jwt.secret,
-        // {
-        //   expiresIn: 3600, // 1小时过期
-        // }
-      )
+      const token = app.jwt.sign({ username, role: user[0].role }, app.config.jwt.secret)
       ctx.set({ authorization: token });
       ctx.body = successMsg({
         userInfo: user[0]
