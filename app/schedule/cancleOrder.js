@@ -2,7 +2,7 @@
  * @Author: lizesheng
  * @Date: 2023-03-24 16:58:09
  * @LastEditors: lizesheng
- * @LastEditTime: 2023-03-24 17:34:10
+ * @LastEditTime: 2023-03-24 21:54:54
  * @important: 重要提醒
  * @Description: 备注内容
  * @FilePath: /commerce_egg/app/schedule/cancleOrder.js
@@ -15,18 +15,13 @@ module.exports = {
     immediate: true, // 是否立即执行一次
     type: 'all', // 指定所有的 worker 都需要执行
   },
-  async subscribe(ctx) {
+  async task(ctx) {
+    const { mysql } = ctx.app
     // 查找未支付订单
-    const now = new Date();
-    const thirtyMinutesAgo = new Date(now - 30 * 60 * 1000);
-    const orders = await ctx.app.mysql.select('goods_order', {
-      where: {
-        pay_status: '0',
-        create_time: {
-          '<': thirtyMinutesAgo,
-        },
-      },
-    });
+    const date = new Date(Date.now() - 30 * 60 * 1000);
+    const formattedDate = date.toISOString().slice(0, 19).replace('T', ' ');
+    const sql = `SELECT * FROM goods_order WHERE pay_status = 0 AND create_time <= '${formattedDate}'`;
+    const orders = await mysql.query(sql);
 
     if (orders && orders.length > 0) {
       for (const order of orders) {

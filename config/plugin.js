@@ -19,10 +19,6 @@ module.exports = {
   jwt: {
     enable: true,
     package: 'egg-jwt',
-  },
-  moment: {
-    enable: true,
-    package: 'egg-moment',
-  },
+  }
 };
 

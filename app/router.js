@@ -2,7 +2,7 @@
  * @Author: lizesheng
  * @Date: 2023-02-23 14:08:48
  * @LastEditors: lizesheng
- * @LastEditTime: 2023-03-17 13:32:55
+ * @LastEditTime: 2023-03-25 20:43:33
  * @important: 重要提醒
  * @Description: 备注内容
  * @FilePath: /commerce_egg/app/router.js
@@ -24,7 +24,7 @@ module.exports = app => {
   router.post('/api/manage/addGoods', jwtErr, controller.goods.add);
   router.post('/api/manage/updateGoods', jwtErr, controller.goods.update);
   router.post('/api/manage/deleteGoods', jwtErr, controller.goods.delete);
-  router.get('/api/manage/getDetails', jwtErr, controller.goods.getDetails);
+  router.get('/api/manage/getDetails', controller.goods.getDetails);
 
   // 分类获取 
   router.get('/api/getClassiFication', jwtErr, controller.constant.getClassiFication);
@@ -51,7 +51,7 @@ module.exports = app => {
   router.get('/api/home/getClassifcation', controller.programHome.getClassifcation)
   router.get('/api/home/getHomeGoods', controller.programHome.getHomeGoods)
   router.get('/api/home/getClassGoods', controller.programHome.getClassGoods)
-
+  router.get('/api/searchGoods', controller.programHome.searchGoods)
 
   // 收件人
   router.post('/api/address/add', controller.programAddress.add)
