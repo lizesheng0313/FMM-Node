@@ -1,12 +1,13 @@
 /*
  * @Author: lizesheng
- * @Date: 2023-02-23 14:08:48
+ * @Date: 2023-03-11 16:41:51
  * @LastEditors: lizesheng
- * @LastEditTime: 2023-03-25 20:29:34
+ * @LastEditTime: 2023-03-29 19:53:34
  * @important: 重要提醒
  * @Description: 备注内容
  * @FilePath: /commerce_egg/app/controller/programHome.js
  */
+
 'use strict';
 const { successMsg } = require('../../utils/utils')
 const { Controller } = require('egg');
@@ -64,15 +65,18 @@ class ProgrmHomeController extends Controller {
   // 获取某一个分类下的商品
   async getClassGoods() {
     const { ctx } = this;
-    const { classification } = ctx.query;
+    const { classification, pageIndex = 1, pageSize = 10 } = ctx.query;
+    const limit = parseInt(pageSize)
+    const offset = (pageIndex - 1) * pageSize;
     const result = await ctx.app.mysql.query(
       `SELECT g.id, g.name, g.online, g.volume,
       (SELECT url FROM goods_picture_list WHERE goodsId = g.id LIMIT 1) AS pictureUrl,
       (SELECT skuPrice FROM sku_goods WHERE goodsId = g.id LIMIT 1) AS price
       FROM goods g
       WHERE g.is_deleted != ? AND classification LIKE ? AND g.online = 1
-      ORDER BY g.createTime DESC`,
-      [1, `%${classification}%`]
+      ORDER BY g.createTime DESC
+      LIMIT ?, ?`,
+      [1, `%${classification}%`, offset, limit]
     );
     ctx.body = successMsg({
       list: result

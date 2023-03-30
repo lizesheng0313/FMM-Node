@@ -2,7 +2,7 @@
  * @Author: lizesheng
  * @Date: 2023-02-23 14:08:48
  * @LastEditors: lizesheng
- * @LastEditTime: 2023-03-25 20:43:33
+ * @LastEditTime: 2023-03-29 18:59:21
  * @important: 重要提醒
  * @Description: 备注内容
  * @FilePath: /commerce_egg/app/router.js
@@ -24,7 +24,7 @@ module.exports = app => {
   router.post('/api/manage/addGoods', jwtErr, controller.goods.add);
   router.post('/api/manage/updateGoods', jwtErr, controller.goods.update);
   router.post('/api/manage/deleteGoods', jwtErr, controller.goods.delete);
-  router.get('/api/manage/getDetails', controller.goods.getDetails);
+  router.get('/api/manage/getDetails', jwtErr, controller.goods.getDetails);
 
   // 分类获取 
   router.get('/api/getClassiFication', jwtErr, controller.constant.getClassiFication);
@@ -36,10 +36,8 @@ module.exports = app => {
   router.post('/api/order/agreen', jwtErr, controller.order.goodsAgreenOperation);
   router.post('/api/order/refuse', jwtErr, controller.order.goodsRefuseOperation);
 
-
   // 登录
   router.post('/api/user/login', controller.user.login)
-
 
   // 小程序
 
@@ -52,6 +50,7 @@ module.exports = app => {
   router.get('/api/home/getHomeGoods', controller.programHome.getHomeGoods)
   router.get('/api/home/getClassGoods', controller.programHome.getClassGoods)
   router.get('/api/searchGoods', controller.programHome.searchGoods)
+  router.get('/api/goods/getDetails', controller.programGoods.getDetails);
 
   // 收件人
   router.post('/api/address/add', controller.programAddress.add)
