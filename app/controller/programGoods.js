@@ -2,7 +2,7 @@
  * @Author: lizesheng
  * @Date: 2023-03-29 17:23:28
  * @LastEditors: lizesheng
- * @LastEditTime: 2023-03-30 17:39:39
+ * @LastEditTime: 2023-03-31 23:19:49
  * @important: 重要提醒
  * @Description: 备注内容
  * @FilePath: /commerce_egg/app/controller/programGoods.js
@@ -31,7 +31,7 @@ class ProgrmGoodsController extends Controller {
     const skuResult = await this.app.mysql.query(skuSQL);
     const sku = skuResult.map(item => {
       const skuIdArr = item.skuId.split(',');
-      const skuObj = { skuId: item.skuId, skuStock: item.skuStock, skuPrice: item.skuPrice, goods_picture: item.goods_picture, cost_price: item.cost_price, skuOriginPrice: item.skuOriginPrice };
+      const skuObj = { skuId: item.skuId, skuStock: item.skuStock, skuPrice: item.skuPrice, goods_picture: item.goods_picture, skuOriginPrice: item.skuOriginPrice };
       skuIdArr.forEach((name, index) => {
         skuObj[`name${index}`] = name;
       });

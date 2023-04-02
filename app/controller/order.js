@@ -2,7 +2,7 @@
  * @Author: lizesheng
  * @Date: 2023-02-23 14:08:48
  * @LastEditors: lizesheng
- * @LastEditTime: 2023-03-17 17:29:46
+ * @LastEditTime: 2023-04-02 12:42:12
  * @important: 重要提醒
  * @Description: 备注内容
  * @FilePath: /commerce_egg/app/controller/order.js
@@ -92,6 +92,9 @@ class OrderController extends Controller {
         p.name AS address_name,
         p.phone AS address_phone,
         p.address AS address_detail,
+        p.province,
+        p.city,
+        p.streetName,
         (SELECT COUNT(*) FROM goods_order) AS total
       FROM
         goods_order o
@@ -119,6 +122,9 @@ class OrderController extends Controller {
         o.goods_picture,
         p.name,
         p.phone,
+        p.province,
+        p.city,
+        p.streetName,
         p.address
       ORDER BY
         o.create_time DESC
@@ -147,9 +153,6 @@ class OrderController extends Controller {
     let whereClause = '';
     if (returnStatus) {
       whereClause += ` AND status = '${returnStatus}'`;
-    }
-    if (orderStatus) {
-      whereClause += ` AND o.order_status = '${orderStatus}'`;
     }
     if (orderId) {
       whereClause += ` AND o.id = '${orderId}'`;
@@ -195,7 +198,7 @@ class OrderController extends Controller {
       INNER JOIN goods g ON o.goods_id = g.id
       LEFT JOIN goods_order_return r ON o.id = r.order_id
     WHERE
-      1 = 1 ${whereClause}
+      1 = 1 ${whereClause} AND o.order_status = 4
       GROUP BY
       r.id,
       r.status,

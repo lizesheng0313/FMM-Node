@@ -2,7 +2,7 @@
  * @Author: lizesheng
  * @Date: 2023-03-06 10:09:19
  * @LastEditors: lizesheng
- * @LastEditTime: 2023-03-22 13:18:55
+ * @LastEditTime: 2023-04-02 21:51:04
  * @important: 重要提醒
  * @Description: 备注内容
  * @FilePath: /commerce_egg/const/index.js
@@ -19,6 +19,7 @@ const ORDERSTATUS = {
   3: '已完成',
   4: '退货中',
   5: '已取消',
+  60: '待评价'
 }
 
 // 退货状态
