@@ -2,7 +2,7 @@
  * @Author: lizesheng
  * @Date: 2023-02-23 14:08:48
  * @LastEditors: lizesheng
- * @LastEditTime: 2023-04-02 21:59:34
+ * @LastEditTime: 2023-04-03 20:04:00
  * @important: 重要提醒
  * @Description: 备注内容
  * @FilePath: /commerce_egg/app/controller/programOrder.js
@@ -44,7 +44,7 @@ class ProgramOrderController extends Controller {
         user_id: 1,
         create_time: Date.now(),
         pay_status: 0,
-        order_status: 0,
+        order_status: 10,
         id: order_id
       }
       const result = await this.app.mysql.insert('goods_order', rows)
@@ -67,10 +67,10 @@ class ProgramOrderController extends Controller {
     const userId = 1
     const sql = `
       SELECT 
-        SUM(CASE WHEN pay_status = 0 AND order_status != 5 THEN 1 ELSE 0 END) as pending_payment_count,
-        SUM(CASE WHEN order_status IN (0) AND pay_status = 1 THEN 1 ELSE 0 END) as pending_delivery_count,
-        SUM(CASE WHEN order_status IN (1) AND pay_status = 1 THEN 1 ELSE 0 END) as shipped_order_count,
-        SUM(CASE WHEN order_status IN (4) AND pay_status = 1 THEN 1 ELSE 0 END) as return_order_count
+        SUM(CASE WHEN pay_status = 0 AND order_status != 50 THEN 1 ELSE 0 END) as pending_payment_count,
+        SUM(CASE WHEN order_status IN (10) AND pay_status = 1 THEN 1 ELSE 0 END) as pending_delivery_count,
+        SUM(CASE WHEN order_status IN (20,21) AND pay_status = 1 THEN 1 ELSE 0 END) as shipped_order_count,
+        SUM(CASE WHEN order_status IN (50) AND pay_status = 1 THEN 1 ELSE 0 END) as return_order_count
       FROM goods_order
       WHERE user_id = ?
     `;
@@ -79,19 +79,29 @@ class ProgramOrderController extends Controller {
   }
   // 获取订单列表
   async getListStatus() {
+    const { ctx } = this;
     let { pageIndex = 1, pageSize = 10, pay_status, order_status } = this.ctx.query;
     pageIndex = Number(pageIndex);
     pageSize = Number(pageSize);
+    const userId = 1;
 
     const conditions = [
-      pay_status !== undefined ? `pay_status = ${pay_status}` : null,
-      order_status !== undefined ? `order_status = ${order_status}` : null,
+      pay_status !== undefined ? `pay_status = ${pay_status} AND order_status != 4` : null,
+      order_status !== undefined ? `order_status = ${order_status} AND pay_status = 1` : null,
     ].filter(Boolean);
 
-    const whereClause = conditions.length > 0 ? `WHERE ${conditions.join(' AND ')}` : '';
+    const whereClause = conditions.length > 0 ? `WHERE ${conditions.join(' AND ')} AND user_id = ${userId}` : `WHERE user_id = ${userId}`;
 
     const sql = `
-      SELECT SQL_CALC_FOUND_ROWS *
+      SELECT SQL_CALC_FOUND_ROWS,
+      id,
+      user_id,
+      total_price,
+      quantity,
+      pay_status,
+      goods_id,
+      order_status,
+      goods_picture
       FROM orders
       ${whereClause}
       ORDER BY id DESC
@@ -105,7 +115,25 @@ class ProgramOrderController extends Controller {
       pageIndex,
       pageSize,
       total: count,
-    });
+    })
+  }
+  // 取消订单
+  async cancelOrder() {
+    const { ctx } = this;
+    const { id } = ctx.request.body; // 获取请求参数
+    const order = await this.app.mysql.get('goods_order', { id }); // 获取订单信息
+    // 判断订单是否满足取消条件
+    if (order.pay_status === 0 || order.order_status !== 10) {
+      ctx.body = errorMsg('订单不能取消');
+      return;
+    }
+    // 更新订单状态为已取消
+    const result = await this.app.mysql.update('goods_order', { id, order_status: 60 });
+    if (result.affectedRows !== 1) {
+      ctx.body = errorMsg('订单取消失败');
+      return;
+    }
+    ctx.body = successMsg()
   }
 }
 

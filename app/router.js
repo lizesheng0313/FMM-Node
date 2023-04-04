@@ -2,7 +2,7 @@
  * @Author: lizesheng
  * @Date: 2023-02-23 14:08:48
  * @LastEditors: lizesheng
- * @LastEditTime: 2023-04-01 23:59:26
+ * @LastEditTime: 2023-04-03 20:01:27
  * @important: 重要提醒
  * @Description: 备注内容
  * @FilePath: /commerce_egg/app/router.js
@@ -61,5 +61,6 @@ module.exports = app => {
   // 订单
   router.post('/api/order/createOrder', controller.programOrder.createOrder)
   router.get('/api/order/getOrderStatusCount', controller.programOrder.getOrderStatusCount)
-
+  router.get('/api/order/getListStatus', controller.programOrder.getListStatus)
+  router.post('/api/order/cancleOrder', controller.programOrder.cancleOrder)
 };

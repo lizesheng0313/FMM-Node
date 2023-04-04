@@ -2,13 +2,13 @@
  * @Author: lizesheng
  * @Date: 2023-02-23 14:08:48
  * @LastEditors: lizesheng
- * @LastEditTime: 2023-04-02 12:42:12
+ * @LastEditTime: 2023-04-03 17:56:34
  * @important: 重要提醒
  * @Description: 备注内容
  * @FilePath: /commerce_egg/app/controller/order.js
  */
 'use strict';
-const { successMsg } = require('../../utils/utils')
+const { successMsg, errorMsg } = require('../../utils/utils')
 const { Controller } = require('egg');
 const { ORDERSTATUS, PAYSTATUS, RETURNSTATUS } = require('../../const/index')
 
@@ -42,14 +42,22 @@ class OrderController extends Controller {
       logistics_no,
       create_time: Date.now()
     }
-    const result = await this.app.mysql.insert('logistics', rows)
-    await this.app.mysql.update('goods_order', { order_status: 1 }, {
-      where: {
-        id
+    const order = await this.app.mysql.get('goods_order', { id })
+    if (order.orderStatus === 10) {
+      const result = await this.app.mysql.insert('logistics', rows)
+      await this.app.mysql.update('goods_order', { order_status: 20 }, {
+        where: {
+          id
+        }
+      })
+      if (result.affectedRows > 0) {
+        ctx.body = successMsg();
       }
-    })
-    if (result.affectedRows > 0) {
-      ctx.body = successMsg();
+    }
+    else {
+      ctx.body = errorMsg('当前状态不是待发货状态', {
+        order_status: order.order_status
+      });
     }
   }
   // 获取订单列表
@@ -198,7 +206,7 @@ class OrderController extends Controller {
       INNER JOIN goods g ON o.goods_id = g.id
       LEFT JOIN goods_order_return r ON o.id = r.order_id
     WHERE
-      1 = 1 ${whereClause} AND o.order_status = 4
+      1 = 1 ${whereClause} AND o.order_status = 50
       GROUP BY
       r.id,
       r.status,
