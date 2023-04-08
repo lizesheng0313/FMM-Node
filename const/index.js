@@ -2,7 +2,7 @@
  * @Author: lizesheng
  * @Date: 2023-03-06 10:09:19
  * @LastEditors: lizesheng
- * @LastEditTime: 2023-04-03 17:32:25
+ * @LastEditTime: 2023-04-05 17:40:36
  * @important: 重要提醒
  * @Description: 备注内容
  * @FilePath: /commerce_egg/const/index.js
@@ -14,8 +14,8 @@ const PAYSTATUS = {
 
 const ORDERSTATUS = {
   10: '待发货',
-  11: '待揽件',
   20: '已发货',
+  21: '待揽件',
   30: '已收货',
   40: '已完成',
   50: '退货中',

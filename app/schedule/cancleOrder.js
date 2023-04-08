@@ -2,7 +2,7 @@
  * @Author: lizesheng
  * @Date: 2023-03-24 16:58:09
  * @LastEditors: lizesheng
- * @LastEditTime: 2023-04-02 14:28:19
+ * @LastEditTime: 2023-04-06 10:16:09
  * @important: 重要提醒
  * @Description: 取消订单
  * @FilePath: /commerce_egg/app/schedule/cancleOrder.js
@@ -20,7 +20,7 @@ module.exports = {
     // 查找未支付订单
     const currentTime = Date.now(); // 获取当前时间戳
     const cancelTime = currentTime - 30 * 60 * 1000; // 取消时间为当前时间减去30分钟
-    const sql = `SELECT * FROM goods_order WHERE pay_status = 0 AND order_status != 5 AND create_time <= ${cancelTime}`;
+    const sql = `SELECT * FROM goods_order WHERE pay_status = 0 AND order_status != 60 AND create_time <= ${cancelTime}`;
     const orders = await mysql.query(sql);
     if (orders && orders.length > 0) {
       for (const order of orders) {
@@ -28,7 +28,7 @@ module.exports = {
         // 取消订单的逻辑
         await mysql.update('goods_order', {
           id: order.id,
-          order_status: '5',
+          order_status: '60',
           cancle_time: Date.now()
         });
         // 恢复库存的逻辑

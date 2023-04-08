@@ -2,7 +2,7 @@
  * @Author: lizesheng
  * @Date: 2023-02-23 14:08:48
  * @LastEditors: lizesheng
- * @LastEditTime: 2023-04-02 22:00:40
+ * @LastEditTime: 2023-04-08 15:22:12
  * @important: 重要提醒
  * @Description: 备注内容
  * @FilePath: /commerce_egg/app/controller/programAddress.js
@@ -91,7 +91,7 @@ class ProgramAddressController extends Controller {
   }
   async get() {
     const { ctx } = this;
-    const sql = `SELECT * FROM address WHERE is_deleted IS NULL OR is_deleted <> 1 AND user_id = ? ORDER BY create_time DESC`;
+    const sql = `SELECT * FROM address WHERE (is_deleted IS NULL OR is_deleted <> 1) AND user_id = ? ORDER BY create_time DESC`;
     const result = await this.app.mysql.query(sql, [ctx.user.user_id]);
     ctx.body = successMsg({
       list: result,

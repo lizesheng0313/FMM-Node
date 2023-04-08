@@ -2,7 +2,7 @@
  * @Author: lizesheng
  * @Date: 2023-02-23 14:08:48
  * @LastEditors: lizesheng
- * @LastEditTime: 2023-03-17 14:18:48
+ * @LastEditTime: 2023-04-08 19:46:59
  * @important: 重要提醒
  * @Description: 备注内容
  * @FilePath: /commerce_egg/app/controller/programUser.js
@@ -15,34 +15,34 @@ class ProgrmUserController extends Controller {
   async login() {
     const { ctx, app } = this;
     const { appid } = ctx.query
-    const secret = await this.app.mysql.get('program_secret', { appid });
+    const appObj = await this.app.mysql.get('program_secret', { appid });
     // 配置化参数
     const data = {
       appid,
-      secret: secret,
+      secret: appObj.secret,
       js_code: ctx.query.code,
       grant_type: 'authorizastion_code',
     };
     // 换openid
-    const result = await ctx.curl('https://api.weixin.qq.com/sns/jscode2session', {
+    const wxResponse = await ctx.curl('https://api.weixin.qq.com/sns/jscode2session', {
       data,
       dataType: 'json',
     });
-    if (result.data.errmsg) {
+    if (wxResponse.data.errmsg) {
       ctx.body = {
         code: 101,
-        message: result.data.errmsg,
+        message: wxResponse.data.errmsg,
       };
     } else {
       // 登录token
-      const token = app.jwt.sign({ user_id: result.data.openid, appid }, app.config.jwt.secret);
-      const result = await this.app.mysql.get('program_user', { user_id: result.data.openid });
+      const token = app.jwt.sign({ user_id: wxResponse.data.openid, appid }, app.config.jwt.secret);
+      const result = await this.app.mysql.get('program_user', { user_id: wxResponse.data.openid });
       // 注册用户
       if (!result) {
-        await this.app.mysql.insert('program_user', { user_id: result.data.openid, ch: ctx.query?.ch });
+        await this.app.mysql.insert('program_user', { user_id: wxResponse.data.openid, ch: ctx.query?.ch, unionid: wxResponse.data.unionid, });
       }
       const userInfo = await this.app.mysql.select('program_user', {
-        where: { user_id: result.data.openid },
+        where: { user_id: wxResponse.data.openid },
       });
       if (userInfo[0]) {
         userInfo[0].nick_name = decodeURI(userInfo[0]?.nick_name);
@@ -51,11 +51,7 @@ class ProgrmUserController extends Controller {
       ctx.body = {
         code: 0,
         message: '',
-        data: {
-          userInfo: userInfo[0],
-          openid: result.data.openid,
-          unionid: result.data.unionid,
-        },
+        data: userInfo[0],
       };
     }
   }
@@ -82,6 +78,11 @@ class ProgrmUserController extends Controller {
     const result = await this.app.mysql.select('program_user', {
       where: { user_id: ctx.user.user_id },
     });
+    ctx.body = successMsg(result[0]);
+  }
+  async getToken() {
+    const { ctx } = this;
+    const result = await this.app.mysql.select('token');
     ctx.body = successMsg(result[0]);
   }
 }
