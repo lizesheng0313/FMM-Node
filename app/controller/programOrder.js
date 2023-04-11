@@ -2,7 +2,7 @@
  * @Author: lizesheng
  * @Date: 2023-02-23 14:08:48
  * @LastEditors: lizesheng
- * @LastEditTime: 2023-04-11 16:26:04
+ * @LastEditTime: 2023-04-11 16:32:29
  * @important: 重要提醒
  * @Description: 备注内容
  * @FilePath: /commerce_egg/app/controller/programOrder.js
@@ -191,7 +191,7 @@ class ProgramOrderController extends Controller {
     p.province,
     p.city,
     p.streetName,
-    p.address,
+    p.address
   ORDER BY
     r.refund_time DESC,
     r.status ASC
