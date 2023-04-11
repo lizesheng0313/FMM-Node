@@ -235,7 +235,7 @@ class ProgramOrderController extends Controller {
       p.city,
       p.streetName,
       lo.logistics_company,
-      lo.logistics_no,
+      lo.logistics_no
       (SELECT COUNT(*) FROM goods_order) AS total
     FROM goods_order_return r
       LEFT JOIN logistics lo ON r.order_id = lo.order_id
@@ -303,7 +303,7 @@ class ProgramOrderController extends Controller {
         p.city,
         p.streetName,
         lo.logistics_company,
-        lo.logistics_no,
+        lo.logistics_no
         (SELECT COUNT(*) FROM goods_order) AS total
       FROM
         goods_order o
