@@ -2,7 +2,7 @@
  * @Author: lizesheng
  * @Date: 2023-02-23 14:08:48
  * @LastEditors: lizesheng
- * @LastEditTime: 2023-04-11 11:52:59
+ * @LastEditTime: 2023-04-11 14:24:37
  * @important: 重要提醒
  * @Description: 备注内容
  * @FilePath: /commerce_egg/config/config.default.js
@@ -25,6 +25,9 @@ module.exports = appInfo => {
       port: 7002,
     }
   };
+  config.logger = {
+    level: 'DEBUG',
+  }
   config.mysql = {
     // 单数据库信息配置
     client: {
