@@ -2,7 +2,7 @@
  * @Author: lizesheng
  * @Date: 2023-02-23 14:08:48
  * @LastEditors: lizesheng
- * @LastEditTime: 2023-04-10 19:41:20
+ * @LastEditTime: 2023-04-11 13:55:44
  * @important: 重要提醒
  * @Description: 备注内容
  * @FilePath: /commerce_egg/app/controller/programOrder.js
@@ -112,7 +112,7 @@ class ProgramOrderController extends Controller {
         p.city,
         p.streetName,
       FROM goods_order go
-      LEFT JOIN address p ON o.address_id = p.id
+      LEFT JOIN address p ON go.address_id = p.id
       LEFT JOIN logistics lo ON go.id = lo.order_id
       ${whereClause} AND ((go.is_deleted != 1 OR go.is_deleted IS NULL) AND go.user_id = '${ctx.user.user_id}' AND go.order_status != 50)
       ORDER BY go.id DESC

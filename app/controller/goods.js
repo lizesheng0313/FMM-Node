@@ -2,7 +2,7 @@
  * @Author: lizesheng
  * @Date: 2023-02-23 14:08:48
  * @LastEditors: lizesheng
- * @LastEditTime: 2023-03-21 14:12:11
+ * @LastEditTime: 2023-04-11 13:38:12
  * @important: 重要提醒
  * @Description: 备注内容
  * @FilePath: /commerce_egg/app/controller/goods.js
@@ -97,8 +97,6 @@ class GoodsController extends Controller {
 
     ctx.body = successMsg(data);
   }
-
-
   async delete() {
     const { ctx } = this;
     const { id } = ctx.request.body;
@@ -113,7 +111,16 @@ class GoodsController extends Controller {
   async get() {
     const { ctx } = this;
     const { pageIndex = 1, pageSize = 10 } = ctx.query;
-    const SQL = `SELECT g.id, g.name,g.number, g.volume, g.createTime, g.updateTime, g.classiFication, g.online, g.latest, g.recommend, g.order, GROUP_CONCAT(p.url) AS pictureList, COUNT(*) OVER() AS total FROM goods g LEFT JOIN goods_picture_list p ON g.id = p.goodsId WHERE g.is_deleted != 1 GROUP BY g.id ORDER BY g.createTime DESC LIMIT ? OFFSET ?`;
+    const TOTALSQL = `SELECT COUNT(*) as total FROM goods WHERE is_deleted != 1;`
+    const total = await this.app.mysql.query(TOTALSQL)
+    const SQL = `SELECT g.id, g.name,g.number, g.volume, g.createTime, g.updateTime, g.classiFication, g.online, g.latest, g.recommend, g.order, GROUP_CONCAT(p.url) AS pictureList
+    FROM goods g 
+    LEFT JOIN goods_picture_list p ON g.id = p.goodsId 
+    WHERE g.is_deleted != 1 
+    GROUP BY g.id 
+    ORDER BY g.createTime DESC 
+    LIMIT ? OFFSET ?
+    `;
     const result = await this.app.mysql.query(SQL, [parseInt(pageSize), (parseInt(pageIndex) - 1) * parseInt(pageSize)]);
     result.forEach((item) => {
       if (item.pictureList) {
@@ -122,7 +129,7 @@ class GoodsController extends Controller {
     });
     ctx.body = successMsg({
       list: result,
-      total: result[0]?.total || 0,
+      total,
       pageSize: pageSize,
       pageIndex
     });
