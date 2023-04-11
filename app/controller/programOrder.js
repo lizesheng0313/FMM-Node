@@ -2,7 +2,7 @@
  * @Author: lizesheng
  * @Date: 2023-02-23 14:08:48
  * @LastEditors: lizesheng
- * @LastEditTime: 2023-04-11 14:58:14
+ * @LastEditTime: 2023-04-11 15:00:10
  * @important: 重要提醒
  * @Description: 备注内容
  * @FilePath: /commerce_egg/app/controller/programOrder.js
@@ -262,7 +262,9 @@ class ProgramOrderController extends Controller {
       p.province,
       p.city,
       p.streetName,
-      p.address
+      p.address,
+      lo.logistics_company,
+      lo.logistics_no
     ORDER BY
       r.refund_time DESC,
       r.status ASC
@@ -334,7 +336,9 @@ class ProgramOrderController extends Controller {
         p.province,
         p.city,
         p.streetName,
-        p.address
+        p.address,
+        lo.logistics_company,
+        lo.logistics_no
       ORDER BY
         o.create_time DESC
     `;
