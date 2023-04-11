@@ -2,7 +2,7 @@
  * @Author: lizesheng
  * @Date: 2023-02-23 14:08:48
  * @LastEditors: lizesheng
- * @LastEditTime: 2023-04-08 21:48:01
+ * @LastEditTime: 2023-04-09 21:15:46
  * @important: 重要提醒
  * @Description: 备注内容
  * @FilePath: /commerce_egg/app/controller/order.js
@@ -43,9 +43,9 @@ class OrderController extends Controller {
       create_time: Date.now()
     }
     const order = await this.app.mysql.get('goods_order', { id })
-    if (order.orderStatus === 10) {
+    if (order.order_status === '10' && order.pay_status === '1') {
       const result = await this.app.mysql.insert('logistics', rows)
-      await this.app.mysql.update('goods_order', { order_status: 20 }, {
+      await this.app.mysql.update('goods_order', { order_status: '20' }, {
         where: {
           id
         }
@@ -157,13 +157,13 @@ class OrderController extends Controller {
   async getReturnOrder() {
     const { ctx } = this;
     const role = ctx.user.role
-    const { pageIndex = 1, pageSize = 10, returnStatus = null, orderStatus = null, orderId = null, username = null } = ctx.query
+    const { pageIndex = 1, pageSize = 10, returnStatus = null, orderId = null, username = null } = ctx.query
     let whereClause = '';
     if (returnStatus) {
       whereClause += ` AND status = '${returnStatus}'`;
     }
     if (orderId) {
-      whereClause += ` AND o.id = '${orderId}'`;
+      whereClause += ` AND r.order_id = '${orderId}'`;
     }
     if (username) {
       whereClause += ` AND p.name = '${username}'`;
@@ -199,14 +199,17 @@ class OrderController extends Controller {
       p.name AS address_name,
       p.phone AS address_phone,
       p.address AS address_detail,
-      (SELECT COUNT(*) FROM goods_order) AS total
+      p.province,
+      p.city,
+      p.streetName,
+      (SELECT COUNT(*) FROM goods_order_return) AS total
     FROM
-      goods_order o
-      LEFT JOIN address p ON o.address_id = p.id
+    goods_order_return r
+      INNER JOIN goods_order o ON o.id = r.order_id
       INNER JOIN goods g ON o.goods_id = g.id
-      LEFT JOIN goods_order_return r ON o.id = r.order_id
+      LEFT JOIN address p ON o.address_id = p.id
     WHERE
-      1 = 1 ${whereClause} AND o.order_status = 50
+      1 = 1 ${whereClause}
       GROUP BY
       r.id,
       r.status,

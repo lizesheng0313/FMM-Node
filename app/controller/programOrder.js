@@ -2,14 +2,16 @@
  * @Author: lizesheng
  * @Date: 2023-02-23 14:08:48
  * @LastEditors: lizesheng
- * @LastEditTime: 2023-04-08 22:23:55
+ * @LastEditTime: 2023-04-10 19:41:20
  * @important: 重要提醒
  * @Description: 备注内容
  * @FilePath: /commerce_egg/app/controller/programOrder.js
  */
 'use strict';
+
 const { successMsg, errorMsg } = require('../../utils/utils')
 const { Controller } = require('egg');
+const crypto = require('crypto');
 
 class ProgramOrderController extends Controller {
   // 创建订单
@@ -92,21 +94,30 @@ class ProgramOrderController extends Controller {
 
     const listSql = `
       SELECT
-        id,
-        user_id,
-        total_price,
-        quantity,
-        pay_status,
-        goods_id,
-        order_status,
-        goods_picture,
-        goods_name
-      FROM goods_order
-      ${whereClause} AND ((is_deleted != 1 OR is_deleted IS NULL) AND user_id = '${ctx.user.user_id}' AND order_status != 50)
-      ORDER BY id DESC
+        go.id,
+        go.user_id,
+        go.total_price,
+        go.quantity,
+        go.pay_status,
+        go.goods_id,
+        go.order_status,
+        go.goods_picture,
+        go.goods_name,
+        lo.logistics_company,
+        lo.logistics_no,
+        p.name as address_name,
+        p.phone as address_phone,
+        p.address as address_detail,
+        p.province,
+        p.city,
+        p.streetName,
+      FROM goods_order go
+      LEFT JOIN address p ON o.address_id = p.id
+      LEFT JOIN logistics lo ON go.id = lo.order_id
+      ${whereClause} AND ((go.is_deleted != 1 OR go.is_deleted IS NULL) AND go.user_id = '${ctx.user.user_id}' AND go.order_status != 50)
+      ORDER BY go.id DESC
       LIMIT ${(pageIndex - 1) * pageSize}, ${pageSize}
-  `;
-
+    `;
 
     const countSql = `
       SELECT COUNT(*) as count
@@ -119,7 +130,6 @@ class ProgramOrderController extends Controller {
       this.app.mysql.query(countSql),
     ]);
 
-
     ctx.body = successMsg({
       list,
       pageIndex,
@@ -127,6 +137,7 @@ class ProgramOrderController extends Controller {
       total: count,
     });
   }
+
   // 获取退货订单列表
   async getReturnOrder() {
     const { ctx } = this;
@@ -144,8 +155,18 @@ class ProgramOrderController extends Controller {
     o.user_id,
     o.total_price,
     o.quantity,
-    (SELECT COUNT(*) FROM goods_order) AS total
+    lo.logistics_company,
+    lo.logistics_no,
+    p.name as address_name,
+    p.phone as address_phone,
+    p.address as address_detail,
+    p.province,
+    p.city,
+    p.streetName,
+    (SELECT COUNT(*) FROM goods_order_return) AS total
   FROM goods_order_return r
+    LEFT JOIN address p ON o.address_id = p.id
+    LEFT JOIN logistics lo ON r.order_id = lo.order_id
     INNER JOIN goods_order o ON o.id = r.order_id
   WHERE
     o.user_id = '${ctx.user.user_id}'
@@ -181,6 +202,77 @@ class ProgramOrderController extends Controller {
       pageIndex
     });
   }
+  // 获取退货详情
+  async getReturnDetails() {
+    const { ctx } = this;
+    const { id } = ctx.query
+    const SQL = `
+      SELECT
+      r.id,
+      r.status,
+      r.memo,
+      r.return_address,
+      r.logistics_no,
+      r.logistics_company,
+      r.picture_list,
+      r.order_id,
+      r.reason,
+      r.apply_time,
+      r.approve_time,
+      r.return_receive_time,
+      r.refund_time,
+      o.create_time,
+      o.goods_name,
+      o.goods_picture,
+      o.goods_id,
+      o.user_id,
+      o.total_price,
+      o.quantity,
+      p.name as address_name,
+      p.phone as address_phone,
+      p.address as address_detail,
+      p.province,
+      p.city,
+      p.streetName,
+      lo.logistics_company,
+      lo.logistics_no,
+      (SELECT COUNT(*) FROM goods_order) AS total
+    FROM goods_order_return r
+      LEFT JOIN logistics lo ON r.order_id = lo.order_id
+      INNER JOIN goods_order o ON o.id = r.order_id
+      LEFT JOIN address p ON o.address_id = p.id
+    WHERE
+      o.user_id = '${ctx.user.user_id}' AND r.id = '${id}'
+      GROUP BY
+      r.id,
+      r.status,
+      r.memo,
+      r.picture_list,
+      r.order_id,
+      r.refund_time,
+      r.reason,
+      o.user_id,
+      o.total_price,
+      o.quantity,
+      o.goods_id,
+      o.goods_name,
+      o.goods_picture,
+      p.name,
+      p.phone,
+      p.province,
+      p.city,
+      p.streetName,
+      p.address
+    ORDER BY
+      r.refund_time DESC,
+      r.status ASC
+  `;
+    let result = (await this.app.mysql.query(SQL)).map(item => ({
+      ...item,
+      picture_list: item.picture_list?.split(',')
+    }));
+    ctx.body = successMsg(result[0]);
+  }
   // 获取订单详情
   async getOrderDetails() {
     const { ctx } = this;
@@ -210,9 +302,12 @@ class ProgramOrderController extends Controller {
         p.province,
         p.city,
         p.streetName,
+        lo.logistics_company,
+        lo.logistics_no,
         (SELECT COUNT(*) FROM goods_order) AS total
       FROM
         goods_order o
+        LEFT JOIN logistics lo ON o.id = lo.order_id
         LEFT JOIN address p ON o.address_id = p.id
         INNER JOIN goods g ON o.goods_id = g.id
       WHERE o.id = '${id}'
@@ -270,7 +365,7 @@ class ProgramOrderController extends Controller {
     const { id } = ctx.request.body; // 获取请求参数
     const order = await this.app.mysql.get('goods_order', { id }); // 获取订单信息
     // 判断订单是否满足确认收货条件
-    if (order.pay_status !== '1' || order.order_status !== '30') {
+    if (order.pay_status !== '1' || order.order_status !== '20') {
       ctx.body = errorMsg('订单不能确认收货');
       return;
     }
@@ -285,29 +380,42 @@ class ProgramOrderController extends Controller {
   // 发起退货
   async returnGoods() {
     const { ctx, app } = this;
-    const { order_id, memo, picture_list, reason } = ctx.request.body;
+    const { id, memo, picture_list, reason } = ctx.request.body;
 
     // 检查订单是否存在
-    const order = await app.mysql.get('goods_order', { id: order_id });
+    const order = await app.mysql.get('goods_order', { id });
     if (!order) {
       ctx.body = errorMsg('订单不存在');
       return;
     }
+    const returnOrder = await app.mysql.get('goods_order_return', { id });
+    if (returnOrder) {
+      ctx.body = errorMsg('该订单已经有过售后');
+      return;
+    }
 
     // 检查订单状态是否为“已完成”或“退货中”
-    if (!['40', '50'].includes(order.order_status)) {
+    if (!['30', '40'].includes(order.order_status)) {
       ctx.body = errorMsg('该订单不能申请退货');
       return;
     }
 
+    await app.mysql.update('goods_order', { order_status: '50' }, {
+      where: {
+        id
+      }
+    })
+
+
+
     // 插入退货申请到数据库中
     await app.mysql.insert('goods_order_return', {
-      order_id,
+      user_id: ctx.user.user_id,
+      order_id: id,
       memo,
       picture_list,
-      return_address_id,
       reason,
-      status: 0, // 初始状态为待审核
+      status: '1', // 初始状态为待审核
       apply_time: Date.now()
     });
 
@@ -338,6 +446,15 @@ class ProgramOrderController extends Controller {
     })
     ctx.body = successMsg();
   }
+  // 查看物流 
+  async getLogistics() {
+    const { ctx } = this;
+    const { logistics_company, logistics_no } = ctx.request.body;
+    if (logistics_company === 'YTO') {
+      const reuslt = getYTOAddress(logistics_no)
+      ctx.body = successMsg(reuslt)
+    }
+  }
 }
 
 module.exports = ProgramOrderController;
@@ -345,7 +462,7 @@ module.exports = ProgramOrderController;
 
 // 生成订单id
 async function generateOrderId(app) {
-  const ORDER_ID_LENGTH = 18; // 订单号长度
+  const ORDER_ID_LENGTH = 20; // 订单号长度
 
   let orderId;
   let result;
@@ -364,7 +481,7 @@ async function generateOrderId(app) {
     const randomString = Math.floor(Math.random() * 1000000).toString().padStart(6, '0');
 
     // 拼接生成订单号
-    orderId = timeString + randomString;
+    orderId = 'AM' + timeString + randomString;
     console.log('生成的', orderId)
     // 查询数据库中是否已存在该订单号
 
@@ -375,3 +492,39 @@ async function generateOrderId(app) {
   // 返回生成的订单号
   return orderId;
 }
+
+// 获取圆通快递
+async function getYTOAddress(logistics_no) {
+  const apiUrl = 'https://openuat.yto56test.com:6443/open/track_query_adapter/v1/UQtclI/TEST'; // API接口
+  const appKey = 'your_app_key';
+  const appSecret = 'your_app_secret';
+  const data = 'TESTtrack_query_adapterv1'
+  const sign = generateSign(appKey, appSecret, data);
+
+  const requestData = {
+    sign,
+    timestamp: Date.now(),
+    param: {
+      Number: logistics_no
+    },
+    format: 'JSON'
+  }
+
+
+  const response = await this.ctx.curl(apiUrl, {
+    method: 'POST',
+    dataType: 'json',
+    data: requestData,
+  });
+
+  return response;
+}
+
+function generateSign(appKey, appSecret, data) {
+  const content = JSON.stringify(data);
+  const md5 = crypto.createHash('md5').update(content).digest('hex');
+  const plainText = `${md5}${appKey}${appSecret}`;
+  const sign = Buffer.from(plainText).toString('base64');
+  return sign;
+}
+
