@@ -2,7 +2,7 @@
  * @Author: lizesheng
  * @Date: 2023-02-23 14:08:48
  * @LastEditors: lizesheng
- * @LastEditTime: 2023-04-11 10:07:09
+ * @LastEditTime: 2023-04-11 11:52:59
  * @important: 重要提醒
  * @Description: 备注内容
  * @FilePath: /commerce_egg/config/config.default.js
@@ -20,6 +20,11 @@ module.exports = appInfo => {
    * @type {Egg.EggAppConfig}
    **/
   const config = exports = {};
+  config.cluster = {
+    listen: {
+      port: 7002,
+    }
+  };
   config.mysql = {
     // 单数据库信息配置
     client: {
