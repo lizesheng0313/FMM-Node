@@ -2,7 +2,7 @@
  * @Author: lizesheng
  * @Date: 2023-02-23 14:08:48
  * @LastEditors: lizesheng
- * @LastEditTime: 2023-04-11 16:21:38
+ * @LastEditTime: 2023-04-11 16:26:04
  * @important: 重要提醒
  * @Description: 备注内容
  * @FilePath: /commerce_egg/app/controller/programOrder.js
@@ -186,12 +186,12 @@ class ProgramOrderController extends Controller {
     o.goods_picture,
     lo.logistics_company,
     lo.logistics_no,
-    p.name as address_name,
-    p.phone as address_phone,
-    p.address as address_detail,
+    p.name,
+    p.phone,
     p.province,
     p.city,
-    p.streetName
+    p.streetName,
+    p.address,
   ORDER BY
     r.refund_time DESC,
     r.status ASC
@@ -247,9 +247,9 @@ class ProgramOrderController extends Controller {
       lo.logistics_no,
       (SELECT COUNT(*) FROM goods_order) AS total
     FROM goods_order_return r
-      LEFT JOIN logistics lo ON r.order_id = lo.order_id
       INNER JOIN goods_order o ON o.id = r.order_id
       LEFT JOIN address p ON o.address_id = p.id
+      LEFT JOIN logistics lo ON r.order_id = lo.order_id
     WHERE
       o.user_id = '${ctx.user.user_id}' AND r.id = '${id}'
       GROUP BY
