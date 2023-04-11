@@ -2,15 +2,12 @@
  * @Author: lizesheng
  * @Date: 2023-02-23 14:08:48
  * @LastEditors: lizesheng
- * @LastEditTime: 2023-04-11 09:56:48
+ * @LastEditTime: 2023-04-11 10:39:28
  * @important: 重要提醒
  * @Description: 备注内容
  * @FilePath: /commerce_egg/app/router.js
  */
 'use strict';
-
-const { Controller } = require("../typings/app");
-
 /**
  * @param {Egg.Application} app - egg application
  */
@@ -77,8 +74,8 @@ module.exports = app => {
   router.get('/api/order/getLogistics', jwtErr, controller.programOrder.getLogistics)
   // 商品
   router.get('/api/goods/getDetails', controller.programGoods.getDetails);
-  router.get('/api/goods/getClassiFication', controller.programGoods.getClassiFication);
+  router.get('/api/goods/getClassiFication', controller.programGoods.getClassiFication)
 
-  //上传
+  // 上传
   router.post('/api/uploadImage', jwtErr, controller.upload.uploadImage)
 };
