@@ -2,7 +2,7 @@
  * @Author: lizesheng
  * @Date: 2023-02-23 14:08:48
  * @LastEditors: lizesheng
- * @LastEditTime: 2023-04-11 15:26:17
+ * @LastEditTime: 2023-04-11 15:50:27
  * @important: 重要提醒
  * @Description: 备注内容
  * @FilePath: /commerce_egg/app/controller/programOrder.js
@@ -137,7 +137,6 @@ class ProgramOrderController extends Controller {
       total: count,
     });
   }
-
   // 获取退货订单列表
   async getReturnOrder() {
     const { ctx } = this;
@@ -162,7 +161,7 @@ class ProgramOrderController extends Controller {
     p.address as address_detail,
     p.province,
     p.city,
-    p.streetName
+    p.streetName,
     (SELECT COUNT(*) FROM goods_order_return) AS total
   FROM goods_order_return r
     LEFT JOIN address p ON o.address_id = p.id
