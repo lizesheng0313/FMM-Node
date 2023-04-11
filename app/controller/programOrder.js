@@ -2,7 +2,7 @@
  * @Author: lizesheng
  * @Date: 2023-02-23 14:08:48
  * @LastEditors: lizesheng
- * @LastEditTime: 2023-04-11 16:07:20
+ * @LastEditTime: 2023-04-11 16:11:54
  * @important: 重要提醒
  * @Description: 备注内容
  * @FilePath: /commerce_egg/app/controller/programOrder.js
@@ -153,6 +153,7 @@ class ProgramOrderController extends Controller {
     o.goods_picture,
     o.user_id,
     o.total_price,
+    o.address_id,
     o.quantity,
     lo.logistics_company,
     lo.logistics_no,
@@ -181,6 +182,7 @@ class ProgramOrderController extends Controller {
     o.total_price,
     o.quantity,
     o.goods_name,
+    o.address_id,
     o.goods_picture
   ORDER BY
     r.refund_time DESC,
