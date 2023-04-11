@@ -2,7 +2,7 @@
  * @Author: lizesheng
  * @Date: 2023-03-04 18:34:47
  * @LastEditors: lizesheng
- * @LastEditTime: 2023-03-06 20:15:11
+ * @LastEditTime: 2023-04-11 14:35:10
  * @important: 重要提醒
  * @Description: 备注内容
  * @FilePath: /commerce_egg/app/middleware/jwtErr.js
@@ -26,6 +26,7 @@ module.exports = options => {
           };
           return;
         }
+        ctx.logger.error('jwt_error', err);
         ctx.body = {
           code: 401,
           message: error.message,
