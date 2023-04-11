@@ -2,7 +2,7 @@
  * @Author: lizesheng
  * @Date: 2023-02-23 14:08:48
  * @LastEditors: lizesheng
- * @LastEditTime: 2023-04-11 13:55:44
+ * @LastEditTime: 2023-04-11 14:52:21
  * @important: 重要提醒
  * @Description: 备注内容
  * @FilePath: /commerce_egg/app/controller/programOrder.js
@@ -110,7 +110,7 @@ class ProgramOrderController extends Controller {
         p.address as address_detail,
         p.province,
         p.city,
-        p.streetName,
+        p.streetName
       FROM goods_order go
       LEFT JOIN address p ON go.address_id = p.id
       LEFT JOIN logistics lo ON go.id = lo.order_id
@@ -162,7 +162,7 @@ class ProgramOrderController extends Controller {
     p.address as address_detail,
     p.province,
     p.city,
-    p.streetName,
+    p.streetName
     (SELECT COUNT(*) FROM goods_order_return) AS total
   FROM goods_order_return r
     LEFT JOIN address p ON o.address_id = p.id
