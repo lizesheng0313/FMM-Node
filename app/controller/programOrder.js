@@ -2,7 +2,7 @@
  * @Author: lizesheng
  * @Date: 2023-02-23 14:08:48
  * @LastEditors: lizesheng
- * @LastEditTime: 2023-04-11 15:00:10
+ * @LastEditTime: 2023-04-11 15:26:17
  * @important: 重要提醒
  * @Description: 备注内容
  * @FilePath: /commerce_egg/app/controller/programOrder.js
@@ -409,11 +409,8 @@ class ProgramOrderController extends Controller {
         id
       }
     })
-
-
-
     // 插入退货申请到数据库中
-    await app.mysql.insert('goods_order_return', {
+    const result = await app.mysql.insert('goods_order_return', {
       user_id: ctx.user.user_id,
       order_id: id,
       memo,
@@ -422,8 +419,7 @@ class ProgramOrderController extends Controller {
       status: '1', // 初始状态为待审核
       apply_time: Date.now()
     });
-
-    ctx.body = successMsg();
+    ctx.body = successMsg(result.insertId);
   }
   // 删除订单
   async deleteOrder() {
@@ -458,6 +454,10 @@ class ProgramOrderController extends Controller {
       const reuslt = getYTOAddress(logistics_no)
       ctx.body = successMsg(reuslt)
     }
+  }
+  // 退款
+  async refund() {
+
   }
 }
 
