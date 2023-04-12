@@ -2,7 +2,7 @@
  * @Author: lizesheng
  * @Date: 2023-02-23 14:08:48
  * @LastEditors: lizesheng
- * @LastEditTime: 2023-04-12 14:53:35
+ * @LastEditTime: 2023-04-12 18:26:31
  * @important: 重要提醒
  * @Description: 备注内容
  * @FilePath: /commerce_egg/app/controller/programOrder.js
@@ -12,7 +12,7 @@
 const { successMsg, errorMsg } = require('../../utils/utils')
 const { Controller } = require('egg');
 const crypto = require('crypto');
-const axios = require('axios')
+const superagent = require('superagent')
 class ProgramOrderController extends Controller {
   // 创建订单
   async createOrder() {
@@ -408,7 +408,7 @@ class ProgramOrderController extends Controller {
     }
 
     // 检查订单状态是否为“已完成”或“退货中”
-    if (!['30', '40'].includes(order.order_status)) {
+    if (!['20', '30', '40'].includes(order.order_status)) {
       ctx.body = errorMsg('该订单不能申请退货');
       return;
     }
@@ -459,9 +459,14 @@ class ProgramOrderController extends Controller {
   async getLogistics() {
     const { ctx } = this;
     const { logistics_company, logistics_no } = ctx.query;
+    ctx.logger.info('查询物流:', logistics_no, '查询用户:', ctx.user.info)
     if (logistics_company === 'YTO') {
-      const reuslt = getYTOAddress(logistics_no, ctx)
-      ctx.body = successMsg(reuslt)
+      const reuslt = await getYTOAddress(logistics_no)
+      let uncodeResult = {}
+      if (reuslt) {
+        uncodeResult = JSON.parse(unicodeToChar(reuslt?.text))
+      }
+      ctx.body = successMsg(uncodeResult?.data)
     }
   }
   // 退款
@@ -508,32 +513,17 @@ async function generateOrderId(app) {
 
 // 获取圆通快递
 async function getYTOAddress(logistics_no) {
-  const apiUrl = 'https://api.kdniao.com/Ebusiness/EbusinessOrderHandle.aspx'; // API接口
-  const appSecret = '89674990-703e-4bd7-8c6d-035cb0ea5488';
-  const requestData = {
-    "RequestData": {
-      "ShipperCode": "YTO",
-      "LogisticCode": logistics_no
-    },
-    "DataType": "2",
-    "EBusinessID": "1797589",
-    "RequestType": "1002"
-  }
 
-  const sign = generateSign(requestData, appSecret);
-
-  requestData.DataSign = sign
-
-  const response = await axios.post(apiUrl, requestData, {
-    'Content-Type': 'application/x-www-form-urlencoded;charset=utf-8'
-  })
-  console.log(response, '---response')
+  const apiUrl = `https://www.kuaidi.com/index-ajaxselectcourierinfo-${logistics_no}-yuantong-KUAIDICODE${Date.now()}.html`
+  const response = await superagent.get(apiUrl)
+    .set({ 'Content-Type': 'application/json', Origin: 'https://www.kuaidi.com', Referer: 'https://www.kuaidi.com/all/yuantong.html' })
+    .set('sec-ch-ua', 'Not A;Brand";v="99", "Chromium";v="99", "Google Chrome";v="99')
+    .set({ 'sec-ch-ua-platform': 'macOS' })
+    .set('User-Agent', 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/99.0.4844.51 Safari/537.36')
+  return response
 }
-
-function generateSign(data, appSecret) {
-  const content = JSON.stringify(data) + appSecret
-  const md5 = crypto.createHash('md5').update(content).digest('hex')
-  const sign = Buffer.from(md5).toString('base64')
-  return encodeURIComponent(sign);
+function unicodeToChar(text) {
+  return text.replace(/\\u[\dA-F]{4}/gi, (match) => {
+    return String.fromCharCode(parseInt(match.replace(/\\u/g, ''), 16));
+  });
 }
-

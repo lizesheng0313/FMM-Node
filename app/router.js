@@ -2,7 +2,7 @@
  * @Author: lizesheng
  * @Date: 2023-02-23 14:08:48
  * @LastEditors: lizesheng
- * @LastEditTime: 2023-04-11 10:39:28
+ * @LastEditTime: 2023-04-12 16:39:22
  * @important: 重要提醒
  * @Description: 备注内容
  * @FilePath: /commerce_egg/app/router.js
@@ -71,7 +71,7 @@ module.exports = app => {
   router.get('/api/order/getReturnOrder', jwtErr, controller.programOrder.getReturnOrder)
   router.get('/api/order/getReturnDetails', jwtErr, controller.programOrder.getReturnDetails)
   router.post('/api/order/returnGoods', jwtErr, controller.programOrder.returnGoods)
-  router.get('/api/order/getLogistics', controller.programOrder.getLogistics)
+  router.get('/api/order/getLogistics', jwtErr, controller.programOrder.getLogistics)
   router.post('/api/order/refund', jwtErr, controller.programOrder.refund)
   // 商品
   router.get('/api/goods/getDetails', controller.programGoods.getDetails);
