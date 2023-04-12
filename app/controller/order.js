@@ -109,7 +109,7 @@ class OrderController extends Controller {
         LEFT JOIN address p ON o.address_id = p.id
         INNER JOIN goods g ON o.goods_id = g.id
       WHERE
-        1 = 1 ${whereClause}
+        1 = 1 ${whereClause} AND go.order_status != 50
       GROUP BY
         o.id,
         o.user_id,
@@ -313,7 +313,6 @@ class OrderController extends Controller {
       ctx.body = errorMsg('退款失败');
     }
   }
-
   // 拒绝退货
   async goodsRefuseOperation() {
     const { ctx } = this

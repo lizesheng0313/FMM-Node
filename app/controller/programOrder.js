@@ -2,7 +2,7 @@
  * @Author: lizesheng
  * @Date: 2023-02-23 14:08:48
  * @LastEditors: lizesheng
- * @LastEditTime: 2023-04-11 16:32:29
+ * @LastEditTime: 2023-04-12 10:21:45
  * @important: 重要提醒
  * @Description: 备注内容
  * @FilePath: /commerce_egg/app/controller/programOrder.js
@@ -508,19 +508,17 @@ async function generateOrderId(app) {
 
 // 获取圆通快递
 async function getYTOAddress(logistics_no) {
-  const apiUrl = 'https://openuat.yto56test.com:6443/open/track_query_adapter/v1/UQtclI/TEST'; // API接口
-  const appKey = 'your_app_key';
-  const appSecret = 'your_app_secret';
-  const data = 'TESTtrack_query_adapterv1'
-  const sign = generateSign(appKey, appSecret, data);
+  const apiUrl = 'https://api.kdniao.com/Ebusiness/EbusinessOrderHandle.aspx'; // API接口
 
   const requestData = {
-    sign,
-    timestamp: Date.now(),
-    param: {
-      Number: logistics_no
+    RequestData: {
+      "ShipperCode": "YTO",
+      "LogisticCode": logistics_no
     },
-    format: 'JSON'
+    DataType: "2",
+    EBusinessID: "1000000",
+    DataSign: "M2JmNjI5mYWZkZTFmOTUxNWYwMZTQzOTQyNjczZThTM=",
+    RequestType: "1002"
   }
 
 

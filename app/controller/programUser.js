@@ -2,7 +2,7 @@
  * @Author: lizesheng
  * @Date: 2023-02-23 14:08:48
  * @LastEditors: lizesheng
- * @LastEditTime: 2023-04-08 19:46:59
+ * @LastEditTime: 2023-04-12 09:35:22
  * @important: 重要提醒
  * @Description: 备注内容
  * @FilePath: /commerce_egg/app/controller/programUser.js
@@ -39,7 +39,7 @@ class ProgrmUserController extends Controller {
       const result = await this.app.mysql.get('program_user', { user_id: wxResponse.data.openid });
       // 注册用户
       if (!result) {
-        await this.app.mysql.insert('program_user', { user_id: wxResponse.data.openid, ch: ctx.query?.ch, unionid: wxResponse.data.unionid, });
+        await this.app.mysql.insert('program_user', { user_id: wxResponse.data.openid, ch: ctx.query?.ch, unionid: wxResponse.data?.unionid, });
       }
       const userInfo = await this.app.mysql.select('program_user', {
         where: { user_id: wxResponse.data.openid },
