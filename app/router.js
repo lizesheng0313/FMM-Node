@@ -71,7 +71,7 @@ module.exports = app => {
   router.get('/api/order/getReturnOrder', jwtErr, controller.programOrder.getReturnOrder)
   router.get('/api/order/getReturnDetails', jwtErr, controller.programOrder.getReturnDetails)
   router.post('/api/order/returnGoods', jwtErr, controller.programOrder.returnGoods)
-  router.get('/api/order/getLogistics', jwtErr, controller.programOrder.getLogistics)
+  router.get('/api/order/getLogistics', controller.programOrder.getLogistics)
   router.post('/api/order/refund', jwtErr, controller.programOrder.refund)
   // 商品
   router.get('/api/goods/getDetails', controller.programGoods.getDetails);

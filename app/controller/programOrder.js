@@ -2,7 +2,7 @@
  * @Author: lizesheng
  * @Date: 2023-02-23 14:08:48
  * @LastEditors: lizesheng
- * @LastEditTime: 2023-04-12 10:46:51
+ * @LastEditTime: 2023-04-12 14:53:35
  * @important: 重要提醒
  * @Description: 备注内容
  * @FilePath: /commerce_egg/app/controller/programOrder.js
@@ -12,7 +12,7 @@
 const { successMsg, errorMsg } = require('../../utils/utils')
 const { Controller } = require('egg');
 const crypto = require('crypto');
-
+const axios = require('axios')
 class ProgramOrderController extends Controller {
   // 创建订单
   async createOrder() {
@@ -458,9 +458,9 @@ class ProgramOrderController extends Controller {
   // 查看物流 
   async getLogistics() {
     const { ctx } = this;
-    const { logistics_company, logistics_no } = this.ctx.query;
+    const { logistics_company, logistics_no } = ctx.query;
     if (logistics_company === 'YTO') {
-      const reuslt = getYTOAddress(logistics_no)
+      const reuslt = getYTOAddress(logistics_no, ctx)
       ctx.body = successMsg(reuslt)
     }
   }
@@ -511,28 +511,26 @@ async function getYTOAddress(logistics_no) {
   const apiUrl = 'https://api.kdniao.com/Ebusiness/EbusinessOrderHandle.aspx'; // API接口
   const appSecret = '89674990-703e-4bd7-8c6d-035cb0ea5488';
   const requestData = {
-    RequestData: {
+    "RequestData": {
       "ShipperCode": "YTO",
       "LogisticCode": logistics_no
     },
-    DataType: "2",
-    EBusinessID: "1797589",
-    RequestType: "1002"
+    "DataType": "2",
+    "EBusinessID": "1797589",
+    "RequestType": "1002"
   }
 
   const sign = generateSign(requestData, appSecret);
 
   requestData.DataSign = sign
-  const response = await this.ctx.curl(apiUrl, {
-    method: 'POST',
-    dataType: 'json',
-    data: requestData,
-  });
 
-  return response;
+  const response = await axios.post(apiUrl, requestData, {
+    'Content-Type': 'application/x-www-form-urlencoded;charset=utf-8'
+  })
+  console.log(response, '---response')
 }
 
-function generateSign(data, appSecret,) {
+function generateSign(data, appSecret) {
   const content = JSON.stringify(data) + appSecret
   const md5 = crypto.createHash('md5').update(content).digest('hex')
   const sign = Buffer.from(md5).toString('base64')
