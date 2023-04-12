@@ -458,7 +458,7 @@ class ProgramOrderController extends Controller {
   // 查看物流 
   async getLogistics() {
     const { ctx } = this;
-    const { logistics_company, logistics_no } = ctx.request.body;
+    const { logistics_company, logistics_no } = this.ctx.query;
     if (logistics_company === 'YTO') {
       const reuslt = getYTOAddress(logistics_no)
       ctx.body = successMsg(reuslt)
