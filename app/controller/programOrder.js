@@ -2,7 +2,7 @@
  * @Author: lizesheng
  * @Date: 2023-02-23 14:08:48
  * @LastEditors: lizesheng
- * @LastEditTime: 2023-04-12 10:21:45
+ * @LastEditTime: 2023-04-12 10:46:51
  * @important: 重要提醒
  * @Description: 备注内容
  * @FilePath: /commerce_egg/app/controller/programOrder.js
@@ -509,19 +509,20 @@ async function generateOrderId(app) {
 // 获取圆通快递
 async function getYTOAddress(logistics_no) {
   const apiUrl = 'https://api.kdniao.com/Ebusiness/EbusinessOrderHandle.aspx'; // API接口
-
+  const appSecret = '89674990-703e-4bd7-8c6d-035cb0ea5488';
   const requestData = {
     RequestData: {
       "ShipperCode": "YTO",
       "LogisticCode": logistics_no
     },
     DataType: "2",
-    EBusinessID: "1000000",
-    DataSign: "M2JmNjI5mYWZkZTFmOTUxNWYwMZTQzOTQyNjczZThTM=",
+    EBusinessID: "1797589",
     RequestType: "1002"
   }
 
+  const sign = generateSign(requestData, appSecret);
 
+  requestData.DataSign = sign
   const response = await this.ctx.curl(apiUrl, {
     method: 'POST',
     dataType: 'json',
@@ -531,11 +532,10 @@ async function getYTOAddress(logistics_no) {
   return response;
 }
 
-function generateSign(appKey, appSecret, data) {
-  const content = JSON.stringify(data);
-  const md5 = crypto.createHash('md5').update(content).digest('hex');
-  const plainText = `${md5}${appKey}${appSecret}`;
-  const sign = Buffer.from(plainText).toString('base64');
-  return sign;
+function generateSign(data, appSecret,) {
+  const content = JSON.stringify(data) + appSecret
+  const md5 = crypto.createHash('md5').update(content).digest('hex')
+  const sign = Buffer.from(md5).toString('base64')
+  return encodeURIComponent(sign);
 }
 
