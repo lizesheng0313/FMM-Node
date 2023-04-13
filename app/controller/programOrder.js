@@ -2,7 +2,7 @@
  * @Author: lizesheng
  * @Date: 2023-02-23 14:08:48
  * @LastEditors: lizesheng
- * @LastEditTime: 2023-04-12 18:26:31
+ * @LastEditTime: 2023-04-13 10:45:50
  * @important: 重要提醒
  * @Description: 备注内容
  * @FilePath: /commerce_egg/app/controller/programOrder.js
@@ -467,6 +467,19 @@ class ProgramOrderController extends Controller {
         uncodeResult = JSON.parse(unicodeToChar(reuslt?.text))
       }
       ctx.body = successMsg(uncodeResult?.data)
+    }
+  }
+  // 发起退货物流
+  async postReturnLogistic() {
+    const { ctx } = this
+    const { id, logistics_company, logistics_no } = ctx.request.body
+    const result = await this.app.mysql.update('goods_order_return', { status: '4', logistics_company, logistics_no }, {
+      where: {
+        id
+      }
+    })
+    if (result.affectedRows === 1) {
+      ctx.body = successMsg();
     }
   }
   // 退款

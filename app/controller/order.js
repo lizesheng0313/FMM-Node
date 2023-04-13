@@ -2,7 +2,7 @@
  * @Author: lizesheng
  * @Date: 2023-02-23 14:08:48
  * @LastEditors: lizesheng
- * @LastEditTime: 2023-04-12 15:43:52
+ * @LastEditTime: 2023-04-13 10:45:38
  * @important: 重要提醒
  * @Description: 备注内容
  * @FilePath: /commerce_egg/app/controller/order.js
@@ -317,7 +317,7 @@ class OrderController extends Controller {
   async goodsRefuseOperation() {
     const { ctx } = this
     const { id, reason } = ctx.request.body
-    const result = await this.app.mysql.update('goods_order_return', { status: 3, reason }, {
+    const result = await this.app.mysql.update('goods_order_return', { status: '3', refuse_reason: reason }, {
       where: {
         id
       }
