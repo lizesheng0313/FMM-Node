@@ -2,7 +2,7 @@
  * @Author: lizesheng
  * @Date: 2023-02-23 14:08:48
  * @LastEditors: lizesheng
- * @LastEditTime: 2023-04-13 10:45:50
+ * @LastEditTime: 2023-04-13 11:17:31
  * @important: 重要提醒
  * @Description: 备注内容
  * @FilePath: /commerce_egg/app/controller/programOrder.js
@@ -221,8 +221,8 @@ class ProgramOrderController extends Controller {
       r.status,
       r.memo,
       r.return_address,
-      r.logistics_no,
-      r.logistics_company,
+      r.rlogistics_no,
+      r.rlogistics_company,
       r.picture_list,
       r.order_id,
       r.reason,
@@ -472,8 +472,8 @@ class ProgramOrderController extends Controller {
   // 发起退货物流
   async postReturnLogistic() {
     const { ctx } = this
-    const { id, logistics_company, logistics_no } = ctx.request.body
-    const result = await this.app.mysql.update('goods_order_return', { status: '4', logistics_company, logistics_no }, {
+    const { id, rlogistics_company, rlogistics_no } = ctx.request.body
+    const result = await this.app.mysql.update('goods_order_return', { status: '4', rlogistics_company, rlogistics_no }, {
       where: {
         id
       }
