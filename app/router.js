@@ -2,7 +2,7 @@
  * @Author: lizesheng
  * @Date: 2023-02-23 14:08:48
  * @LastEditors: lizesheng
- * @LastEditTime: 2023-04-13 10:46:14
+ * @LastEditTime: 2023-04-14 13:45:25
  * @important: 重要提醒
  * @Description: 备注内容
  * @FilePath: /commerce_egg/app/router.js
@@ -76,6 +76,7 @@ module.exports = app => {
   router.post('/api/order/postReturnLogistic', jwtErr, controller.programOrder.postReturnLogistic)
   // 商品
   router.get('/api/goods/getDetails', controller.programGoods.getDetails);
+  // 分类
   router.get('/api/goods/getClassiFication', controller.programGoods.getClassiFication)
 
   // 上传

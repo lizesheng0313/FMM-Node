@@ -2,7 +2,7 @@
  * @Author: lizesheng
  * @Date: 2023-02-23 14:08:48
  * @LastEditors: lizesheng
- * @LastEditTime: 2023-04-13 11:17:31
+ * @LastEditTime: 2023-04-14 13:45:50
  * @important: 重要提醒
  * @Description: 备注内容
  * @FilePath: /commerce_egg/app/controller/programOrder.js
@@ -122,7 +122,7 @@ class ProgramOrderController extends Controller {
     const countSql = `
       SELECT COUNT(*) as count
       FROM goods_order
-      ${whereClause} AND (is_deleted != 1 OR is_deleted IS NULL)
+      ${whereClause} AND (is_deleted != 1 OR is_deleted IS NULL)  AND go.user_id = '${ctx.user.user_id}' AND go.order_status != 50)
     `;
 
     const [list, [{ count }]] = await Promise.all([
@@ -163,13 +163,14 @@ class ProgramOrderController extends Controller {
     p.province,
     p.city,
     p.streetName,
-    (SELECT COUNT(*) FROM goods_order_return) AS total
+    (SELECT COUNT(*) FROM goods_order_return WHERE
+    r.user_id = '${ctx.user.user_id}' ) AS total
   FROM goods_order_return r
     INNER JOIN goods_order o ON o.id = r.order_id
     LEFT JOIN address p ON o.address_id = p.id
     LEFT JOIN logistics lo ON r.order_id = lo.order_id
   WHERE
-    o.user_id = '${ctx.user.user_id}'
+    r.user_id = '${ctx.user.user_id}'
     GROUP BY
     r.id,
     r.status,
