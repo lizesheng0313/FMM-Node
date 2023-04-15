@@ -16,7 +16,7 @@ module.exports = {
     type: 'all', // 指定所有的 worker 都需要执行
   },
   async task(ctx) {
-    const { mysql } = ctx.app
+    const { mysql } = ctx.app;
     // 查找未支付订单
     const currentTime = Date.now(); // 获取当前时间戳
     const cancelTime = currentTime - 30 * 60 * 1000; // 取消时间为当前时间减去30分钟
@@ -29,7 +29,7 @@ module.exports = {
         await mysql.update('goods_order', {
           id: order.id,
           order_status: '60',
-          cancle_time: Date.now()
+          cancle_time: Date.now(),
         });
         // 恢复库存的逻辑
         const orderItems = await mysql.select('goods_order', {
@@ -40,7 +40,7 @@ module.exports = {
         for (const item of orderItems) {
           await mysql.query(
             'UPDATE sku_goods SET skuStock = skuStock + ? WHERE goodsId = ? AND skuId = ?',
-            [item.quantity, item.goods_id, item.sku_id]
+            [ item.quantity, item.goods_id, item.sku_id ]
           );
         }
       }

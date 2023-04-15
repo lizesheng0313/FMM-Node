@@ -12,7 +12,7 @@ const path = require('path');
 const fs = require('fs');
 const Controller = require('egg').Controller;
 const sendToWormhole = require('stream-wormhole');
-const { successMsg } = require('../../utils/utils')
+const { successMsg } = require('../../utils/utils');
 
 class UploadController extends Controller {
   async uploadImage() {

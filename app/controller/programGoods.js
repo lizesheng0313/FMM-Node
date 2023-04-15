@@ -2,13 +2,13 @@
  * @Author: lizesheng
  * @Date: 2023-03-29 17:23:28
  * @LastEditors: lizesheng
- * @LastEditTime: 2023-04-08 08:24:45
+ * @LastEditTime: 2023-04-15 11:46:25
  * @important: 重要提醒
  * @Description: 备注内容
  * @FilePath: /commerce_egg/app/controller/programGoods.js
  */
 'use strict';
-const { successMsg } = require('../../utils/utils')
+const { successMsg } = require('../../utils/utils');
 const { Controller } = require('egg');
 
 class ProgrmGoodsController extends Controller {
@@ -47,29 +47,33 @@ class ProgrmGoodsController extends Controller {
 
     ctx.body = successMsg(data);
   }
+  // 分类页面
   async getClassiFication() {
     const { ctx } = this;
-    const { value } = ctx.query;
-    let classiFicationList = await this.app.mysql.select('class_ification');
-    if (value) {
-      classiFicationList = classiFicationList.filter(item => item.parentId === value);
-    } else {
-      classiFicationList = classiFicationList.filter(item => !item.parentId);
-    }
-    classiFicationList && classiFicationList.forEach((item) => {
-      if (item.parentId) {
-        const parentItem = classiFicationList.find((element) => item.parentId === element.value)
-        if (!parentItem?.children) {
-          parentItem.children = []
+    const { typeId } = ctx.query;
+    const arrList = await this.app.mysql.select('class_ification', {
+      where: {
+        type_value: typeId,
+      },
+      orders: [['order', 'ASC']],
+    });
+    const leftList = arrList.filter(item => item.parentId === 1);
+    const rightList = [];
+    leftList.forEach((item, index) => {
+      rightList[index] = [];
+      arrList.forEach(it => {
+        if (item.value === it.parentId) {
+          rightList[index].push(it);
         }
-        parentItem.children.push(item)
-      }
-    })
+      });
+    });
+
     ctx.body = successMsg({
-      list: classiFicationList
+      leftList,
+      rightList,
     });
   }
 }
 
 
-module.exports = ProgrmGoodsController
+module.exports = ProgrmGoodsController;

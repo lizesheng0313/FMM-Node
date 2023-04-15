@@ -8,25 +8,25 @@
  * @FilePath: /commerce_egg/app/controller/constant.js
  */
 'use strict';
-const { successMsg } = require('../../utils/utils')
+const { successMsg } = require('../../utils/utils');
 const { Controller } = require('egg');
 
 class ConstantController extends Controller {
   async getClassiFication() {
     const { ctx } = this;
-    let classiFicationList = await this.app.mysql.select('class_ification')
-    classiFicationList && classiFicationList.forEach((item) => {
+    let classiFicationList = await this.app.mysql.select('class_ification');
+    classiFicationList && classiFicationList.forEach(item => {
       if (item.parentId) {
-        const parentItem = classiFicationList.find((element) => item.parentId === element.value)
+        const parentItem = classiFicationList.find(element => item.parentId === element.value);
         if (!parentItem?.children) {
-          parentItem.children = []
+          parentItem.children = [];
         }
-        parentItem.children.push(item)
+        parentItem.children.push(item);
       }
-    })
-    classiFicationList = classiFicationList.filter(item => !item.parentId)
+    });
+    classiFicationList = classiFicationList.filter(item => !item.parentId);
     ctx.body = successMsg({
-      list: classiFicationList
+      list: classiFicationList,
     });
   }
 }

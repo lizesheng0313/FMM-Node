@@ -8,13 +8,13 @@
  * @FilePath: /commerce_egg/app/controller/programUser.js
  */
 'use strict';
-const { successMsg } = require('../../utils/utils')
+const { successMsg } = require('../../utils/utils');
 const { Controller } = require('egg');
 
 class ProgrmUserController extends Controller {
   async login() {
     const { ctx, app } = this;
-    const { appid } = ctx.query
+    const { appid } = ctx.query;
     const appObj = await this.app.mysql.get('program_secret', { appid });
     // 配置化参数
     const data = {
@@ -39,7 +39,7 @@ class ProgrmUserController extends Controller {
       const result = await this.app.mysql.get('program_user', { user_id: wxResponse.data.openid });
       // 注册用户
       if (!result) {
-        await this.app.mysql.insert('program_user', { user_id: wxResponse.data.openid, ch: ctx.query?.ch, unionid: wxResponse.data?.unionid, });
+        await this.app.mysql.insert('program_user', { user_id: wxResponse.data.openid, ch: ctx.query?.ch, unionid: wxResponse.data?.unionid });
       }
       const userInfo = await this.app.mysql.select('program_user', {
         where: { user_id: wxResponse.data.openid },

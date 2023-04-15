@@ -2,23 +2,23 @@
  * @Author: lizesheng
  * @Date: 2023-03-11 16:41:51
  * @LastEditors: lizesheng
- * @LastEditTime: 2023-03-29 19:53:34
+ * @LastEditTime: 2023-04-15 19:20:42
  * @important: 重要提醒
  * @Description: 备注内容
  * @FilePath: /commerce_egg/app/controller/programHome.js
  */
 
 'use strict';
-const { successMsg } = require('../../utils/utils')
+const { successMsg } = require('../../utils/utils');
 const { Controller } = require('egg');
 
 class ProgrmHomeController extends Controller {
   // 获取banner
   async getBanner() {
     const { ctx } = this;
-    const result = await this.app.mysql.select('program_swiper')
+    const result = await this.app.mysql.select('program_swiper');
     ctx.body = successMsg({
-      list: result
+      list: result,
     });
   }
   // 获取分类
@@ -34,7 +34,7 @@ class ProgrmHomeController extends Controller {
       orders: [['order', 'ASC']],
     });
     ctx.body = successMsg({
-      list: result
+      list: result,
     });
   }
 
@@ -43,7 +43,7 @@ class ProgrmHomeController extends Controller {
     const { ctx } = this;
     const { recommend, latest } = ctx.query;
     const SQL = `
-      SELECT g.id, g.name, g.online, 
+      SELECT g.id, g.name, g.online, g.volume,
       (SELECT sku_goods.skuPrice
        FROM sku_goods
        WHERE sku_goods.goodsId = (SELECT sku_goods.goodsId FROM sku_goods WHERE sku_goods.goodsId = g.id LIMIT 1)
@@ -53,12 +53,12 @@ class ProgrmHomeController extends Controller {
        WHERE p.goodsId = g.id
        LIMIT 1) AS pictureUrl
       FROM goods g
-      WHERE g.is_deleted != 1 AND g.online = 1 ${latest ? "AND g.latest = 1 " : ""}${recommend ? "AND g.recommend = 1 " : ""}
+      WHERE g.is_deleted != 1 AND g.online = 1 ${latest ? 'AND g.latest = 1 ' : ''}${recommend ? 'AND g.recommend = 1 ' : ''}
       ORDER BY g.createTime DESC;
     `;
     const result = await this.app.mysql.query(SQL);
     ctx.body = successMsg({
-      list: result
+      list: result,
     });
   }
 
@@ -66,10 +66,10 @@ class ProgrmHomeController extends Controller {
   async getClassGoods() {
     const { ctx } = this;
     const { classification, pageIndex = 1, pageSize = 10 } = ctx.query;
-    const limit = parseInt(pageSize)
+    const limit = parseInt(pageSize);
     const offset = (pageIndex - 1) * pageSize;
     const result = await ctx.app.mysql.query(
-      `SELECT g.id, g.name, g.online, g.volume,
+      `SELECT g.id, g.name, g.online, g.volume,g.classification,
       (SELECT url FROM goods_picture_list WHERE goodsId = g.id LIMIT 1) AS pictureUrl,
       (SELECT skuPrice FROM sku_goods WHERE goodsId = g.id LIMIT 1) AS price
       FROM goods g
@@ -78,8 +78,14 @@ class ProgrmHomeController extends Controller {
       LIMIT ?, ?`,
       [1, `%${classification}%`, offset, limit]
     );
+    console.log(result)
+    const arr = result.filter(item => {
+      const currentItem = JSON.parse(item.classification)
+      if (currentItem.indexOf(Number(classification)) > -1) return true
+      return false
+    })
     ctx.body = successMsg({
-      list: result
+      list: arr,
     });
   }
 
@@ -87,7 +93,7 @@ class ProgrmHomeController extends Controller {
   async searchGoods() {
     const { ctx } = this;
     const { keyword, pageIndex = 1, pageSize = 10 } = ctx.query;
-    const limit = parseInt(pageSize)
+    const limit = parseInt(pageSize);
     const offset = (pageIndex - 1) * pageSize;
     const [result, totalCount] = await Promise.all([
       ctx.app.mysql.query(
@@ -110,13 +116,13 @@ class ProgrmHomeController extends Controller {
           g.name LIKE ? OR g.introduction LIKE ? OR c.label LIKE ?
         ) AND g.online = 1`,
         [1, `%${keyword}%`, `%${keyword}%`, `%${keyword}%`]
-      )
+      ),
     ]);
     ctx.body = successMsg({
       list: result,
       total: totalCount[0].totalCount,
       pageIndex,
-      pageSize
+      pageSize,
     });
   }
 }

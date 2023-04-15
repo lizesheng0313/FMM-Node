@@ -2,7 +2,7 @@
  * @Author: lizesheng
  * @Date: 2023-02-23 14:08:48
  * @LastEditors: lizesheng
- * @LastEditTime: 2023-04-11 14:24:37
+ * @LastEditTime: 2023-04-14 20:18:59
  * @important: 重要提醒
  * @Description: 备注内容
  * @FilePath: /commerce_egg/config/config.default.js
@@ -23,16 +23,16 @@ module.exports = appInfo => {
   config.cluster = {
     listen: {
       port: 7002,
-    }
+    },
   };
   config.logger = {
     level: 'DEBUG',
-  }
+  };
   config.mysql = {
     // 单数据库信息配置
     client: {
-      // host: 'localhost',
-      host: '101.200.188.81',
+      host: 'localhost',
+      // host: '101.200.188.81',
       // 端口号
       port: '3306',
       // 用户名
@@ -73,9 +73,9 @@ module.exports = appInfo => {
           return true;
         }
         return false;
-      }
-    }
-  }
+      },
+    },
+  };
 
   return {
     ...config,

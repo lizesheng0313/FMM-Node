@@ -2,69 +2,59 @@
  * @Author: lizesheng
  * @Date: 2023-02-23 14:08:48
  * @LastEditors: lizesheng
- * @LastEditTime: 2023-04-13 10:45:38
+ * @LastEditTime: 2023-04-14 15:18:58
  * @important: 重要提醒
  * @Description: 备注内容
  * @FilePath: /commerce_egg/app/controller/order.js
  */
 'use strict';
-const { successMsg, errorMsg } = require('../../utils/utils')
+const { successMsg, errorMsg } = require('../../utils/utils');
 const { Controller } = require('egg');
-const { ORDERSTATUS, PAYSTATUS, RETURNSTATUS } = require('../../const/index')
+const { ORDERSTATUS, PAYSTATUS, RETURNSTATUS } = require('../../const/index');
 
 class OrderController extends Controller {
-  // 创建订单
-  async createOrder() {
-    const { ctx } = this;
-    const { pictureList, sku } = ctx.request.body
-    const orderId = generateOrderId()
-    if (result.affectedRows === 1) {
-      ctx.body = successMsg();
-    }
-  }
   // 删除订单
   async deleteGoodsInfo() {
-    const { ctx } = this
-    const { id } = ctx.request.body
-    const SQL = `DELETE g, p FROM goods g LEFT JOIN goods_picture_list p ON o.id = p.goodsId WHERE o.id = ${id}`
-    const result = await this.app.mysql.query(SQL)
+    const { ctx } = this;
+    const { id } = ctx.request.body;
+    const SQL = `DELETE g, p FROM goods g LEFT JOIN goods_picture_list p ON o.id = p.goodsId WHERE o.id = ${id}`;
+    const result = await this.app.mysql.query(SQL);
     if (result.affectedRows > 0) {
       ctx.body = successMsg();
     }
   }
   // 发货并更改订单状态
   async shipGoods() {
-    const { ctx } = this
-    const { id, logistics_company, logistics_no } = ctx.request.body
+    const { ctx } = this;
+    const { id, logistics_company, logistics_no } = ctx.request.body;
     const rows = {
       order_id: id,
       logistics_company,
       logistics_no,
-      create_time: Date.now()
-    }
-    const order = await this.app.mysql.get('goods_order', { id })
+      create_time: Date.now(),
+    };
+    const order = await this.app.mysql.get('goods_order', { id });
     if (order.order_status === '10' && order.pay_status === '1') {
-      const result = await this.app.mysql.insert('logistics', rows)
+      const result = await this.app.mysql.insert('logistics', rows);
       await this.app.mysql.update('goods_order', { order_status: '20' }, {
         where: {
-          id
-        }
-      })
+          id,
+        },
+      });
       if (result.affectedRows > 0) {
         ctx.body = successMsg();
       }
-    }
-    else {
+    } else {
       ctx.body = errorMsg('当前状态不是待发货状态', {
-        order_status: order.order_status
+        order_status: order.order_status,
       });
     }
   }
   // 获取订单列表
   async getOrder() {
     const { ctx } = this;
-    const role = ctx.user.role
-    const { pageIndex = 1, pageSize = 10, payStatus = null, orderStatus = null, orderId = null, username = null } = ctx.query
+    const role = ctx.user.role;
+    const { pageIndex = 1, pageSize = 10, payStatus = null, orderStatus = null, orderId = null, username = null } = ctx.query;
     let whereClause = '';
     if (payStatus) {
       whereClause += ` AND pay_status = '${payStatus}'`;
@@ -141,7 +131,7 @@ class OrderController extends Controller {
       OFFSET
         ${(pageIndex - 1) * pageSize}
     `;
-    let result = (await this.app.mysql.query(SQL)).map(item => ({
+    const result = (await this.app.mysql.query(SQL)).map(item => ({
       ...item,
       order_status_str: ORDERSTATUS[item.order_status],
       pay_status_str: PAYSTATUS[item.pay_status],
@@ -149,15 +139,15 @@ class OrderController extends Controller {
     ctx.body = successMsg({
       list: result,
       total: result[0]?.total || 0,
-      pageSize: pageSize,
-      pageIndex
+      pageSize,
+      pageIndex,
     });
   }
   // 获取退货订单列表
   async getReturnOrder() {
     const { ctx } = this;
-    const role = ctx.user.role
-    const { pageIndex = 1, pageSize = 10, returnStatus = null, orderId = null, username = null } = ctx.query
+    const role = ctx.user.role;
+    const { pageIndex = 1, pageSize = 10, returnStatus = null, orderId = null, username = null } = ctx.query;
     let whereClause = '';
     if (returnStatus) {
       whereClause += ` AND status = '${returnStatus}'`;
@@ -249,28 +239,28 @@ class OrderController extends Controller {
     OFFSET
     ${(pageIndex - 1) * pageSize}
   `;
-    let result = (await this.app.mysql.query(SQL)).map(item => ({
+    const result = (await this.app.mysql.query(SQL)).map(item => ({
       ...item,
       order_status_str: ORDERSTATUS[item.order_status],
       order_return_status_start: RETURNSTATUS[item.status],
-      picture_list: item.picture_list?.split(',')
+      picture_list: item.picture_list?.split(','),
     }));
     ctx.body = successMsg({
       list: result,
       total: result[0]?.total || 0,
-      pageSize: pageSize,
-      pageIndex
+      pageSize,
+      pageIndex,
     });
   }
   // 同意退货
   async goodsAgreenOperation() {
-    const { ctx } = this
-    const { id, return_address } = ctx.request.body
+    const { ctx } = this;
+    const { id, return_address } = ctx.request.body;
     const result = await this.app.mysql.update('goods_order_return', { status: 2, return_address }, {
       where: {
-        id
-      }
-    })
+        id,
+      },
+    });
     if (result.affectedRows === 1) {
       ctx.body = successMsg();
     }
@@ -315,13 +305,13 @@ class OrderController extends Controller {
   }
   // 拒绝退货
   async goodsRefuseOperation() {
-    const { ctx } = this
-    const { id, reason } = ctx.request.body
+    const { ctx } = this;
+    const { id, reason } = ctx.request.body;
     const result = await this.app.mysql.update('goods_order_return', { status: '3', refuse_reason: reason }, {
       where: {
-        id
-      }
-    })
+        id,
+      },
+    });
     if (result.affectedRows === 1) {
       ctx.body = successMsg();
     }
@@ -360,8 +350,6 @@ class OrderController extends Controller {
     return orderId;
   }
 }
-
-
 
 
 module.exports = OrderController;

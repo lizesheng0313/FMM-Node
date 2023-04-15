@@ -2,22 +2,21 @@
  * @Author: lizesheng
  * @Date: 2023-02-23 14:08:48
  * @LastEditors: lizesheng
- * @LastEditTime: 2023-04-14 13:45:50
+ * @LastEditTime: 2023-04-14 20:22:53
  * @important: 重要提醒
  * @Description: 备注内容
  * @FilePath: /commerce_egg/app/controller/programOrder.js
  */
 'use strict';
 
-const { successMsg, errorMsg } = require('../../utils/utils')
+const { successMsg, errorMsg } = require('../../utils/utils');
 const { Controller } = require('egg');
-const crypto = require('crypto');
-const superagent = require('superagent')
+const superagent = require('superagent');
 class ProgramOrderController extends Controller {
   // 创建订单
   async createOrder() {
     const { ctx, app } = this;
-    const { goodsId, skuId, quantity, total_price, address_id, remark, goods_name, sku_string } = ctx.request.body
+    const { goodsId, skuId, quantity, total_price, address_id, remark, goods_name, sku_string } = ctx.request.body;
     // 悲观锁 控制库存
     const conn = await app.mysql.beginTransaction(); // 开启事务
     try {
@@ -32,7 +31,7 @@ class ProgramOrderController extends Controller {
       }
       // 减少库存
       await conn.query('UPDATE sku_goods SET skuStock = skuStock - ? WHERE skuId = ? AND goodsId = ?', [quantity, skuId, goodsId]);
-      const order_id = await generateOrderId(app)
+      const order_id = await generateOrderId(app);
       const rows = {
         sku_string,
         goods_name,
@@ -48,9 +47,9 @@ class ProgramOrderController extends Controller {
         create_time: Date.now(),
         pay_status: 0,
         order_status: 10,
-        id: order_id
-      }
-      const result = await this.app.mysql.insert('goods_order', rows)
+        id: order_id,
+      };
+      const result = await this.app.mysql.insert('goods_order', rows);
       if (result.affectedRows === 1) {
         await conn.commit();
         // 提交事务
@@ -122,7 +121,7 @@ class ProgramOrderController extends Controller {
     const countSql = `
       SELECT COUNT(*) as count
       FROM goods_order
-      ${whereClause} AND (is_deleted != 1 OR is_deleted IS NULL)  AND go.user_id = '${ctx.user.user_id}' AND go.order_status != 50)
+      ${whereClause} AND ((is_deleted != 1 OR is_deleted IS NULL)  AND user_id = '${ctx.user.user_id}' AND order_status != 50)
     `;
 
     const [list, [{ count }]] = await Promise.all([
@@ -140,7 +139,7 @@ class ProgramOrderController extends Controller {
   // 获取退货订单列表
   async getReturnOrder() {
     const { ctx } = this;
-    const { pageIndex = 1, pageSize = 10 } = ctx.query
+    const { pageIndex = 1, pageSize = 10 } = ctx.query;
     const SQL = `
     SELECT
     r.id,
@@ -201,21 +200,21 @@ class ProgramOrderController extends Controller {
   OFFSET
   ${(pageIndex - 1) * pageSize}
 `;
-    let result = (await this.app.mysql.query(SQL)).map(item => ({
+    const result = (await this.app.mysql.query(SQL)).map(item => ({
       ...item,
-      picture_list: item.picture_list?.split(',')
+      picture_list: item.picture_list?.split(','),
     }));
     ctx.body = successMsg({
       list: result,
       total: result[0]?.total || 0,
-      pageSize: pageSize,
-      pageIndex
+      pageSize,
+      pageIndex,
     });
   }
   // 获取退货详情
   async getReturnDetails() {
     const { ctx } = this;
-    const { id } = ctx.query
+    const { id } = ctx.query;
     const SQL = `
       SELECT
       r.id,
@@ -279,16 +278,16 @@ class ProgramOrderController extends Controller {
       r.refund_time DESC,
       r.status ASC
   `;
-    let result = (await this.app.mysql.query(SQL)).map(item => ({
+    const result = (await this.app.mysql.query(SQL)).map(item => ({
       ...item,
-      picture_list: item.picture_list?.split(',')
+      picture_list: item.picture_list?.split(','),
     }));
     ctx.body = successMsg(result[0]);
   }
   // 获取订单详情
   async getOrderDetails() {
     const { ctx } = this;
-    const { id } = ctx.query
+    const { id } = ctx.query;
     const SQL = `
       SELECT
         o.id,
@@ -352,7 +351,7 @@ class ProgramOrderController extends Controller {
       ORDER BY
         o.create_time DESC
     `;
-    let result = (await this.app.mysql.query(SQL))
+    const result = (await this.app.mysql.query(SQL));
     ctx.body = successMsg(result[0]);
   }
   // 取消订单
@@ -371,7 +370,7 @@ class ProgramOrderController extends Controller {
       ctx.body = errorMsg('订单取消失败');
       return;
     }
-    ctx.body = successMsg()
+    ctx.body = successMsg();
   }
   // 确认收货
   async confirmReceipt() {
@@ -389,7 +388,7 @@ class ProgramOrderController extends Controller {
       ctx.body = errorMsg('确认收货失败');
       return;
     }
-    ctx.body = successMsg()
+    ctx.body = successMsg();
   }
   // 发起退货
   async returnGoods() {
@@ -416,9 +415,9 @@ class ProgramOrderController extends Controller {
 
     await app.mysql.update('goods_order', { order_status: '50' }, {
       where: {
-        id
-      }
-    })
+        id,
+      },
+    });
     // 插入退货申请到数据库中
     const result = await app.mysql.insert('goods_order_return', {
       user_id: ctx.user.user_id,
@@ -427,7 +426,7 @@ class ProgramOrderController extends Controller {
       picture_list,
       reason,
       status: '1', // 初始状态为待审核
-      apply_time: Date.now()
+      apply_time: Date.now(),
     });
     ctx.body = successMsg(result.insertId);
   }
@@ -451,41 +450,42 @@ class ProgramOrderController extends Controller {
     // 删除订单记录
     await this.app.mysql.update('goods_order', { is_deleted: 1 }, {
       where: {
-        id
-      }
-    })
+        id,
+      },
+    });
     ctx.body = successMsg();
   }
-  // 查看物流 
+  // 查看物流
   async getLogistics() {
     const { ctx } = this;
     const { logistics_company, logistics_no } = ctx.query;
-    ctx.logger.info('查询物流:', logistics_no, '查询用户:', ctx.user.info)
+    ctx.logger.info('查询物流:', logistics_no, '查询用户:', ctx.user.info);
     if (logistics_company === 'YTO') {
-      const reuslt = await getYTOAddress(logistics_no)
-      let uncodeResult = {}
+      const reuslt = await getYTOAddress(logistics_no);
+      let uncodeResult = {};
       if (reuslt) {
-        uncodeResult = JSON.parse(unicodeToChar(reuslt?.text))
+        uncodeResult = JSON.parse(unicodeToChar(reuslt?.text));
       }
-      ctx.body = successMsg(uncodeResult?.data)
+      ctx.body = successMsg(uncodeResult?.data);
     }
   }
   // 发起退货物流
   async postReturnLogistic() {
-    const { ctx } = this
-    const { id, rlogistics_company, rlogistics_no } = ctx.request.body
+    const { ctx } = this;
+    const { id, rlogistics_company, rlogistics_no } = ctx.request.body;
     const result = await this.app.mysql.update('goods_order_return', { status: '4', rlogistics_company, rlogistics_no }, {
       where: {
-        id
-      }
-    })
+        id,
+      },
+    });
     if (result.affectedRows === 1) {
       ctx.body = successMsg();
     }
   }
   // 退款
   async refund() {
-
+    const { ctx } = this;
+    ctx.body = successMsg();
   }
 }
 
@@ -514,7 +514,7 @@ async function generateOrderId(app) {
 
     // 拼接生成订单号
     orderId = 'AM' + timeString + randomString;
-    console.log('生成的', orderId)
+    console.log('生成的', orderId);
     // 查询数据库中是否已存在该订单号
 
     const sql = 'SELECT COUNT(*) as count FROM goods_order WHERE id = ?';
@@ -528,16 +528,16 @@ async function generateOrderId(app) {
 // 获取圆通快递
 async function getYTOAddress(logistics_no) {
 
-  const apiUrl = `https://www.kuaidi.com/index-ajaxselectcourierinfo-${logistics_no}-yuantong-KUAIDICODE${Date.now()}.html`
+  const apiUrl = `https://www.kuaidi.com/index-ajaxselectcourierinfo-${logistics_no}-yuantong-KUAIDICODE${Date.now()}.html`;
   const response = await superagent.get(apiUrl)
     .set({ 'Content-Type': 'application/json', Origin: 'https://www.kuaidi.com', Referer: 'https://www.kuaidi.com/all/yuantong.html' })
     .set('sec-ch-ua', 'Not A;Brand";v="99", "Chromium";v="99", "Google Chrome";v="99')
     .set({ 'sec-ch-ua-platform': 'macOS' })
-    .set('User-Agent', 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/99.0.4844.51 Safari/537.36')
-  return response
+    .set('User-Agent', 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/99.0.4844.51 Safari/537.36');
+  return response;
 }
 function unicodeToChar(text) {
-  return text.replace(/\\u[\dA-F]{4}/gi, (match) => {
+  return text.replace(/\\u[\dA-F]{4}/gi, match => {
     return String.fromCharCode(parseInt(match.replace(/\\u/g, ''), 16));
   });
 }
