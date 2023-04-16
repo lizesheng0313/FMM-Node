@@ -2,7 +2,7 @@
  * @Author: lizesheng
  * @Date: 2023-02-23 14:08:48
  * @LastEditors: lizesheng
- * @LastEditTime: 2023-04-14 22:14:51
+ * @LastEditTime: 2023-04-15 22:24:20
  * @important: 重要提醒
  * @Description: 备注内容
  * @FilePath: /commerce_egg/app/controller/goods.js
@@ -127,7 +127,7 @@ class GoodsController extends Controller {
     });
     ctx.body = successMsg({
       list: result,
-      total,
+      total: total[0].total,
       pageSize,
       pageIndex,
     });
