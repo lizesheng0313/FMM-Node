@@ -2,7 +2,7 @@
  * @Author: lizesheng
  * @Date: 2023-03-11 16:41:51
  * @LastEditors: lizesheng
- * @LastEditTime: 2023-04-15 19:20:42
+ * @LastEditTime: 2023-04-22 10:57:27
  * @important: 重要提醒
  * @Description: 备注内容
  * @FilePath: /commerce_egg/app/controller/programHome.js
@@ -68,26 +68,33 @@ class ProgrmHomeController extends Controller {
     const { classification, pageIndex = 1, pageSize = 10 } = ctx.query;
     const limit = parseInt(pageSize);
     const offset = (pageIndex - 1) * pageSize;
+
+    // 查询商品列表
     const result = await ctx.app.mysql.query(
-      `SELECT g.id, g.name, g.online, g.volume,g.classification,
-      (SELECT url FROM goods_picture_list WHERE goodsId = g.id LIMIT 1) AS pictureUrl,
-      (SELECT skuPrice FROM sku_goods WHERE goodsId = g.id LIMIT 1) AS price
-      FROM goods g
-      WHERE g.is_deleted != ? AND classification LIKE ? AND g.online = 1
-      ORDER BY g.createTime DESC
-      LIMIT ?, ?`,
-      [1, `%${classification}%`, offset, limit]
+      `SELECT g.id, g.name, g.online, g.volume, g.classification,
+    (SELECT url FROM goods_picture_list WHERE goodsId = g.id LIMIT 1) AS pictureUrl,
+    (SELECT skuPrice FROM sku_goods WHERE goodsId = g.id LIMIT 1) AS price
+    FROM goods g
+    WHERE g.is_deleted != ? AND JSON_CONTAINS(classification, ?) AND g.online = 1
+    ORDER BY g.createTime DESC
+    LIMIT ?, ?`,
+      [1, classification, offset, limit]
     );
-    console.log(result)
-    const arr = result.filter(item => {
-      const currentItem = JSON.parse(item.classification)
-      if (currentItem.indexOf(Number(classification)) > -1) return true
-      return false
-    })
+
+    // 查询商品总数
+    const totalResult = await ctx.app.mysql.query(
+      `SELECT COUNT(*) as total FROM goods WHERE is_deleted != 1 AND JSON_CONTAINS(classification, ?) AND online = 1`,
+      [classification]
+    );
+    const total = totalResult[0].total;
+
     ctx.body = successMsg({
-      list: arr,
+      list: result,
+      total,
     });
   }
+
+
 
   // 搜索接口
   async searchGoods() {

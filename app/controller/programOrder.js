@@ -2,7 +2,7 @@
  * @Author: lizesheng
  * @Date: 2023-02-23 14:08:48
  * @LastEditors: lizesheng
- * @LastEditTime: 2023-04-14 20:22:53
+ * @LastEditTime: 2023-04-20 20:55:33
  * @important: 重要提醒
  * @Description: 备注内容
  * @FilePath: /commerce_egg/app/controller/programOrder.js
@@ -514,7 +514,6 @@ async function generateOrderId(app) {
 
     // 拼接生成订单号
     orderId = 'AM' + timeString + randomString;
-    console.log('生成的', orderId);
     // 查询数据库中是否已存在该订单号
 
     const sql = 'SELECT COUNT(*) as count FROM goods_order WHERE id = ?';

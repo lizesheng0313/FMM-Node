@@ -2,7 +2,7 @@
  * @Author: lizesheng
  * @Date: 2023-02-23 14:08:48
  * @LastEditors: lizesheng
- * @LastEditTime: 2023-04-16 20:29:48
+ * @LastEditTime: 2023-04-20 22:23:31
  * @important: 重要提醒
  * @Description: 备注内容
  * @FilePath: /commerce_egg/config/config.default.js
@@ -31,8 +31,8 @@ module.exports = appInfo => {
   config.mysql = {
     // 单数据库信息配置
     client: {
-      // host: 'localhost',
-      host: '101.200.188.81',
+      host: 'localhost',
+      // host: '101.200.188.81',
       // 端口号
       port: '3306',
       // 用户名
