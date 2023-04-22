@@ -2,7 +2,7 @@
  * @Author: lizesheng
  * @Date: 2023-02-23 14:08:48
  * @LastEditors: lizesheng
- * @LastEditTime: 2023-04-22 21:51:55
+ * @LastEditTime: 2023-04-22 22:02:40
  * @important: 重要提醒
  * @Description: 备注内容
  * @FilePath: /commerce_egg/config/config.default.js
@@ -22,7 +22,7 @@ module.exports = appInfo => {
   const config = exports = {};
   config.cluster = {
     listen: {
-      port: 7001,
+      port: 7002,
     },
   };
   config.logger = {
