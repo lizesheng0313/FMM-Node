@@ -2,7 +2,7 @@
  * @Author: lizesheng
  * @Date: 2023-02-23 14:08:48
  * @LastEditors: lizesheng
- * @LastEditTime: 2023-04-23 22:52:02
+ * @LastEditTime: 2023-04-23 22:56:50
  * @important: 重要提醒
  * @Description: 备注内容
  * @FilePath: /commerce_egg/app/controller/programOrder.js
@@ -517,6 +517,7 @@ class ProgramOrderController extends Controller {
     // 解密回调信息
     const result = pay.decipher_gcm(ciphertext, associated_data, nonce, key);
     // 拿到订单号
+    ctx.logger.info('-------------result结果', result)
     const { out_trade_no } = result;
     const orderResult = await app.mysql.get('goods_order', { id: out_trade_no })
     ctx.logger.info(orderResult, '-orderResult')
