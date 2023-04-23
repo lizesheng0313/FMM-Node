@@ -2,7 +2,7 @@
  * @Author: lizesheng
  * @Date: 2023-03-24 16:58:09
  * @LastEditors: lizesheng
- * @LastEditTime: 2023-04-06 10:16:09
+ * @LastEditTime: 2023-04-23 23:22:05
  * @important: 重要提醒
  * @Description: 取消订单
  * @FilePath: /commerce_egg/app/schedule/cancleOrder.js
@@ -19,7 +19,7 @@ module.exports = {
     const { mysql } = ctx.app;
     // 查找未支付订单
     const currentTime = Date.now(); // 获取当前时间戳
-    const cancelTime = currentTime - 30 * 60 * 1000; // 取消时间为当前时间减去30分钟
+    const cancelTime = currentTime - 60 * 60 * 1000; // 取消时间为当前时间减去60分钟
     const sql = `SELECT * FROM goods_order WHERE pay_status = 0 AND order_status != 60 AND create_time <= ${cancelTime}`;
     const orders = await mysql.query(sql);
     if (orders && orders.length > 0) {
@@ -40,7 +40,7 @@ module.exports = {
         for (const item of orderItems) {
           await mysql.query(
             'UPDATE sku_goods SET skuStock = skuStock + ? WHERE goodsId = ? AND skuId = ?',
-            [ item.quantity, item.goods_id, item.sku_id ]
+            [item.quantity, item.goods_id, item.sku_id]
           );
         }
       }

@@ -2,7 +2,7 @@
  * @Author: lizesheng
  * @Date: 2023-02-23 14:08:48
  * @LastEditors: lizesheng
- * @LastEditTime: 2023-04-23 23:14:22
+ * @LastEditTime: 2023-04-23 23:30:18
  * @important: 重要提醒
  * @Description: 备注内容
  * @FilePath: /commerce_egg/app/controller/programOrder.js
@@ -496,9 +496,11 @@ class ProgramOrderController extends Controller {
     const { ctx } = this;
     ctx.body = successMsg();
   }
+  // 立即支付
   async payment() {
     const { ctx } = this
     const { order_id, goods_name, act_price } = ctx.request.body;
+    console.log('立即支付参数', order_id, goods_name, act_price)
     const info = await payInfo(order_id, goods_name, act_price, ctx.user.user_id)
     ctx.body = successMsg(info);
   }
@@ -542,6 +544,7 @@ async function payInfo(out_trade_no, description, act_price, userId) {
     publicKey: fs.readFileSync(__dirname + '/../../app/assets/pem/apiclient_cert.pem'), // 公钥
     privateKey: fs.readFileSync(__dirname + '/../../app/assets/pem/apiclient_key.pem'), // 私钥
   });
+  ctx.logger.info('商品信息加密', act_price, userId)
   const params = {
     description,
     out_trade_no,
