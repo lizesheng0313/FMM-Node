@@ -2,7 +2,7 @@
  * @Author: lizesheng
  * @Date: 2023-02-23 14:08:48
  * @LastEditors: lizesheng
- * @LastEditTime: 2023-04-23 23:33:37
+ * @LastEditTime: 2023-04-23 23:36:38
  * @important: 重要提醒
  * @Description: 备注内容
  * @FilePath: /commerce_egg/app/controller/programOrder.js
@@ -559,7 +559,9 @@ async function payInfo(out_trade_no, description, act_price, userId, ctx) {
       payer_client_ip: 'ip',
     },
   };
-  return await pay.transactions_jsapi(params)
+  const info = await pay.transactions_jsapi(params)
+  info.order_id = out_trade_no
+  return info
 }
 
 // 生成订单id
