@@ -2,7 +2,7 @@
  * @Author: lizesheng
  * @Date: 2023-02-23 14:08:48
  * @LastEditors: lizesheng
- * @LastEditTime: 2023-04-23 17:25:10
+ * @LastEditTime: 2023-04-23 17:29:11
  * @important: 重要提醒
  * @Description: 备注内容
  * @FilePath: /commerce_egg/app/controller/programOrder.js
@@ -15,12 +15,7 @@ const superagent = require('superagent');
 const WxPay = require('wechatpay-node-v3');
 const fs = require('fs');
 
-const pay = new WxPay({
-  appid: 'wx67961123d36e6395',
-  mchid: '1642887044',
-  publicKey: fs.readFileSync('../../assets/pem/apiclient_cert.pem'), // 公钥
-  privateKey: fs.readFileSync('../../assets/pem/apiclient_key.pem'), // 秘钥
-});
+
 
 
 class ProgramOrderController extends Controller {
@@ -508,6 +503,12 @@ class ProgramOrderController extends Controller {
   }
   // 支付回调
   async payNotify() {
+    const pay = new WxPay({
+      appid: 'wx67961123d36e6395',
+      mchid: '1642887044',
+      publicKey: fs.readFileSync('../../assets/pem/apiclient_cert.pem'), // 公钥
+      privateKey: fs.readFileSync('../../assets/pem/apiclient_key.pem'), // 秘钥
+    });
     // 申请的APIv3
     const { ctx, app } = this;
     const { ciphertext, associated_data, nonce } = ctx.request.body;
@@ -530,6 +531,12 @@ class ProgramOrderController extends Controller {
 module.exports = ProgramOrderController;
 
 async function payInfo(out_trade_no, description, act_price, userId) {
+  const pay = new WxPay({
+    appid: 'wx67961123d36e6395',
+    mchid: '1642887044',
+    publicKey: fs.readFileSync('../../assets/pem/apiclient_cert.pem'), // 公钥
+    privateKey: fs.readFileSync('../../assets/pem/apiclient_key.pem'), // 秘钥
+  });
   const params = {
     description,
     out_trade_no,
