@@ -2,7 +2,7 @@
  * @Author: lizesheng
  * @Date: 2023-02-23 14:08:48
  * @LastEditors: lizesheng
- * @LastEditTime: 2023-04-23 23:40:44
+ * @LastEditTime: 2023-04-23 23:49:13
  * @important: 重要提醒
  * @Description: 备注内容
  * @FilePath: /commerce_egg/app/controller/programOrder.js
@@ -500,9 +500,9 @@ class ProgramOrderController extends Controller {
   // 立即支付
   async payment() {
     const { ctx } = this
-    const { order_id, goods_name, act_price } = ctx.request.body;
-    console.log('立即支付参数', order_id, goods_name, act_price)
-    const info = await payInfo(order_id, goods_name, act_price, ctx.user.user_id, ctx)
+    const { order_id, name, act_price } = ctx.request.body;
+    console.log('立即支付参数', order_id, name, act_price)
+    const info = await payInfo(order_id, name, act_price, ctx.user.user_id, ctx)
     ctx.body = successMsg(info);
   }
   // 支付回调
