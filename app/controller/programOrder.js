@@ -2,7 +2,7 @@
  * @Author: lizesheng
  * @Date: 2023-02-23 14:08:48
  * @LastEditors: lizesheng
- * @LastEditTime: 2023-04-23 17:44:29
+ * @LastEditTime: 2023-04-23 17:48:16
  * @important: 重要提醒
  * @Description: 备注内容
  * @FilePath: /commerce_egg/app/controller/programOrder.js
@@ -542,7 +542,7 @@ async function payInfo(out_trade_no, description, act_price, userId) {
     out_trade_no,
     notify_url: 'https://zjkdongao.com/qq/api/order/payNotify',
     amount: {
-      total: act_price, // 支付金额，单位为分
+      total: act_price.toFixed(2), // 支付金额，单位为分
     },
     payer: {
       openid: userId,
