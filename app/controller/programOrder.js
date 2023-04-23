@@ -2,7 +2,7 @@
  * @Author: lizesheng
  * @Date: 2023-02-23 14:08:48
  * @LastEditors: lizesheng
- * @LastEditTime: 2023-04-20 20:55:33
+ * @LastEditTime: 2023-04-23 17:25:10
  * @important: 重要提醒
  * @Description: 备注内容
  * @FilePath: /commerce_egg/app/controller/programOrder.js
@@ -12,11 +12,22 @@
 const { successMsg, errorMsg } = require('../../utils/utils');
 const { Controller } = require('egg');
 const superagent = require('superagent');
+const WxPay = require('wechatpay-node-v3');
+const fs = require('fs');
+
+const pay = new WxPay({
+  appid: 'wx67961123d36e6395',
+  mchid: '1642887044',
+  publicKey: fs.readFileSync('../../assets/pem/apiclient_cert.pem'), // 公钥
+  privateKey: fs.readFileSync('../../assets/pem/apiclient_key.pem'), // 秘钥
+});
+
+
 class ProgramOrderController extends Controller {
   // 创建订单
   async createOrder() {
     const { ctx, app } = this;
-    const { goodsId, skuId, quantity, total_price, address_id, remark, goods_name, sku_string } = ctx.request.body;
+    const { goodsId, skuId, quantity, total_price, address_id, remark, goods_name, sku_string, act_price } = ctx.request.body;
     // 悲观锁 控制库存
     const conn = await app.mysql.beginTransaction(); // 开启事务
     try {
@@ -48,13 +59,15 @@ class ProgramOrderController extends Controller {
         pay_status: 0,
         order_status: 10,
         id: order_id,
+        act_price
       };
       const result = await this.app.mysql.insert('goods_order', rows);
+      const info = await payInfo(order_id, goods_name, act_price, ctx.user.user_id)
       if (result.affectedRows === 1) {
         await conn.commit();
         // 提交事务
         ctx.body = successMsg(
-          order_id
+          info
         );
       }
     } catch (error) {
@@ -487,15 +500,56 @@ class ProgramOrderController extends Controller {
     const { ctx } = this;
     ctx.body = successMsg();
   }
+  async payment() {
+    const { ctx } = this
+    const { order_id, goods_name, act_price } = ctx.request.body;
+    const info = await payInfo(order_id, goods_name, act_price, ctx.user.user_id)
+    ctx.body = successMsg(info);
+  }
+  // 支付回调
+  async payNotify() {
+    // 申请的APIv3
+    const { ctx, app } = this;
+    const { ciphertext, associated_data, nonce } = ctx.request.body;
+    const key = '4VB2324AXSDEWSxceroq234923423423';
+    // 解密回调信息
+    const result = pay.decipher_gcm(ciphertext, associated_data, nonce, key);
+    // 拿到订单号
+    const { out_trade_no } = result;
+    if (result.trade_state == 'SUCCESS') {
+      // 支付成功更改状态
+      await app.mysql.update('goods_order', { pay_status: '1' }, {
+        where: {
+          id: out_trade_no,
+        },
+      });
+    }
+  }
 }
 
 module.exports = ProgramOrderController;
 
+async function payInfo(out_trade_no, description, act_price, userId) {
+  const params = {
+    description,
+    out_trade_no,
+    notify_url: 'https://zjkdongao.com/qq/api/order/payNotify',
+    amount: {
+      total: act_price, // 支付金额，单位为分
+    },
+    payer: {
+      openid: userId,
+    },
+    scene_info: {
+      payer_client_ip: 'ip',
+    },
+  };
+  return await pay.transactions_jsapi(params)
+}
 
 // 生成订单id
 async function generateOrderId(app) {
-  const ORDER_ID_LENGTH = 20; // 订单号长度
-
+  const ORDER_ID_LENGTH = 21; // 订单号长度
   let orderId;
   let result;
   do {
@@ -508,25 +562,20 @@ async function generateOrderId(app) {
     const minute = date.getMinutes().toString().padStart(2, '0');
     const second = date.getSeconds().toString().padStart(2, '0');
     const timeString = year + month + day + hour + minute + second;
-
     // 生成后6位随机数
     const randomString = Math.floor(Math.random() * 1000000).toString().padStart(6, '0');
-
     // 拼接生成订单号
-    orderId = 'AM' + timeString + randomString;
+    orderId = 'FMM' + timeString + randomString;
     // 查询数据库中是否已存在该订单号
-
     const sql = 'SELECT COUNT(*) as count FROM goods_order WHERE id = ?';
     result = await app.mysql.query(sql, [orderId]);
   } while (result.count > 0 || orderId.length !== ORDER_ID_LENGTH);
-
   // 返回生成的订单号
   return orderId;
 }
 
 // 获取圆通快递
 async function getYTOAddress(logistics_no) {
-
   const apiUrl = `https://www.kuaidi.com/index-ajaxselectcourierinfo-${logistics_no}-yuantong-KUAIDICODE${Date.now()}.html`;
   const response = await superagent.get(apiUrl)
     .set({ 'Content-Type': 'application/json', Origin: 'https://www.kuaidi.com', Referer: 'https://www.kuaidi.com/all/yuantong.html' })
