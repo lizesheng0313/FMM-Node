@@ -2,7 +2,7 @@
  * @Author: lizesheng
  * @Date: 2023-02-23 14:08:48
  * @LastEditors: lizesheng
- * @LastEditTime: 2023-04-23 17:29:11
+ * @LastEditTime: 2023-04-23 17:42:55
  * @important: 重要提醒
  * @Description: 备注内容
  * @FilePath: /commerce_egg/app/controller/programOrder.js
@@ -534,8 +534,8 @@ async function payInfo(out_trade_no, description, act_price, userId) {
   const pay = new WxPay({
     appid: 'wx67961123d36e6395',
     mchid: '1642887044',
-    publicKey: fs.readFileSync('../../app/assets/pem/apiclient_cert.pem'), // 公钥
-    privateKey: fs.readFileSync('../../app/assets/pem/apiclient_key.pem'), // 秘钥
+    publicKey: fs.readFileSync('../assets/pem/apiclient_cert.pem'), // 公钥
+    privateKey: fs.readFileSync('../assets/pem/apiclient_key.pem'), // 秘钥
   });
   const params = {
     description,
