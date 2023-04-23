@@ -2,7 +2,7 @@
  * @Author: lizesheng
  * @Date: 2023-02-23 14:08:48
  * @LastEditors: lizesheng
- * @LastEditTime: 2023-04-23 23:30:18
+ * @LastEditTime: 2023-04-23 23:33:37
  * @important: 重要提醒
  * @Description: 备注内容
  * @FilePath: /commerce_egg/app/controller/programOrder.js
@@ -56,7 +56,7 @@ class ProgramOrderController extends Controller {
         id: order_id,
       };
       const result = await this.app.mysql.insert('goods_order', rows);
-      const info = await payInfo(order_id, goods_name, act_price, ctx.user.user_id)
+      const info = await payInfo(order_id, goods_name, act_price, ctx.user.user_id, ctx)
       if (result.affectedRows === 1) {
         await conn.commit();
         // 提交事务
@@ -501,7 +501,7 @@ class ProgramOrderController extends Controller {
     const { ctx } = this
     const { order_id, goods_name, act_price } = ctx.request.body;
     console.log('立即支付参数', order_id, goods_name, act_price)
-    const info = await payInfo(order_id, goods_name, act_price, ctx.user.user_id)
+    const info = await payInfo(order_id, goods_name, act_price, ctx.user.user_id, ctx)
     ctx.body = successMsg(info);
   }
   // 支付回调
@@ -537,7 +537,7 @@ class ProgramOrderController extends Controller {
 
 module.exports = ProgramOrderController;
 
-async function payInfo(out_trade_no, description, act_price, userId) {
+async function payInfo(out_trade_no, description, act_price, userId, ctx) {
   const pay = new WxPay({
     appid: 'wx67961123d36e6395',
     mchid: '1642887044',
