@@ -2,7 +2,7 @@
  * @Author: lizesheng
  * @Date: 2023-02-23 14:08:48
  * @LastEditors: lizesheng
- * @LastEditTime: 2023-04-23 18:33:43
+ * @LastEditTime: 2023-04-23 18:35:16
  * @important: 重要提醒
  * @Description: 备注内容
  * @FilePath: /commerce_egg/app/controller/programOrder.js
@@ -503,6 +503,7 @@ class ProgramOrderController extends Controller {
   }
   // 支付回调
   async payNotify() {
+    const { ctx, app } = this
     ctx.logger.info('进入回调----')
     const pay = new WxPay({
       appid: 'wx67961123d36e6395',
@@ -511,7 +512,6 @@ class ProgramOrderController extends Controller {
       privateKey: fs.readFileSync(__dirname + '/../../app/assets/pem/apiclient_key.pem'), // 私钥
     });
     // 申请的APIv3
-    const { ctx, app } = this;
     const { ciphertext, associated_data, nonce } = ctx.request.body;
     ctx.logger.info('进入回调', ctx.request.body)
     const key = '4VB2324AXSDEWSxceroq234923423423';
