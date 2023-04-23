@@ -2,7 +2,7 @@
  * @Author: lizesheng
  * @Date: 2023-02-23 14:08:48
  * @LastEditors: lizesheng
- * @LastEditTime: 2023-04-23 22:56:50
+ * @LastEditTime: 2023-04-23 23:14:22
  * @important: 重要提醒
  * @Description: 备注内容
  * @FilePath: /commerce_egg/app/controller/programOrder.js
@@ -54,7 +54,6 @@ class ProgramOrderController extends Controller {
         pay_status: 0,
         order_status: 10,
         id: order_id,
-        act_price
       };
       const result = await this.app.mysql.insert('goods_order', rows);
       const info = await payInfo(order_id, goods_name, act_price, ctx.user.user_id)
@@ -110,6 +109,7 @@ class ProgramOrderController extends Controller {
         go.order_status,
         go.goods_picture,
         go.goods_name,
+        go.act_price,
         lo.logistics_company,
         lo.logistics_no,
         p.name as address_name,
@@ -309,6 +309,7 @@ class ProgramOrderController extends Controller {
         o.create_time,
         o.goods_id,
         o.sku_string,
+        o.act_price,
         g.name,
         g.href,
         o.order_status,
@@ -518,13 +519,12 @@ class ProgramOrderController extends Controller {
     const result = pay.decipher_gcm(ciphertext, associated_data, nonce, key);
     // 拿到订单号
     ctx.logger.info('-------------result结果', result)
-    const { out_trade_no } = result;
+    const { out_trade_no, amount } = result;
     const orderResult = await app.mysql.get('goods_order', { id: out_trade_no })
     ctx.logger.info(orderResult, '-orderResult')
-    // if(orderResult.act_price !== )
     if (result.trade_state == 'SUCCESS') {
       // 支付成功更改状态
-      await app.mysql.update('goods_order', { pay_status: '1' }, {
+      await app.mysql.update('goods_order', { pay_status: '1', act_price: amount.total / 100 }, {
         where: {
           id: out_trade_no,
         },
@@ -547,7 +547,7 @@ async function payInfo(out_trade_no, description, act_price, userId) {
     out_trade_no,
     notify_url: 'https://zjkdongao.com/qq/api/order/payNotify',
     amount: {
-      total: act_price * 100, // 有BUG 必须乘100
+      total: act_price * 100, // 单位是分
     },
     payer: {
       openid: userId,

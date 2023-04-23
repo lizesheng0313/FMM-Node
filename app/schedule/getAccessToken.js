@@ -2,7 +2,7 @@
  * @Author: lizesheng
  * @Date: 2023-04-08 19:44:24
  * @LastEditors: lizesheng
- * @LastEditTime: 2023-04-14 15:20:45
+ * @LastEditTime: 2023-04-23 23:19:45
  * @important: 重要提醒
  * @Description: 备注内容
  * @FilePath: /commerce_egg/app/schedule/getAccessToken.js
@@ -17,7 +17,7 @@ module.exports = {
     const url = 'https://api.weixin.qq.com/cgi-bin/token';
     const data = {
       grant_type: 'client_credential',
-      appid: 'wxf9b3e05e674469ac',
+      appid: 'wx67961123d36e6395',
       secret: '0ff35a933665f3b48d80a109ddb34e24',
     };
     try {
