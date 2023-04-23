@@ -512,7 +512,7 @@ class ProgramOrderController extends Controller {
       privateKey: fs.readFileSync(__dirname + '/../../app/assets/pem/apiclient_key.pem'), // 私钥
     });
     // 申请的APIv3
-    const { ciphertext, associated_data, nonce } = ctx.request.body;
+    const { ciphertext, associated_data, nonce } = ctx.request.body.resource;
     ctx.logger.info('进入回调', ctx.request.body)
     const key = '4VB2324AXSDEWSxceroq234923423423';
     // 解密回调信息
