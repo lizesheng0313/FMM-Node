@@ -12,7 +12,7 @@
     "egg-jwt": "^3.1.7",
     "egg-mysql": "^3.4.0",
     "egg-scripts": "^2",
-    "wechatpay-node-v3": "^2.1.1"
+    "wechatpay-node-v3": "2.1.1"
   },
   "devDependencies": {
     "egg-bin": "^5",

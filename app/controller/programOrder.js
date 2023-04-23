@@ -2,7 +2,7 @@
  * @Author: lizesheng
  * @Date: 2023-02-23 14:08:48
  * @LastEditors: lizesheng
- * @LastEditTime: 2023-04-23 18:35:16
+ * @LastEditTime: 2023-04-23 22:52:02
  * @important: 重要提醒
  * @Description: 备注内容
  * @FilePath: /commerce_egg/app/controller/programOrder.js
@@ -504,7 +504,6 @@ class ProgramOrderController extends Controller {
   // 支付回调
   async payNotify() {
     const { ctx, app } = this
-    ctx.logger.info('进入回调----')
     const pay = new WxPay({
       appid: 'wx67961123d36e6395',
       mchid: '1642887044',
@@ -519,6 +518,9 @@ class ProgramOrderController extends Controller {
     const result = pay.decipher_gcm(ciphertext, associated_data, nonce, key);
     // 拿到订单号
     const { out_trade_no } = result;
+    const orderResult = await app.mysql.get('goods_order', { id: out_trade_no })
+    ctx.logger.info(orderResult, '-orderResult')
+    // if(orderResult.act_price !== )
     if (result.trade_state == 'SUCCESS') {
       // 支付成功更改状态
       await app.mysql.update('goods_order', { pay_status: '1' }, {
@@ -544,7 +546,7 @@ async function payInfo(out_trade_no, description, act_price, userId) {
     out_trade_no,
     notify_url: 'https://zjkdongao.com/qq/api/order/payNotify',
     amount: {
-      total: act_price, // 支付金额，单位为分
+      total: act_price * 100, // 有BUG 必须乘100
     },
     payer: {
       openid: userId,
