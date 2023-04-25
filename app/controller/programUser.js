@@ -60,7 +60,6 @@ class ProgrmUserController extends Controller {
     const { ctx } = this;
     const row = {
       ...ctx.request.body,
-      nick_name: encodeURI(ctx.request.body.nick_name),
     };
     const options = {
       where: {

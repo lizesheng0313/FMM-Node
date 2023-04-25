@@ -2,7 +2,7 @@
  * @Author: lizesheng
  * @Date: 2023-02-23 14:08:48
  * @LastEditors: lizesheng
- * @LastEditTime: 2023-04-23 23:26:44
+ * @LastEditTime: 2023-04-25 17:19:03
  * @important: 重要提醒
  * @Description: 备注内容
  * @FilePath: /commerce_egg/app/router.js
@@ -42,8 +42,10 @@ module.exports = app => {
   router.post('/api/user/login', controller.user.login);
 
   // 小程序
-  // 登录注册
+  // 用户
   router.get('/api/program/user/login', controller.programUser.login);
+  router.post('/api/program/user/update', jwtErr, controller.programUser.update);
+
   // 获取token
   router.get('/api/program/getToken', controller.programUser.getToken);
 
