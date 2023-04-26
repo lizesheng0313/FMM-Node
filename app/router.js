@@ -85,4 +85,6 @@ module.exports = app => {
 
   // 上传
   router.post('/api/uploadImage', jwtErr, controller.upload.uploadImage);
+  // 埋点
+  router.post('/api/events', controller.programTrack.add)
 };
