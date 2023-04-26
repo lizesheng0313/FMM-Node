@@ -39,7 +39,7 @@ module.exports = {
       const stat = fs.statSync(path.join(backupDir, filename));
       const mtime = moment(stat.mtime);
       const diffDays = moment().diff(mtime, 'days');
-      return diffDays > 7;
+      return diffDays > 30;
     });
     await Promise.all(deleteFileList.map(filename => fs.promises.unlink(path.join(backupDir, filename)))); // 使用fs.promises删除文件
   },
