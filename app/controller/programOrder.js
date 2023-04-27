@@ -2,7 +2,7 @@
  * @Author: lizesheng
  * @Date: 2023-02-23 14:08:48
  * @LastEditors: lizesheng
- * @LastEditTime: 2023-04-27 17:37:38
+ * @LastEditTime: 2023-04-27 17:58:05
  * @important: 重要提醒
  * @Description: 备注内容
  * @FilePath: /commerce_egg/app/controller/programOrder.js
@@ -539,7 +539,7 @@ class ProgramOrderController extends Controller {
       return;
     }
     // 检查订单状态
-    if (!['20', '30', '40', '60'].includes(order.order_status)) {
+    if (!['10'].includes(order.order_status)) {
       ctx.body = errorMsg('该订单不能申请退款');
       return;
     }
@@ -552,7 +552,7 @@ class ProgramOrderController extends Controller {
     const result = await app.mysql.insert('goods_order_return', {
       user_id: ctx.user.user_id,
       order_id: id,
-      status: '10', // 初始状态为待审核
+      status: '1', // 初始状态为待审核
       apply_time: Date.now(),
     });
     ctx.body = successMsg(result.insertId);
