@@ -2,7 +2,7 @@
  * @Author: lizesheng
  * @Date: 2023-02-23 14:08:48
  * @LastEditors: lizesheng
- * @LastEditTime: 2023-04-14 15:18:58
+ * @LastEditTime: 2023-04-27 16:51:29
  * @important: 重要提醒
  * @Description: 备注内容
  * @FilePath: /commerce_egg/app/controller/order.js
@@ -285,23 +285,12 @@ class OrderController extends Controller {
 
     // 开始退款操作
     const conn = await app.mysql.beginTransaction(); // 开启事务
-    try {
-      // 更新退货记录状态为已退款
-      await conn.update('goods_order_return', { id, status: 5 });
+    // 更新退货记录状态为已退款
+    await conn.update('goods_order_return', { id, status: '5' });
+    // 更新订单状态为已退款
+    await conn.update('goods_order', { id: record.order_id, order_status: '80' });
+    ctx.body = successMsg();
 
-      // 更新订单状态为已退款
-      await conn.update('goods_order', { id: record.order_id, order_status: 5 });
-
-      // 提交事务
-      await conn.commit();
-
-      ctx.body = successMsg('退款成功');
-    } catch (err) {
-      // 发生错误时回滚事务
-      await conn.rollback();
-
-      ctx.body = errorMsg('退款失败');
-    }
   }
   // 拒绝退货
   async goodsRefuseOperation() {

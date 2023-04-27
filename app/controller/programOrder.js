@@ -2,7 +2,7 @@
  * @Author: lizesheng
  * @Date: 2023-02-23 14:08:48
  * @LastEditors: lizesheng
- * @LastEditTime: 2023-04-26 16:38:22
+ * @LastEditTime: 2023-04-27 17:37:38
  * @important: 重要提醒
  * @Description: 备注内容
  * @FilePath: /commerce_egg/app/controller/programOrder.js
@@ -493,16 +493,10 @@ class ProgramOrderController extends Controller {
       ctx.body = successMsg();
     }
   }
-  // 退款
-  async refund() {
-    const { ctx } = this;
-    ctx.body = successMsg();
-  }
   // 立即支付
   async payment() {
     const { ctx } = this
     const { order_id, name, act_price } = ctx.request.body;
-    console.log('立即支付参数', order_id, name, act_price)
     const info = await payInfo(order_id, name, act_price, ctx.user.user_id, ctx)
     ctx.body = successMsg(info);
   }
@@ -532,6 +526,36 @@ class ProgramOrderController extends Controller {
         },
       });
     }
+  }
+  // 发起退款
+  async applyRefund() {
+    const { ctx, app } = this;
+    const { id } = ctx.request.body;
+
+    // 检查订单是否存在
+    const order = await app.mysql.get('goods_order', { id });
+    if (!order) {
+      ctx.body = errorMsg('订单不存在');
+      return;
+    }
+    // 检查订单状态
+    if (!['20', '30', '40', '60'].includes(order.order_status)) {
+      ctx.body = errorMsg('该订单不能申请退款');
+      return;
+    }
+    await app.mysql.update('goods_order', { order_status: '80' }, {
+      where: {
+        id,
+      },
+    });
+    // 插入退货申请到数据库中
+    const result = await app.mysql.insert('goods_order_return', {
+      user_id: ctx.user.user_id,
+      order_id: id,
+      status: '10', // 初始状态为待审核
+      apply_time: Date.now(),
+    });
+    ctx.body = successMsg(result.insertId);
   }
 }
 

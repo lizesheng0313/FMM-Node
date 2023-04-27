@@ -2,7 +2,7 @@
  * @Author: lizesheng
  * @Date: 2023-02-23 14:08:48
  * @LastEditors: lizesheng
- * @LastEditTime: 2023-04-25 17:19:03
+ * @LastEditTime: 2023-04-27 17:17:47
  * @important: 重要提醒
  * @Description: 备注内容
  * @FilePath: /commerce_egg/app/router.js
@@ -37,6 +37,7 @@ module.exports = app => {
   router.post('/api/order/shipGoods', jwtErr, controller.order.shipGoods);
   router.post('/api/order/agreen', jwtErr, controller.order.goodsAgreenOperation);
   router.post('/api/order/refuse', jwtErr, controller.order.goodsRefuseOperation);
+  router.post('/api/order/approveRefund', jwtErr, controller.order.approveRefund)
 
   // 登录
   router.post('/api/user/login', controller.user.login);
@@ -74,10 +75,10 @@ module.exports = app => {
   router.get('/api/order/getReturnDetails', jwtErr, controller.programOrder.getReturnDetails);
   router.post('/api/order/returnGoods', jwtErr, controller.programOrder.returnGoods);
   router.get('/api/order/getLogistics', jwtErr, controller.programOrder.getLogistics);
-  router.post('/api/order/refund', jwtErr, controller.programOrder.refund);
   router.post('/api/order/postReturnLogistic', jwtErr, controller.programOrder.postReturnLogistic);
   router.post('/api/order/payNotify', controller.programOrder.payNotify)
   router.post('/api/order/payment', jwtErr, controller.programOrder.payment)
+  router.post('/api/order/applyRefund', jwtErr, controller.programOrder.applyRefund)
   // 商品
   router.get('/api/goods/getDetails', controller.programGoods.getDetails);
   // 分类
