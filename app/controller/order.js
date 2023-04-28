@@ -2,7 +2,7 @@
  * @Author: lizesheng
  * @Date: 2023-02-23 14:08:48
  * @LastEditors: lizesheng
- * @LastEditTime: 2023-04-28 14:59:00
+ * @LastEditTime: 2023-04-28 15:09:34
  * @important: 重要提醒
  * @Description: 备注内容
  * @FilePath: /commerce_egg/app/controller/order.js
@@ -99,7 +99,7 @@ class OrderController extends Controller {
         LEFT JOIN address p ON o.address_id = p.id
         INNER JOIN goods g ON o.goods_id = g.id
       WHERE
-        1 = 1 ${whereClause} AND o.order_status != 50
+        1 = 1 ${whereClause} AND o.order_status != 50 AND o.order_status != 80 AND o.order_status != 90
       GROUP BY
         o.id,
         o.user_id,
