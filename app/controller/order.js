@@ -2,7 +2,7 @@
  * @Author: lizesheng
  * @Date: 2023-02-23 14:08:48
  * @LastEditors: lizesheng
- * @LastEditTime: 2023-04-28 16:07:20
+ * @LastEditTime: 2023-04-28 16:33:35
  * @important: 重要提醒
  * @Description: 备注内容
  * @FilePath: /commerce_egg/app/controller/order.js
@@ -200,7 +200,7 @@ class OrderController extends Controller {
     goods_order_return r
       INNER JOIN goods_order o ON o.id = r.order_id
       INNER JOIN goods g ON o.goods_id = g.id
-      LEFT JOIN address p ON o.address_id = p.id
+      INNER JOIN address p ON o.address_id = p.id
     WHERE
       1 = 1 ${whereClause}
       GROUP BY
