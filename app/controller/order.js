@@ -337,17 +337,17 @@ class OrderController extends Controller {
   async approveRefund() {
     const { ctx, app } = this;
     const { id } = ctx.request.body;
-    const order = await app.mysql.get('goods_order', { id });
-    // 检查退货记录是否存在
-    const record = await app.mysql.get('goods_order_return', { id });
-    if (!record) {
+    const agreeData = await app.mysql.get('goods_order_return', { id });
+    const order = await app.mysql.get('goods_order', { id: agreeData.order_id });
+
+    if (!agreeData) {
       ctx.body = errorMsg('退货记录不存在');
       return;
     }
 
     // 检查退货记录状态是否为待退货
-    if (record.status !== 2 && record.status !== 3 && record.status !== 1) {
-      ctx.body = errorMsg('目前流程还不允许退货');
+    if (agreeData.status !== '6') {
+      ctx.body = errorMsg('还未收到货不允许退款');
       return;
     }
 
@@ -359,7 +359,7 @@ class OrderController extends Controller {
     await app.mysql.update('goods_order_return', { id, status: '5', refund_time: Date.now() });
 
     // 更新订单状态为已退款
-    await app.mysql.update('goods_order', { id: record.order_id, order_status: '90' });
+    await app.mysql.update('goods_order', { id: agreeData.order_id, order_status: '90' });
     ctx.body = successMsg();
 
   }
