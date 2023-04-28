@@ -2,7 +2,7 @@
  * @Author: lizesheng
  * @Date: 2023-02-23 14:08:48
  * @LastEditors: lizesheng
- * @LastEditTime: 2023-04-28 18:00:18
+ * @LastEditTime: 2023-04-28 18:08:10
  * @important: 重要提醒
  * @Description: 备注内容
  * @FilePath: /commerce_egg/app/controller/order.js
@@ -263,12 +263,39 @@ class OrderController extends Controller {
     const agreeData = await app.mysql.get('goods_order_return', { id });
     const order = await app.mysql.get('goods_order', { id: agreeData.order_id });
     ctx.logger.info(order, '同意退货的order')
-    // 检查订单状态是否为“已完成”或“退货中”
-    if (!['20', '30', '40'].includes(order.order_status)) {
-      ctx.body = errorMsg('该订单不能申请退货');
+
+    if (!['50'].includes(order.order_status)) {
+      ctx.body = errorMsg('该订单状态不在退货中');
+      return;
+    }
+    if (agreeData.status !== '1') {
+      ctx.body = errorMsg('未在审核状态');
       return;
     }
     const result = await app.mysql.update('goods_order_return', { status: 2, return_address }, {
+      where: {
+        id,
+      },
+    });
+    if (result.affectedRows === 1) {
+      ctx.body = successMsg();
+    }
+  }
+  // 拒绝退货
+  async goodsRefuseOperation() {
+    const { ctx } = this;
+    const { id, reason } = ctx.request.body;
+    const agreeData = await app.mysql.get('goods_order_return', { id });
+    const order = await app.mysql.get('goods_order', { id: agreeData.order_id });
+    if (!['50'].includes(order.order_status)) {
+      ctx.body = errorMsg('该订单状态不在退货中');
+      return;
+    }
+    if (agreeData.status !== '1') {
+      ctx.body = errorMsg('未在审核状态');
+      return;
+    }
+    const result = await this.app.mysql.update('goods_order_return', { status: '3', refuse_reason: reason }, {
       where: {
         id,
       },
@@ -331,19 +358,7 @@ class OrderController extends Controller {
     ctx.body = successMsg();
 
   }
-  // 拒绝退货
-  async goodsRefuseOperation() {
-    const { ctx } = this;
-    const { id, reason } = ctx.request.body;
-    const result = await this.app.mysql.update('goods_order_return', { status: '3', refuse_reason: reason }, {
-      where: {
-        id,
-      },
-    });
-    if (result.affectedRows === 1) {
-      ctx.body = successMsg();
-    }
-  }
+
   // 生成订单id
   async generateOrderId() {
     const ORDER_ID_LENGTH = 20; // 订单号长度
