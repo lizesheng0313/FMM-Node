@@ -2,7 +2,7 @@
  * @Author: lizesheng
  * @Date: 2023-02-23 14:08:48
  * @LastEditors: lizesheng
- * @LastEditTime: 2023-04-28 16:33:35
+ * @LastEditTime: 2023-04-28 17:24:40
  * @important: 重要提醒
  * @Description: 备注内容
  * @FilePath: /commerce_egg/app/controller/order.js
@@ -260,6 +260,13 @@ class OrderController extends Controller {
   async goodsAgreenOperation() {
     const { ctx } = this;
     const { id, return_address } = ctx.request.body;
+    const order = await app.mysql.get('goods_order', { id });
+
+    // 检查订单状态是否为“已完成”或“退货中”
+    if (!['20', '30', '40'].includes(order.order_status)) {
+      ctx.body = errorMsg('该订单不能申请退货');
+      return;
+    }
     const result = await this.app.mysql.update('goods_order_return', { status: 2, return_address }, {
       where: {
         id,
@@ -273,7 +280,7 @@ class OrderController extends Controller {
   async approveRefund() {
     const { ctx, app } = this;
     const { id } = ctx.request.body;
-
+    const order = await app.mysql.get('goods_order', { id });
     // 检查退货记录是否存在
     const record = await app.mysql.get('goods_order_return', { id });
     if (!record) {
@@ -284,6 +291,11 @@ class OrderController extends Controller {
     // 检查退货记录状态是否为待退货
     if (record.status !== 2 && record.status !== 3) {
       ctx.body = errorMsg('该退货记录不能进行退款操作');
+      return;
+    }
+
+    if (!['80'].includes(order.order_status)) {
+      ctx.body = errorMsg('该订单不能退款');
       return;
     }
     // 更新退货记录状态为已退款
