@@ -2,7 +2,7 @@
  * @Author: lizesheng
  * @Date: 2023-02-23 14:08:48
  * @LastEditors: lizesheng
- * @LastEditTime: 2023-04-28 22:09:52
+ * @LastEditTime: 2023-04-28 22:20:54
  * @important: 重要提醒
  * @Description: 备注内容
  * @FilePath: /commerce_egg/app/controller/programOrder.js
@@ -54,6 +54,7 @@ class ProgramOrderController extends Controller {
         pay_status: 0,
         order_status: 10,
         id: order_id,
+        freight: Number(act_price) - Number(total_price),
         act_price
       };
       const result = await this.app.mysql.insert('goods_order', rows);
@@ -109,7 +110,6 @@ class ProgramOrderController extends Controller {
         go.goods_id,
         go.order_status,
         go.sku_id,
-        go.freight,
         go.goods_picture,
         go.goods_name,
         go.act_price,
@@ -146,6 +146,79 @@ class ProgramOrderController extends Controller {
       pageSize,
       total: count,
     });
+  }
+  // 获取订单详情
+  async getOrderDetails() {
+    const { ctx } = this;
+    const { id } = ctx.query;
+    const SQL = `
+      SELECT
+        o.id,
+        o.user_id,
+        o.total_price,
+        o.quantity,
+        o.pay_status,
+        o.payment_time,
+        o.delivery_time,
+        o.freight,
+        o.receive_time,
+        o.create_time,
+        o.goods_id,
+        o.sku_string,
+        o.act_price,
+        g.name,
+        g.href,
+        o.order_status,
+        o.address_id,
+        o.sku_id,
+        o.goods_picture,
+        p.name AS address_name,
+        p.phone AS address_phone,
+        p.address AS address_detail,
+        p.province,
+        p.city,
+        p.streetName,
+        lo.logistics_company,
+        lo.logistics_no,
+        (SELECT COUNT(*) FROM goods_order) AS total
+      FROM
+        goods_order o
+        LEFT JOIN logistics lo ON o.id = lo.order_id
+        LEFT JOIN address p ON o.address_id = p.id
+        INNER JOIN goods g ON o.goods_id = g.id
+      WHERE o.id = '${id}'
+      GROUP BY
+        o.id,
+        o.sku_string,
+        o.user_id,
+        o.total_price,
+        o.quantity,
+        o.freight,
+        o.pay_status,
+        o.payment_time,
+        o.delivery_time,
+        o.receive_time,
+        o.create_time,
+        o.goods_id,
+        g.name,
+        g.href,
+        o.order_status,
+        o.address_id,
+        o.sku_id,
+        o.goods_picture,
+        p.name,
+        p.phone,
+        p.province,
+        p.city,
+        p.streetName,
+        p.address,
+        lo.logistics_company,
+        lo.logistics_no
+      ORDER BY
+        o.create_time DESC
+    `;
+    const result = (await this.app.mysql.query(SQL));
+    ctx.body = successMsg(result[0]);
   }
   // 获取退货订单列表
   async getReturnOrder() {
@@ -249,7 +322,6 @@ class ProgramOrderController extends Controller {
       o.goods_picture,
       o.goods_id,
       o.sku_id,
-      o.freight,
       o.payment_time,
       o.order_status,
       o.user_id,
@@ -283,7 +355,6 @@ class ProgramOrderController extends Controller {
       o.total_price,
       o.quantity,
       o.sku_id,
-      o.freight,
       o.goods_id,
       o.order_status,
       o.goods_name,
@@ -306,79 +377,7 @@ class ProgramOrderController extends Controller {
     }));
     ctx.body = successMsg(result[0]);
   }
-  // 获取订单详情
-  async getOrderDetails() {
-    const { ctx } = this;
-    const { id } = ctx.query;
-    const SQL = `
-      SELECT
-        o.id,
-        o.user_id,
-        o.total_price,
-        o.quantity,
-        o.pay_status,
-        o.payment_time,
-        o.delivery_time,
-        o.receive_time,
-        o.create_time,
-        o.goods_id,
-        o.sku_string,
-        o.act_price,
-        g.name,
-        g.href,
-        o.order_status,
-        o.address_id,
-        o.sku_id,
-        o.freight,
-        o.goods_picture,
-        p.name AS address_name,
-        p.phone AS address_phone,
-        p.address AS address_detail,
-        p.province,
-        p.city,
-        p.streetName,
-        lo.logistics_company,
-        lo.logistics_no,
-        (SELECT COUNT(*) FROM goods_order) AS total
-      FROM
-        goods_order o
-        LEFT JOIN logistics lo ON o.id = lo.order_id
-        LEFT JOIN address p ON o.address_id = p.id
-        INNER JOIN goods g ON o.goods_id = g.id
-      WHERE o.id = '${id}'
-      GROUP BY
-        o.id,
-        o.sku_string,
-        o.user_id,
-        o.freight,
-        o.total_price,
-        o.quantity,
-        o.pay_status,
-        o.payment_time,
-        o.delivery_time,
-        o.receive_time,
-        o.create_time,
-        o.goods_id,
-        g.name,
-        g.href,
-        o.order_status,
-        o.address_id,
-        o.sku_id,
-        o.goods_picture,
-        p.name,
-        p.phone,
-        p.province,
-        p.city,
-        p.streetName,
-        p.address,
-        lo.logistics_company,
-        lo.logistics_no
-      ORDER BY
-        o.create_time DESC
-    `;
-    const result = (await this.app.mysql.query(SQL));
-    ctx.body = successMsg(result[0]);
-  }
+
   // 取消订单
   async cancelOrder() {
     const { ctx } = this;
