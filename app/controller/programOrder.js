@@ -2,7 +2,7 @@
  * @Author: lizesheng
  * @Date: 2023-02-23 14:08:48
  * @LastEditors: lizesheng
- * @LastEditTime: 2023-04-28 16:38:48
+ * @LastEditTime: 2023-04-28 17:17:34
  * @important: 重要提醒
  * @Description: 备注内容
  * @FilePath: /commerce_egg/app/controller/programOrder.js
@@ -556,7 +556,7 @@ class ProgramOrderController extends Controller {
     const result = await app.mysql.insert('goods_order_return', {
       user_id: ctx.user.user_id,
       order_id: id,
-      refund_status: '1', // 初始状态为待审核
+      status: '1', // 初始状态为待审核
       apply_time: Date.now(),
     });
     ctx.body = successMsg(result.insertId);
