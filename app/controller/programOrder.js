@@ -2,7 +2,7 @@
  * @Author: lizesheng
  * @Date: 2023-02-23 14:08:48
  * @LastEditors: lizesheng
- * @LastEditTime: 2023-04-28 21:52:38
+ * @LastEditTime: 2023-04-28 21:57:27
  * @important: 重要提醒
  * @Description: 备注内容
  * @FilePath: /commerce_egg/app/controller/programOrder.js
@@ -205,8 +205,8 @@ class ProgramOrderController extends Controller {
     p.streetName,
     p.address
   ORDER BY
-    r.status ASC
-    r.refund_time DESC,
+    r.status ASC,
+    r.refund_time DESC
   LIMIT
     ${parseInt(pageSize)}
   OFFSET
