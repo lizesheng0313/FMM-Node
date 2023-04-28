@@ -2,7 +2,7 @@
  * @Author: lizesheng
  * @Date: 2023-02-23 14:08:48
  * @LastEditors: lizesheng
- * @LastEditTime: 2023-04-28 17:57:50
+ * @LastEditTime: 2023-04-28 18:00:18
  * @important: 重要提醒
  * @Description: 备注内容
  * @FilePath: /commerce_egg/app/controller/order.js
@@ -262,7 +262,7 @@ class OrderController extends Controller {
     const { id, return_address } = ctx.request.body;
     const agreeData = await app.mysql.get('goods_order_return', { id });
     const order = await app.mysql.get('goods_order', { id: agreeData.order_id });
-
+    ctx.logger.info(order, '同意退货的order')
     // 检查订单状态是否为“已完成”或“退货中”
     if (!['20', '30', '40'].includes(order.order_status)) {
       ctx.body = errorMsg('该订单不能申请退货');
