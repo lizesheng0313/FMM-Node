@@ -2,7 +2,7 @@
  * @Author: lizesheng
  * @Date: 2023-02-23 14:08:48
  * @LastEditors: lizesheng
- * @LastEditTime: 2023-04-28 17:17:34
+ * @LastEditTime: 2023-04-28 17:50:43
  * @important: 重要提醒
  * @Description: 备注内容
  * @FilePath: /commerce_egg/app/controller/programOrder.js
@@ -236,6 +236,7 @@ class ProgramOrderController extends Controller {
       r.rlogistics_no,
       r.rlogistics_company,
       r.picture_list,
+      r.refuse_reason,
       r.order_id,
       r.reason,
       r.apply_time,
@@ -269,6 +270,7 @@ class ProgramOrderController extends Controller {
       r.id,
       r.status,
       r.memo,
+      r.refuse_reason,
       r.picture_list,
       r.order_id,
       r.refund_time,
@@ -483,6 +485,7 @@ class ProgramOrderController extends Controller {
       }
       ctx.body = successMsg(uncodeResult?.data);
     }
+    ctx.body = errorMsg('第三方查询故障，请联系客服查看物流');
   }
   // 发起退货物流
   async postReturnLogistic() {
