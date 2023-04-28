@@ -2,7 +2,7 @@
  * @Author: lizesheng
  * @Date: 2023-02-23 14:08:48
  * @LastEditors: lizesheng
- * @LastEditTime: 2023-04-28 15:50:08
+ * @LastEditTime: 2023-04-28 16:05:10
  * @important: 重要提醒
  * @Description: 备注内容
  * @FilePath: /commerce_egg/app/controller/programOrder.js
@@ -514,16 +514,16 @@ class ProgramOrderController extends Controller {
     });
     // 申请的APIv3
     const { ciphertext, associated_data, nonce } = ctx.request.body.resource;
-    ctx.logger.info('进入回调', ctx.request.body)
+    ctx.logger.info('进入支付回调', ctx.request.body)
     const key = '4VB2324AXSDEWSxceroq234923423423';
     // 解密回调信息
     const result = pay.decipher_gcm(ciphertext, associated_data, nonce, key);
     // 拿到订单号
     ctx.logger.info('-------------result结果', result)
-    const { out_trade_no } = result;
+    const { out_trade_no, amount } = result;
     if (result.trade_state == 'SUCCESS') {
       // 支付成功更改状态
-      await app.mysql.update('goods_order', { pay_status: '1' }, {
+      await app.mysql.update('goods_order', { pay_status: '1', payment_time: Date.now(), response_price: amount.total / 100 }, {
         where: {
           id: out_trade_no,
         },

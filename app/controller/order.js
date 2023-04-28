@@ -2,7 +2,7 @@
  * @Author: lizesheng
  * @Date: 2023-02-23 14:08:48
  * @LastEditors: lizesheng
- * @LastEditTime: 2023-04-28 15:09:34
+ * @LastEditTime: 2023-04-28 16:07:20
  * @important: 重要提醒
  * @Description: 备注内容
  * @FilePath: /commerce_egg/app/controller/order.js
@@ -84,6 +84,7 @@ class OrderController extends Controller {
         g.href,
         o.order_status,
         ${role === '0' || role === '1' ? 'o.cost_price,' : ''}
+        o.response_price,
         o.address_id,
         o.sku_id,
         o.goods_picture,
@@ -115,6 +116,7 @@ class OrderController extends Controller {
         g.href,
         o.order_status,
         o.cost_price,
+        o.response_price,
         o.address_id,
         o.sku_id,
         o.goods_picture,
@@ -175,6 +177,7 @@ class OrderController extends Controller {
       o.total_price,
       o.quantity,
       o.pay_status,
+      o.response_price,
       o.payment_time,
       o.delivery_time,
       o.receive_time,
@@ -216,6 +219,7 @@ class OrderController extends Controller {
       o.total_price,
       o.quantity,
       o.pay_status,
+      o.response_price,
       o.payment_time,
       o.delivery_time,
       o.receive_time,
