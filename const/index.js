@@ -2,7 +2,7 @@
  * @Author: lizesheng
  * @Date: 2023-03-06 10:09:19
  * @LastEditors: lizesheng
- * @LastEditTime: 2023-04-27 17:33:31
+ * @LastEditTime: 2023-04-28 14:56:39
  * @important: 重要提醒
  * @Description: 备注内容
  * @FilePath: /commerce_egg/const/index.js
@@ -22,6 +22,7 @@ const ORDERSTATUS = {
   60: '已取消',
   70: '待评价',
   80: '退款中',
+  90: '已退款'
 };
 
 // 退货状态
@@ -33,13 +34,6 @@ const RETURNSTATUS = {
   5: '已退款',
 };
 
-// 退款状态
-const REFUNDSTATUS = {
-  10: '待审核',
-  20: '已拒绝',
-  30: '已退款'
-}
-
 module.exports = {
-  PAYSTATUS, ORDERSTATUS, RETURNSTATUS, REFUNDSTATUS
+  PAYSTATUS, ORDERSTATUS, RETURNSTATUS
 };

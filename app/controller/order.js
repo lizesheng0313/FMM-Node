@@ -2,7 +2,7 @@
  * @Author: lizesheng
  * @Date: 2023-02-23 14:08:48
  * @LastEditors: lizesheng
- * @LastEditTime: 2023-04-27 16:51:29
+ * @LastEditTime: 2023-04-28 14:59:00
  * @important: 重要提醒
  * @Description: 备注内容
  * @FilePath: /commerce_egg/app/controller/order.js
@@ -282,13 +282,11 @@ class OrderController extends Controller {
       ctx.body = errorMsg('该退货记录不能进行退款操作');
       return;
     }
-
-    // 开始退款操作
-    const conn = await app.mysql.beginTransaction(); // 开启事务
     // 更新退货记录状态为已退款
-    await conn.update('goods_order_return', { id, status: '5' });
+    await app.mysql.update('goods_order_return', { id, status: '5', refund_time: Date.now() });
+
     // 更新订单状态为已退款
-    await conn.update('goods_order', { id: record.order_id, order_status: '80' });
+    await app.mysql.update('goods_order', { id: record.order_id, order_status: '90' });
     ctx.body = successMsg();
 
   }

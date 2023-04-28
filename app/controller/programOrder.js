@@ -2,7 +2,7 @@
  * @Author: lizesheng
  * @Date: 2023-02-23 14:08:48
  * @LastEditors: lizesheng
- * @LastEditTime: 2023-04-27 17:58:05
+ * @LastEditTime: 2023-04-28 15:06:14
  * @important: 重要提醒
  * @Description: 备注内容
  * @FilePath: /commerce_egg/app/controller/programOrder.js
@@ -75,10 +75,10 @@ class ProgramOrderController extends Controller {
   async getOrderStatusCount(ctx) {
     const sql = `
       SELECT 
-        SUM(CASE WHEN pay_status = 0 AND order_status != 60 THEN 1 ELSE 0 END) as pending_payment_count,
+        SUM(CASE WHEN pay_status = 0 AND order_status != 60  THEN 1 ELSE 0 END) as pending_payment_count,
         SUM(CASE WHEN order_status IN (10) AND pay_status = 1 THEN 1 ELSE 0 END) as pending_delivery_count,
         SUM(CASE WHEN order_status IN (20,21) AND pay_status = 1 THEN 1 ELSE 0 END) as shipped_order_count,
-        SUM(CASE WHEN order_status IN (50) AND pay_status = 1 THEN 1 ELSE 0 END) as return_order_count
+        SUM(CASE WHEN order_status IN (50,80) AND pay_status = 1 THEN 1 ELSE 0 END) as return_order_count
       FROM goods_order
       WHERE user_id = ?
     `;
@@ -123,7 +123,7 @@ class ProgramOrderController extends Controller {
       FROM goods_order go
       LEFT JOIN address p ON go.address_id = p.id
       LEFT JOIN logistics lo ON go.id = lo.order_id
-      ${whereClause} AND ((go.is_deleted != 1 OR go.is_deleted IS NULL) AND go.user_id = '${ctx.user.user_id}' AND go.order_status != 50)
+      ${whereClause} AND ((go.is_deleted != 1 OR go.is_deleted IS NULL) AND go.user_id = '${ctx.user.user_id}' AND go.order_status != 50 AND go.order_status != 80 AND go.order_status != 90)
       ORDER BY go.id DESC
       LIMIT ${(pageIndex - 1) * pageSize}, ${pageSize}
     `;
@@ -131,7 +131,7 @@ class ProgramOrderController extends Controller {
     const countSql = `
       SELECT COUNT(*) as count
       FROM goods_order
-      ${whereClause} AND ((is_deleted != 1 OR is_deleted IS NULL)  AND user_id = '${ctx.user.user_id}' AND order_status != 50)
+      ${whereClause} AND ((is_deleted != 1 OR is_deleted IS NULL)  AND user_id = '${ctx.user.user_id}' AND order_status != 50 AND go.order_status != 80 AND go.order_status != 90)
     `;
 
     const [list, [{ count }]] = await Promise.all([
@@ -164,6 +164,7 @@ class ProgramOrderController extends Controller {
     o.total_price,
     o.address_id,
     o.quantity,
+    o.order_status,
     lo.logistics_company,
     lo.logistics_no,
     p.name as address_name,
@@ -193,6 +194,7 @@ class ProgramOrderController extends Controller {
     o.quantity,
     o.goods_name,
     o.address_id,
+    o.order_status,
     o.goods_picture,
     lo.logistics_company,
     lo.logistics_no,
@@ -552,7 +554,7 @@ class ProgramOrderController extends Controller {
     const result = await app.mysql.insert('goods_order_return', {
       user_id: ctx.user.user_id,
       order_id: id,
-      status: '1', // 初始状态为待审核
+      refund_status: '1', // 初始状态为待审核
       apply_time: Date.now(),
     });
     ctx.body = successMsg(result.insertId);
