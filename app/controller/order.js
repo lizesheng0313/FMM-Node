@@ -2,7 +2,7 @@
  * @Author: lizesheng
  * @Date: 2023-02-23 14:08:48
  * @LastEditors: lizesheng
- * @LastEditTime: 2023-04-28 18:08:10
+ * @LastEditTime: 2023-04-28 18:13:17
  * @important: 重要提醒
  * @Description: 备注内容
  * @FilePath: /commerce_egg/app/controller/order.js
@@ -308,20 +308,25 @@ class OrderController extends Controller {
   async receivedGoods() {
     const { ctx, app } = this;
     const { id } = ctx.request.body;
-    const order = await app.mysql.get('goods_order', { id });
-    const retunOrder = await app.mysql.get('goods_order_return', { id });
+    const agreeData = await app.mysql.get('goods_order_return', { id });
+    const order = await app.mysql.get('goods_order', { id: agreeData.order_id });
     // 只有退货中才可以收货
     if (!['50'].includes(order.order_status)) {
-      ctx.body = errorMsg('该订单不能申请退货');
+      ctx.body = errorMsg('该订单不能收货');
       return;
     }
-    if (retunOrder.status !== '4') {
+    if (agreeData.status !== '4') {
       ctx.body = errorMsg('用户还未开始退货');
       return;
     }
-    const result = await this.app.mysql.update('goods_order', { order_status: '80' }, {
+    await this.app.mysql.update('goods_order_return', { status: '6' }, {
       where: {
         id,
+      },
+    });
+    const result = await this.app.mysql.update('goods_order', { order_status: '80' }, {
+      where: {
+        id: agreeData.order_id,
       },
     });
     if (result.affectedRows === 1) {

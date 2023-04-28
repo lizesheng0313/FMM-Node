@@ -2,7 +2,7 @@
  * @Author: lizesheng
  * @Date: 2023-03-06 10:09:19
  * @LastEditors: lizesheng
- * @LastEditTime: 2023-04-28 17:48:12
+ * @LastEditTime: 2023-04-28 18:13:42
  * @important: 重要提醒
  * @Description: 备注内容
  * @FilePath: /commerce_egg/const/index.js
@@ -32,6 +32,7 @@ const RETURNSTATUS = {
   3: '已拒绝',
   4: '退货中',
   5: '已退款',
+  6: '已退货',
 };
 
 module.exports = {
