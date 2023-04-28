@@ -2,7 +2,7 @@
  * @Author: lizesheng
  * @Date: 2023-02-23 14:08:48
  * @LastEditors: lizesheng
- * @LastEditTime: 2023-04-27 17:17:47
+ * @LastEditTime: 2023-04-28 17:34:11
  * @important: 重要提醒
  * @Description: 备注内容
  * @FilePath: /commerce_egg/app/router.js
@@ -38,7 +38,7 @@ module.exports = app => {
   router.post('/api/order/agreen', jwtErr, controller.order.goodsAgreenOperation);
   router.post('/api/order/refuse', jwtErr, controller.order.goodsRefuseOperation);
   router.post('/api/order/approveRefund', jwtErr, controller.order.approveRefund)
-
+  router.post('/api/order/receivedGoods', jwtErr, controller.order.receivedGoods)
   // 登录
   router.post('/api/user/login', controller.user.login);
 

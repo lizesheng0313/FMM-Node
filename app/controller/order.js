@@ -2,7 +2,7 @@
  * @Author: lizesheng
  * @Date: 2023-02-23 14:08:48
  * @LastEditors: lizesheng
- * @LastEditTime: 2023-04-28 17:24:40
+ * @LastEditTime: 2023-04-28 17:32:54
  * @important: 重要提醒
  * @Description: 备注内容
  * @FilePath: /commerce_egg/app/controller/order.js
@@ -276,6 +276,26 @@ class OrderController extends Controller {
       ctx.body = successMsg();
     }
   }
+  // 已收到货
+  async receivedGoods() {
+    const { ctx } = this;
+    const { id } = ctx.request.body;
+    const order = await app.mysql.get('goods_order', { id });
+
+    // 只有退货中才可以收货
+    if (!['50'].includes(order.order_status)) {
+      ctx.body = errorMsg('该订单不能申请退货');
+      return;
+    }
+    const result = await this.app.mysql.update('goods_order', { order_status: '80' }, {
+      where: {
+        id,
+      },
+    });
+    if (result.affectedRows === 1) {
+      ctx.body = successMsg();
+    }
+  }
   // 同意退款
   async approveRefund() {
     const { ctx, app } = this;
@@ -289,13 +309,13 @@ class OrderController extends Controller {
     }
 
     // 检查退货记录状态是否为待退货
-    if (record.status !== 2 && record.status !== 3) {
-      ctx.body = errorMsg('该退货记录不能进行退款操作');
+    if (record.status !== 2 && record.status !== 3 && record.status !== 1) {
+      ctx.body = errorMsg('目前流程还不允许退货');
       return;
     }
 
     if (!['80'].includes(order.order_status)) {
-      ctx.body = errorMsg('该订单不能退款');
+      ctx.body = errorMsg('该订单状态不在退款中');
       return;
     }
     // 更新退货记录状态为已退款
