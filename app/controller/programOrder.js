@@ -2,7 +2,7 @@
  * @Author: lizesheng
  * @Date: 2023-02-23 14:08:48
  * @LastEditors: lizesheng
- * @LastEditTime: 2023-04-28 15:46:30
+ * @LastEditTime: 2023-04-28 15:50:08
  * @important: 重要提醒
  * @Description: 备注内容
  * @FilePath: /commerce_egg/app/controller/programOrder.js
@@ -130,7 +130,7 @@ class ProgramOrderController extends Controller {
     const countSql = `
       SELECT COUNT(*) as count
       FROM goods_order
-      ${whereClause} AND ((is_deleted != 1 OR is_deleted IS NULL)  AND user_id = '${ctx.user.user_id}' AND order_status != 50 AND go.order_status != 80 AND go.order_status != 90)
+      ${whereClause} AND ((is_deleted != 1 OR is_deleted IS NULL)  AND user_id = '${ctx.user.user_id}' AND order_status != 50 AND order_status != 80 AND order_status != 90)
     `;
 
     const [list, [{ count }]] = await Promise.all([
