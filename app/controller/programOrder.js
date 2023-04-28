@@ -2,7 +2,7 @@
  * @Author: lizesheng
  * @Date: 2023-02-23 14:08:48
  * @LastEditors: lizesheng
- * @LastEditTime: 2023-04-28 16:34:07
+ * @LastEditTime: 2023-04-28 16:36:16
  * @important: 重要提醒
  * @Description: 备注内容
  * @FilePath: /commerce_egg/app/controller/programOrder.js
@@ -177,8 +177,8 @@ class ProgramOrderController extends Controller {
     r.user_id = '${ctx.user.user_id}' ) AS total
   FROM goods_order_return r
     INNER JOIN goods_order o ON o.id = r.order_id
-    LEFT JOIN address p ON o.address_id = p.id
     INNER JOIN logistics lo ON r.order_id = lo.order_id
+    LEFT JOIN address p ON o.address_id = p.id
   WHERE
     r.user_id = '${ctx.user.user_id}'
     GROUP BY
@@ -261,8 +261,8 @@ class ProgramOrderController extends Controller {
       (SELECT COUNT(*) FROM goods_order) AS total
     FROM goods_order_return r
       INNER JOIN goods_order o ON o.id = r.order_id
-      LEFT JOIN address p ON o.address_id = p.id
       INNER JOIN logistics lo ON r.order_id = lo.order_id
+      LEFT JOIN address p ON o.address_id = p.id
     WHERE
       o.user_id = '${ctx.user.user_id}' AND r.id = '${id}'
       GROUP BY
