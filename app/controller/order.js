@@ -2,7 +2,7 @@
  * @Author: lizesheng
  * @Date: 2023-02-23 14:08:48
  * @LastEditors: lizesheng
- * @LastEditTime: 2023-04-28 18:13:17
+ * @LastEditTime: 2023-04-28 18:32:55
  * @important: 重要提醒
  * @Description: 备注内容
  * @FilePath: /commerce_egg/app/controller/order.js
@@ -345,8 +345,8 @@ class OrderController extends Controller {
       return;
     }
 
-    // 检查退货记录状态是否为待退货
-    if (agreeData.status !== '6') {
+    // 检查退货记录状态是否为待退货而且不为待退款
+    if (agreeData.status !== '6' && agreeData.status !== '20') {
       ctx.body = errorMsg('还未收到货不允许退款');
       return;
     }
