@@ -2,7 +2,7 @@
  * @Author: lizesheng
  * @Date: 2023-02-23 14:08:48
  * @LastEditors: lizesheng
- * @LastEditTime: 2023-04-29 09:04:30
+ * @LastEditTime: 2023-04-29 09:23:45
  * @important: 重要提醒
  * @Description: 备注内容
  * @FilePath: /commerce_egg/app/controller/programOrder.js
@@ -325,6 +325,7 @@ class ProgramOrderController extends Controller {
       o.sku_id,
       o.payment_time,
       o.order_status,
+      o.pay_status,
       o.user_id,
       o.total_price,
       o.quantity,
@@ -360,6 +361,7 @@ class ProgramOrderController extends Controller {
       o.order_status,
       o.freight,
       o.goods_name,
+      o.pay_status,
       o.goods_picture,
       p.name,
       p.phone,
