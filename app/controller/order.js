@@ -2,7 +2,7 @@
  * @Author: lizesheng
  * @Date: 2023-02-23 14:08:48
  * @LastEditors: lizesheng
- * @LastEditTime: 2023-04-29 08:47:49
+ * @LastEditTime: 2023-04-29 09:00:24
  * @important: 重要提醒
  * @Description: 备注内容
  * @FilePath: /commerce_egg/app/controller/order.js
@@ -310,6 +310,7 @@ class OrderController extends Controller {
     const { id } = ctx.request.body;
     const agreeData = await app.mysql.get('goods_order_return', { id });
     const order = await app.mysql.get('goods_order', { id: agreeData.order_id });
+
     // 只有退货中才可以收货
     if (!['50'].includes(order.order_status)) {
       ctx.body = errorMsg('该订单不能收货');
@@ -319,20 +320,25 @@ class OrderController extends Controller {
       ctx.body = errorMsg('用户还未开始退货');
       return;
     }
-    await this.app.mysql.update('goods_order_return', { status: '6' }, {
-      where: {
-        id,
-      },
-    });
-    const result = await this.app.mysql.update('goods_order', { order_status: '80' }, {
-      where: {
-        id: agreeData.order_id,
-      },
-    });
-    if (result.affectedRows === 1) {
+
+    // 开启事务
+    const conn = await app.mysql.beginTransaction();
+
+    try {
+      await conn.update('goods_order_return', { status: '20' }, { where: { id } });
+      await conn.update('goods_order', { order_status: '80' }, { where: { id: agreeData.order_id } });
+
+      // 提交事务
+      await conn.commit();
+
       ctx.body = successMsg();
+    } catch (err) {
+      // 回滚事务
+      await conn.rollback();
+      throw err;
     }
   }
+
   // 同意退款
   async approveRefund() {
     const { ctx, app } = this;

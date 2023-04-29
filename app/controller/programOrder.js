@@ -2,7 +2,7 @@
  * @Author: lizesheng
  * @Date: 2023-02-23 14:08:48
  * @LastEditors: lizesheng
- * @LastEditTime: 2023-04-28 22:20:54
+ * @LastEditTime: 2023-04-29 09:04:30
  * @important: 重要提醒
  * @Description: 备注内容
  * @FilePath: /commerce_egg/app/controller/programOrder.js
@@ -435,7 +435,7 @@ class ProgramOrderController extends Controller {
 
     // 检查订单状态是否为“已完成”或“退货中”
     if (!['20', '30', '40'].includes(order.order_status)) {
-      ctx.body = errorMsg('该订单不能申请退货');
+      ctx.body = errorMsg('该订单状态已发生变化暂不能申请退货');
       return;
     }
 
@@ -556,7 +556,7 @@ class ProgramOrderController extends Controller {
     }
     // 检查订单状态
     if (!['10'].includes(order.order_status)) {
-      ctx.body = errorMsg('该订单不能申请退款');
+      ctx.body = errorMsg('该订单状态已发货 请在已发货列表处理');
       return;
     }
     await app.mysql.update('goods_order', { order_status: '80' }, {
