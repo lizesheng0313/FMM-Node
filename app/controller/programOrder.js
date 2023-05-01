@@ -2,7 +2,7 @@
  * @Author: lizesheng
  * @Date: 2023-02-23 14:08:48
  * @LastEditors: lizesheng
- * @LastEditTime: 2023-05-01 20:21:32
+ * @LastEditTime: 2023-05-01 20:30:43
  * @important: 重要提醒
  * @Description: 备注内容
  * @FilePath: /commerce_egg/app/controller/programOrder.js
@@ -322,7 +322,7 @@ class ProgramOrderController extends Controller {
       o.goods_picture,
       o.goods_id,
       o.freight,
-      o.act_pay,
+      o.act_price,
       o.sku_id,
       o.payment_time,
       o.order_status,
@@ -362,7 +362,7 @@ class ProgramOrderController extends Controller {
       o.order_status,
       o.freight,
       o.goods_name,
-      o.act_pay,
+      o.act_price,
       o.pay_status,
       o.goods_picture,
       p.name,
