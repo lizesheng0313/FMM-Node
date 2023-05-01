@@ -2,7 +2,7 @@
  * @Author: lizesheng
  * @Date: 2023-03-11 16:41:51
  * @LastEditors: lizesheng
- * @LastEditTime: 2023-05-01 14:39:25
+ * @LastEditTime: 2023-05-01 14:45:24
  * @important: 重要提醒
  * @Description: 备注内容
  * @FilePath: /commerce_egg/app/controller/programHome.js
@@ -54,7 +54,7 @@ class ProgrmHomeController extends Controller {
        LIMIT 1) AS pictureUrl
       FROM goods g
       WHERE g.is_deleted != 1 AND g.online = 1 ${latest ? 'AND g.latest = 1 ' : ''}${recommend ? 'AND g.recommend = 1 ' : ''}
-      ORDER BY g.volume DESC;
+      ORDER BY CAST(g.volume AS UNSIGNED) DESC;
     `;
     const result = await this.app.mysql.query(SQL);
     ctx.body = successMsg({
