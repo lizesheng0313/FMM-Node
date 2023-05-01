@@ -2,7 +2,7 @@
  * @Author: lizesheng
  * @Date: 2023-02-23 14:08:48
  * @LastEditors: lizesheng
- * @LastEditTime: 2023-04-15 22:24:20
+ * @LastEditTime: 2023-05-01 19:42:41
  * @important: 重要提醒
  * @Description: 备注内容
  * @FilePath: /commerce_egg/app/controller/goods.js
@@ -111,7 +111,7 @@ class GoodsController extends Controller {
     const { pageIndex = 1, pageSize = 10 } = ctx.query;
     const TOTALSQL = 'SELECT COUNT(*) as total FROM goods WHERE is_deleted != 1;';
     const total = await this.app.mysql.query(TOTALSQL);
-    const SQL = `SELECT g.id, g.name,g.number, g.volume, g.createTime, g.updateTime, g.classiFication, g.online, g.latest, g.recommend, g.order, GROUP_CONCAT(p.url) AS pictureList
+    const SQL = `SELECT g.id, g.name,g.number, g.volume,g.href, g.createTime, g.updateTime, g.classiFication, g.online, g.latest, g.recommend, g.order, GROUP_CONCAT(p.url) AS pictureList
     FROM goods g 
     LEFT JOIN goods_picture_list p ON g.id = p.goodsId 
     WHERE g.is_deleted != 1 
