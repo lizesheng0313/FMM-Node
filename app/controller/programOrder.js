@@ -2,7 +2,7 @@
  * @Author: lizesheng
  * @Date: 2023-02-23 14:08:48
  * @LastEditors: lizesheng
- * @LastEditTime: 2023-04-29 09:23:45
+ * @LastEditTime: 2023-05-01 20:21:32
  * @important: 重要提醒
  * @Description: 备注内容
  * @FilePath: /commerce_egg/app/controller/programOrder.js
@@ -124,7 +124,7 @@ class ProgramOrderController extends Controller {
       FROM goods_order go
       LEFT JOIN address p ON go.address_id = p.id
       LEFT JOIN logistics lo ON go.id = lo.order_id
-      ${whereClause} AND ((go.is_deleted != 1 OR go.is_deleted IS NULL) AND go.user_id = '${ctx.user.user_id}' AND go.order_status != 50 AND go.order_status != 80 AND go.order_status != 90)
+      ${whereClause} AND ((go.is_deleted != 1 OR go.is_deleted IS NULL) AND go.user_id = '${ctx.user.user_id}')
       ORDER BY go.id DESC
       LIMIT ${(pageIndex - 1) * pageSize}, ${pageSize}
     `;
@@ -132,7 +132,7 @@ class ProgramOrderController extends Controller {
     const countSql = `
       SELECT COUNT(*) as count
       FROM goods_order
-      ${whereClause} AND ((is_deleted != 1 OR is_deleted IS NULL)  AND user_id = '${ctx.user.user_id}' AND order_status != 50 AND order_status != 80 AND order_status != 90)
+      ${whereClause} AND ((is_deleted != 1 OR is_deleted IS NULL)  AND user_id = '${ctx.user.user_id}')
     `;
 
     const [list, [{ count }]] = await Promise.all([

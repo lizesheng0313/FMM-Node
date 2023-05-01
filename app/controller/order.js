@@ -100,7 +100,7 @@ class OrderController extends Controller {
         LEFT JOIN address p ON o.address_id = p.id
         INNER JOIN goods g ON o.goods_id = g.id
       WHERE
-        1 = 1 ${whereClause} AND o.order_status != 50 AND o.order_status != 80 AND o.order_status != 90
+        1 = 1 ${whereClause} 
       GROUP BY
         o.id,
         o.user_id,
