@@ -39,6 +39,7 @@ module.exports = app => {
   router.post('/api/order/refuse', jwtErr, controller.order.goodsRefuseOperation);
   router.post('/api/order/approveRefund', jwtErr, controller.order.approveRefund)
   router.post('/api/order/receivedGoods', jwtErr, controller.order.receivedGoods)
+  router.post('/api/order/getLogList', jwtErr, controller.order.getLogList)
   // 登录
   router.post('/api/user/login', controller.user.login);
 

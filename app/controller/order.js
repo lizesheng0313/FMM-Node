@@ -2,7 +2,7 @@
  * @Author: lizesheng
  * @Date: 2023-02-23 14:08:48
  * @LastEditors: lizesheng
- * @LastEditTime: 2023-05-05 16:27:23
+ * @LastEditTime: 2023-05-05 16:34:47
  * @important: 重要提醒
  * @Description: 备注内容
  * @FilePath: /commerce_egg/app/controller/order.js
@@ -73,6 +73,19 @@ class OrderController extends Controller {
         order_status: order.order_status,
       });
     }
+  }
+  // 获取运力id列表
+  async getLogList() {
+    const { ctx } = this;
+    const token = await ctx.app.mysql.get('token', { id: 1 });
+    const result = await ctx.curl(`https://api.weixin.qq.com/cgi-bin/express/delivery/open_msg/get_delivery_list?access_token=${token.access_token}`, {
+      method: 'POST',
+      headers: {
+        'Content-type': 'application/json',
+      },
+    });
+    ctx.logger.info('微信运力接口', result)
+    ctx.body = successMsg(result)
   }
   // 获取订单列表
   async getOrder() {
