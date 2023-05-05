@@ -2,7 +2,7 @@
  * @Author: lizesheng
  * @Date: 2023-02-23 14:08:48
  * @LastEditors: lizesheng
- * @LastEditTime: 2023-05-05 16:34:47
+ * @LastEditTime: 2023-05-05 16:50:43
  * @important: 重要提醒
  * @Description: 备注内容
  * @FilePath: /commerce_egg/app/controller/order.js
@@ -85,7 +85,10 @@ class OrderController extends Controller {
       },
     });
     ctx.logger.info('微信运力接口', result)
-    ctx.body = successMsg(result)
+    const bufferData = Buffer.from(result?.data)
+    const dataStr = bufferData.toString('utf8');
+    const dataObj = JSON.parse(dataStr);
+    ctx.body = successMsg(dataObj)
   }
   // 获取订单列表
   async getOrder() {
