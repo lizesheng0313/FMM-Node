@@ -2,7 +2,7 @@
  * @Author: lizesheng
  * @Date: 2023-02-23 14:08:48
  * @LastEditors: lizesheng
- * @LastEditTime: 2023-05-05 16:50:43
+ * @LastEditTime: 2023-05-05 16:56:29
  * @important: 重要提醒
  * @Description: 备注内容
  * @FilePath: /commerce_egg/app/controller/order.js
@@ -88,6 +88,12 @@ class OrderController extends Controller {
     const bufferData = Buffer.from(result?.data)
     const dataStr = bufferData.toString('utf8');
     const dataObj = JSON.parse(dataStr);
+
+    const bufferData1 = Buffer.from(result?.res?.data)
+    const dataStr1 = bufferData1.toString('utf8');
+
+    ctx.logger.info('微信运力接口1', dataObj)
+    ctx.logger.info('微信运力接口2', dataStr1)
     ctx.body = successMsg(dataObj)
   }
   // 获取订单列表
