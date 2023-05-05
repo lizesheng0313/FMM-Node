@@ -2,7 +2,7 @@
  * @Author: lizesheng
  * @Date: 2023-02-23 14:08:48
  * @LastEditors: lizesheng
- * @LastEditTime: 2023-05-01 20:30:43
+ * @LastEditTime: 2023-05-05 16:26:32
  * @important: 重要提醒
  * @Description: 备注内容
  * @FilePath: /commerce_egg/app/controller/programOrder.js
@@ -485,20 +485,21 @@ class ProgramOrderController extends Controller {
     });
     ctx.body = successMsg();
   }
+  // 
   // 查看物流
   async getLogistics() {
     const { ctx } = this;
-    const { logistics_company, logistics_no } = ctx.query;
-    ctx.logger.info('查询物流:', logistics_no, '查询用户:', ctx.user.info);
-    if (logistics_company === 'YTO') {
-      const reuslt = await getYTOAddress(logistics_no);
-      let uncodeResult = {};
-      if (reuslt) {
-        uncodeResult = JSON.parse(unicodeToChar(reuslt?.text));
+    const { waybill_token } = ctx.query;
+    const token = await ctx.app.mysql.get('token', { id: 1 });
+    const result = await ctx.curl(`https://api.weixin.qq.com/cgi-bin/express/delivery/open_msg/query_trace?access_token=${token.access_token}`, {
+      method: 'POST',
+      headers: {
+        'Content-type': 'application/json',
+      },
+      data: {
+        waybill_token
       }
-      ctx.body = successMsg(uncodeResult?.data);
-    }
-    ctx.body = errorMsg('第三方查询故障，请联系客服查看物流');
+    });
   }
   // 发起退货物流
   async postReturnLogistic() {
@@ -540,7 +541,7 @@ class ProgramOrderController extends Controller {
     const { out_trade_no, amount } = result;
     if (result.trade_state == 'SUCCESS') {
       // 支付成功更改状态
-      await app.mysql.update('goods_order', { pay_status: '1', payment_time: Date.now(), response_price: amount.total / 100 }, {
+      await app.mysql.update('goods_order', { trans_id: result.transaction_id, pay_status: '1', payment_time: Date.now(), response_price: amount.total / 100 }, {
         where: {
           id: out_trade_no,
         },
@@ -635,18 +636,3 @@ async function generateOrderId(app) {
   return orderId;
 }
 
-// 获取圆通快递
-async function getYTOAddress(logistics_no) {
-  const apiUrl = `https://www.kuaidi.com/index-ajaxselectcourierinfo-${logistics_no}-yuantong-KUAIDICODE${Date.now()}.html`;
-  const response = await superagent.get(apiUrl)
-    .set({ 'Content-Type': 'application/json', Origin: 'https://www.kuaidi.com', Referer: 'https://www.kuaidi.com/all/yuantong.html' })
-    .set('sec-ch-ua', 'Not A;Brand";v="99", "Chromium";v="99", "Google Chrome";v="99')
-    .set({ 'sec-ch-ua-platform': 'macOS' })
-    .set('User-Agent', 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/99.0.4844.51 Safari/537.36');
-  return response;
-}
-function unicodeToChar(text) {
-  return text.replace(/\\u[\dA-F]{4}/gi, match => {
-    return String.fromCharCode(parseInt(match.replace(/\\u/g, ''), 16));
-  });
-}

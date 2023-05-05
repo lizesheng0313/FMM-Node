@@ -2,7 +2,7 @@
  * @Author: lizesheng
  * @Date: 2023-02-23 14:08:48
  * @LastEditors: lizesheng
- * @LastEditTime: 2023-05-01 14:31:02
+ * @LastEditTime: 2023-05-05 16:27:23
  * @important: 重要提醒
  * @Description: 备注内容
  * @FilePath: /commerce_egg/app/controller/order.js
@@ -26,15 +26,39 @@ class OrderController extends Controller {
   // 发货并更改订单状态
   async shipGoods() {
     const { ctx } = this;
-    const { id, logistics_company, logistics_no } = ctx.request.body;
-    const rows = {
-      order_id: id,
-      logistics_company,
-      logistics_no,
-      create_time: Date.now(),
-    };
+    const { id, logistics_company, logistics_no, address_phone = '18210572133' } = ctx.request.body;
     const order = await this.app.mysql.get('goods_order', { id });
     if (order.order_status === '10' && order.pay_status === '1') {
+      const token = await ctx.app.mysql.get('token', { id: 1 });
+      const logistic_no = await ctx.curl(`https://api.weixin.qq.com/cgi-bin/express/delivery/open_msg/trace_waybill?access_token=${token.access_token}`, {
+        method: 'POST',
+        headers: {
+          'Content-type': 'application/json',
+        },
+        data: {
+          openid: ctx.user.user_id,
+          delivery_id: logistics_company,
+          receiver_phone: address_phone,
+          waybill_id: logistics_no,
+          trans_id: order.trans_id,
+          goods_info: {
+            detail_list: [
+              {
+                goods_name: order.goods_name,
+                goods_img_url: order.goods_picture
+              }
+            ]
+          }
+        }
+      });
+      ctx.logger.info(logistic_no, '----传单')
+      const rows = {
+        waybill_token: logistic_no.waybill_token,
+        order_id: id,
+        logistics_company,
+        logistics_no,
+        create_time: Date.now(),
+      };
       const result = await this.app.mysql.insert('logistics', rows);
       await this.app.mysql.update('goods_order', { order_status: '20' }, {
         where: {
