@@ -2,7 +2,7 @@
  * @Author: lizesheng
  * @Date: 2023-02-23 14:08:48
  * @LastEditors: lizesheng
- * @LastEditTime: 2023-05-06 10:27:54
+ * @LastEditTime: 2023-05-06 10:31:01
  * @important: 重要提醒
  * @Description: 备注内容
  * @FilePath: /commerce_egg/app/controller/order.js
@@ -56,7 +56,7 @@ class OrderController extends Controller {
       const dataObj = JSON.parse(dataStr);
       ctx.logger.info(dataObj, '----传单')
       const rows = {
-        waybill_token: dataObj?.data?.waybill_token,
+        waybill_token: dataObj?.waybill_token,
         order_id: id,
         logistics_company,
         logistics_no,
