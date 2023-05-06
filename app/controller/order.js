@@ -2,7 +2,7 @@
  * @Author: lizesheng
  * @Date: 2023-02-23 14:08:48
  * @LastEditors: lizesheng
- * @LastEditTime: 2023-05-05 16:56:29
+ * @LastEditTime: 2023-05-05 17:04:15
  * @important: 重要提醒
  * @Description: 备注内容
  * @FilePath: /commerce_egg/app/controller/order.js
@@ -83,6 +83,7 @@ class OrderController extends Controller {
       headers: {
         'Content-type': 'application/json',
       },
+      data: {}
     });
     ctx.logger.info('微信运力接口', result)
     const bufferData = Buffer.from(result?.data)
