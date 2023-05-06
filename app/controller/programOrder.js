@@ -2,7 +2,7 @@
  * @Author: lizesheng
  * @Date: 2023-02-23 14:08:48
  * @LastEditors: lizesheng
- * @LastEditTime: 2023-05-05 16:26:32
+ * @LastEditTime: 2023-05-06 10:38:46
  * @important: 重要提醒
  * @Description: 备注内容
  * @FilePath: /commerce_egg/app/controller/programOrder.js
@@ -115,6 +115,7 @@ class ProgramOrderController extends Controller {
         go.act_price,
         lo.logistics_company,
         lo.logistics_no,
+        lo.waybill_token,
         p.name as address_name,
         p.phone as address_phone,
         p.address as address_detail,
@@ -179,6 +180,7 @@ class ProgramOrderController extends Controller {
         p.city,
         p.streetName,
         lo.logistics_company,
+        lo.waybill_token,
         lo.logistics_no,
         (SELECT COUNT(*) FROM goods_order) AS total
       FROM
@@ -213,6 +215,7 @@ class ProgramOrderController extends Controller {
         p.streetName,
         p.address,
         lo.logistics_company,
+        lo.waybill_token,
         lo.logistics_no
       ORDER BY
         o.create_time DESC
@@ -241,6 +244,7 @@ class ProgramOrderController extends Controller {
     o.order_status,
     lo.logistics_company,
     lo.logistics_no,
+    lo.waybill_token,
     p.name as address_name,
     p.phone as address_phone,
     p.address as address_detail,
@@ -271,6 +275,7 @@ class ProgramOrderController extends Controller {
     o.order_status,
     o.goods_picture,
     lo.logistics_company,
+    lo.waybill_token,
     lo.logistics_no,
     p.name,
     p.phone,
@@ -337,6 +342,7 @@ class ProgramOrderController extends Controller {
       p.city,
       p.streetName,
       lo.logistics_company,
+      lo.waybill_token,
       lo.logistics_no,
       (SELECT COUNT(*) FROM goods_order) AS total
     FROM goods_order_return r
@@ -372,6 +378,7 @@ class ProgramOrderController extends Controller {
       p.streetName,
       p.address,
       lo.logistics_company,
+      lo.waybill_token,
       lo.logistics_no
     ORDER BY
       r.refund_time DESC,
