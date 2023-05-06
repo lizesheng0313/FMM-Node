@@ -2,7 +2,7 @@
  * @Author: lizesheng
  * @Date: 2023-02-23 14:08:48
  * @LastEditors: lizesheng
- * @LastEditTime: 2023-05-06 10:56:22
+ * @LastEditTime: 2023-05-06 11:25:29
  * @important: 重要提醒
  * @Description: 备注内容
  * @FilePath: /commerce_egg/app/controller/programOrder.js
@@ -496,7 +496,8 @@ class ProgramOrderController extends Controller {
   // 查看物流
   async getLogistics() {
     const { ctx } = this;
-    const { waybill_token } = ctx.query;
+    const { waybill_token } = ctx.request.body;
+    ctx.logger.info('waybill_token=', waybill_token)
     const token = await ctx.app.mysql.get('token', { id: 1 });
     const result = await ctx.curl(`https://api.weixin.qq.com/cgi-bin/express/delivery/open_msg/query_trace?access_token=${token.access_token}`, {
       method: 'POST',
