@@ -2,7 +2,7 @@
  * @Author: lizesheng
  * @Date: 2023-02-23 14:08:48
  * @LastEditors: lizesheng
- * @LastEditTime: 2023-05-06 10:18:25
+ * @LastEditTime: 2023-05-06 10:27:54
  * @important: 重要提醒
  * @Description: 备注内容
  * @FilePath: /commerce_egg/app/controller/order.js
@@ -26,7 +26,7 @@ class OrderController extends Controller {
   // 发货并更改订单状态
   async shipGoods() {
     const { ctx } = this;
-    const { id, logistics_company, logistics_no, address_phone = '18210572133' } = ctx.request.body;
+    const { id, logistics_company, logistics_no, address_phone, user_id } = ctx.request.body;
     const order = await this.app.mysql.get('goods_order', { id });
     if (order.order_status === '10' && order.pay_status === '1') {
       const token = await ctx.app.mysql.get('token', { id: 1 });
@@ -36,7 +36,7 @@ class OrderController extends Controller {
           'Content-type': 'application/json',
         },
         data: {
-          openid: ctx.user.user_id,
+          openid: user_id,
           delivery_id: logistics_company,
           receiver_phone: address_phone,
           waybill_id: logistics_no,
