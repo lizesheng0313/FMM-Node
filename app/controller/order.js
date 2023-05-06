@@ -2,7 +2,7 @@
  * @Author: lizesheng
  * @Date: 2023-02-23 14:08:48
  * @LastEditors: lizesheng
- * @LastEditTime: 2023-05-05 17:04:15
+ * @LastEditTime: 2023-05-06 10:18:25
  * @important: 重要提醒
  * @Description: 备注内容
  * @FilePath: /commerce_egg/app/controller/order.js
@@ -51,14 +51,18 @@ class OrderController extends Controller {
           }
         }
       });
-      ctx.logger.info(logistic_no, '----传单')
+      const bufferData = Buffer.from(logistic_no?.data)
+      const dataStr = bufferData.toString('utf8');
+      const dataObj = JSON.parse(dataStr);
+      ctx.logger.info(dataObj, '----传单')
       const rows = {
-        waybill_token: logistic_no.waybill_token,
+        waybill_token: dataObj?.data?.waybill_token,
         order_id: id,
         logistics_company,
         logistics_no,
         create_time: Date.now(),
       };
+
       const result = await this.app.mysql.insert('logistics', rows);
       await this.app.mysql.update('goods_order', { order_status: '20' }, {
         where: {
@@ -89,12 +93,6 @@ class OrderController extends Controller {
     const bufferData = Buffer.from(result?.data)
     const dataStr = bufferData.toString('utf8');
     const dataObj = JSON.parse(dataStr);
-
-    const bufferData1 = Buffer.from(result?.res?.data)
-    const dataStr1 = bufferData1.toString('utf8');
-
-    ctx.logger.info('微信运力接口1', dataObj)
-    ctx.logger.info('微信运力接口2', dataStr1)
     ctx.body = successMsg(dataObj)
   }
   // 获取订单列表
