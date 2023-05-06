@@ -2,7 +2,7 @@
  * @Author: lizesheng
  * @Date: 2023-02-23 14:08:48
  * @LastEditors: lizesheng
- * @LastEditTime: 2023-05-06 10:50:01
+ * @LastEditTime: 2023-05-06 14:51:12
  * @important: 重要提醒
  * @Description: 备注内容
  * @FilePath: /commerce_egg/app/controller/order.js
@@ -78,7 +78,7 @@ class OrderController extends Controller {
       });
     }
   }
-  // 获取运力id列表
+  // 更新运力id列表
   async getLogList() {
     const { ctx } = this;
     const token = await ctx.app.mysql.get('token', { id: 1 });
@@ -93,7 +93,14 @@ class OrderController extends Controller {
     const bufferData = Buffer.from(result?.data)
     const dataStr = bufferData.toString('utf8');
     const dataObj = JSON.parse(dataStr);
+    await this.app.mysql.insert('delivery_list', dataObj?.delivery_list);
     ctx.body = successMsg(dataObj)
+  }
+  // 获取快递列表
+  async getExpressList() {
+    const { ctx } = this;
+    const list = await ctx.app.mysql.select('delivery_list');
+    ctx.body = successMsg(list)
   }
   // 获取订单列表
   async getOrder() {

@@ -2,7 +2,7 @@
  * @Author: lizesheng
  * @Date: 2023-02-23 14:08:48
  * @LastEditors: lizesheng
- * @LastEditTime: 2023-05-06 10:54:41
+ * @LastEditTime: 2023-05-06 14:49:27
  * @important: 重要提醒
  * @Description: 备注内容
  * @FilePath: /commerce_egg/app/router.js
@@ -40,6 +40,7 @@ module.exports = app => {
   router.post('/api/order/approveRefund', jwtErr, controller.order.approveRefund)
   router.post('/api/order/receivedGoods', jwtErr, controller.order.receivedGoods)
   router.post('/api/order/getLogList', jwtErr, controller.order.getLogList)
+  router.get('/api/order/getExpressList', jwtErr, controller.order.getExpressList)
   // 登录
   router.post('/api/user/login', controller.user.login);
 
