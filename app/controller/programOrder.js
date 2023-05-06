@@ -2,7 +2,7 @@
  * @Author: lizesheng
  * @Date: 2023-02-23 14:08:48
  * @LastEditors: lizesheng
- * @LastEditTime: 2023-05-06 10:38:46
+ * @LastEditTime: 2023-05-06 10:56:22
  * @important: 重要提醒
  * @Description: 备注内容
  * @FilePath: /commerce_egg/app/controller/programOrder.js
@@ -507,6 +507,12 @@ class ProgramOrderController extends Controller {
         waybill_token
       }
     });
+    ctx.logger.info(result, '----查看物流返回')
+    const bufferData = Buffer.from(result?.data)
+    const dataStr = bufferData.toString('utf8');
+    const dataObj = JSON.parse(dataStr);
+    ctx.logger.info(dataObj, '----二进制返回')
+    ctx.body = successMsg(dataObj)
   }
   // 发起退货物流
   async postReturnLogistic() {
