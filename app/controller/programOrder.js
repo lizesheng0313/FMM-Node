@@ -636,9 +636,18 @@ class ProgramOrderController extends Controller {
         id: orderResponse?.goods_id,
       });
       ctx.logger.info(goodsResponse, "goodsResponse");
-      await app.mysql.update("goods", {
-        volume: Number(goodsResponse?.volume) + Number(orderResponse?.quantity),
-      });
+      await app.mysql.update(
+        "goods",
+        {
+          volume:
+            Number(goodsResponse?.volume) + Number(orderResponse?.quantity),
+        },
+        {
+          where: {
+            id: orderResponse?.goods_id,
+          },
+        }
+      );
     }
   }
   // 发起退款
