@@ -40,7 +40,7 @@ module.exports = {
         for (const item of orderItems) {
           await mysql.query(
             'UPDATE sku_goods SET skuStock = skuStock + ? WHERE goodsId = ? AND skuId = ?',
-            [item.quantity, item.goods_id, item.sku_id]
+            [ item.quantity, item.goods_id, item.sku_id ]
           );
         }
       }

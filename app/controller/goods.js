@@ -119,7 +119,7 @@ class GoodsController extends Controller {
     ORDER BY g.createTime DESC 
     LIMIT ? OFFSET ?
     `;
-    const result = await this.app.mysql.query(SQL, [parseInt(pageSize), (parseInt(pageIndex) - 1) * parseInt(pageSize)]);
+    const result = await this.app.mysql.query(SQL, [ parseInt(pageSize), (parseInt(pageIndex) - 1) * parseInt(pageSize) ]);
     result.forEach(item => {
       if (item.pictureList) {
         item.pictureList = item.pictureList.split(',');

@@ -22,7 +22,7 @@ const ORDERSTATUS = {
   60: '已取消',
   70: '待评价',
   80: '退款中',
-  90: '已退款'
+  90: '已退款',
 };
 
 // 退货状态
@@ -33,9 +33,9 @@ const RETURNSTATUS = {
   4: '退货中',
   5: '已退款',
   6: '已退货',
-  20: '待退款'
+  20: '待退款',
 };
 
 module.exports = {
-  PAYSTATUS, ORDERSTATUS, RETURNSTATUS
+  PAYSTATUS, ORDERSTATUS, RETURNSTATUS,
 };

@@ -22,7 +22,7 @@ class ProgramTrackController extends Controller {
     };
     const result = await this.app.mysql.insert('tracking_data', rows);
     if (result.affectedRows === 1) {
-      ctx.body = successMsg()
+      ctx.body = successMsg();
     }
   }
 }

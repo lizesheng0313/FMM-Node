@@ -55,7 +55,7 @@ class ProgrmGoodsController extends Controller {
       where: {
         type_value: typeId,
       },
-      orders: [['order', 'ASC']],
+      orders: [[ 'order', 'ASC' ]],
     });
     const leftList = arrList.filter(item => item.parentId === 1);
     const rightList = [];

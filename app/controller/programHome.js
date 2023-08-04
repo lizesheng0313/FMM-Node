@@ -31,7 +31,7 @@ class ProgrmHomeController extends Controller {
     }
     const result = await this.app.mysql.select('class_ification', {
       where,
-      orders: [['order', 'ASC']],
+      orders: [[ 'order', 'ASC' ]],
     });
     ctx.body = successMsg({
       list: result,
@@ -78,13 +78,13 @@ class ProgrmHomeController extends Controller {
     WHERE g.is_deleted != ? AND JSON_CONTAINS(classification, ?) AND g.online = 1
     ORDER BY g.order DESC, g.volume DESC
     LIMIT ?, ?`,
-      [1, classification, offset, limit]
+      [ 1, classification, offset, limit ]
     );
 
     // 查询商品总数
     const totalResult = await ctx.app.mysql.query(
-      `SELECT COUNT(*) as total FROM goods WHERE is_deleted != 1 AND JSON_CONTAINS(classification, ?) AND online = 1`,
-      [classification]
+      'SELECT COUNT(*) as total FROM goods WHERE is_deleted != 1 AND JSON_CONTAINS(classification, ?) AND online = 1',
+      [ classification ]
     );
     const total = totalResult[0].total;
 
@@ -95,14 +95,13 @@ class ProgrmHomeController extends Controller {
   }
 
 
-
   // 搜索接口
   async searchGoods() {
     const { ctx } = this;
     const { keyword, pageIndex = 1, pageSize = 10 } = ctx.query;
     const limit = parseInt(pageSize);
     const offset = (pageIndex - 1) * pageSize;
-    const [result, totalCount] = await Promise.all([
+    const [ result, totalCount ] = await Promise.all([
       ctx.app.mysql.query(
         `SELECT DISTINCT g.id, g.name, g.introduction, g.online, g.createTime, g.volume,
           (SELECT url FROM goods_picture_list WHERE goodsId = g.id LIMIT 1) AS pictureUrl, 
@@ -114,7 +113,7 @@ class ProgrmHomeController extends Controller {
         ) AND g.online = 1 
         ORDER BY g.createTime DESC
         LIMIT ?, ?`,
-        [1, `%${keyword}%`, `%${keyword}%`, `%${keyword}%`, offset, limit]
+        [ 1, `%${keyword}%`, `%${keyword}%`, `%${keyword}%`, offset, limit ]
       ),
       ctx.app.mysql.query(
         `SELECT COUNT(DISTINCT g.id) AS totalCount FROM goods g
@@ -122,7 +121,7 @@ class ProgrmHomeController extends Controller {
         WHERE g.is_deleted != ? AND (
           g.name LIKE ? OR g.introduction LIKE ? OR c.label LIKE ?
         ) AND g.online = 1`,
-        [1, `%${keyword}%`, `%${keyword}%`, `%${keyword}%`]
+        [ 1, `%${keyword}%`, `%${keyword}%`, `%${keyword}%` ]
       ),
     ]);
     ctx.body = successMsg({

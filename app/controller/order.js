@@ -45,16 +45,16 @@ class OrderController extends Controller {
             detail_list: [
               {
                 goods_name: order.goods_name,
-                goods_img_url: order.goods_picture
-              }
-            ]
-          }
-        }
+                goods_img_url: order.goods_picture,
+              },
+            ],
+          },
+        },
       });
-      const bufferData = Buffer.from(logistic_no?.data)
+      const bufferData = Buffer.from(logistic_no?.data);
       const dataStr = bufferData.toString('utf8');
       const dataObj = JSON.parse(dataStr);
-      ctx.logger.info(dataObj, '----传单')
+      ctx.logger.info(dataObj, '----传单');
       const rows = {
         waybill_token: dataObj?.waybill_token,
         order_id: id,
@@ -87,20 +87,20 @@ class OrderController extends Controller {
       headers: {
         'Content-type': 'application/json',
       },
-      data: {}
+      data: {},
     });
-    ctx.logger.info('微信运力接口', result)
-    const bufferData = Buffer.from(result?.data)
+    ctx.logger.info('微信运力接口', result);
+    const bufferData = Buffer.from(result?.data);
     const dataStr = bufferData.toString('utf8');
     const dataObj = JSON.parse(dataStr);
     await this.app.mysql.insert('delivery_list', dataObj?.delivery_list);
-    ctx.body = successMsg(dataObj)
+    ctx.body = successMsg(dataObj);
   }
   // 获取快递列表
   async getExpressList() {
     const { ctx } = this;
     const list = await ctx.app.mysql.select('delivery_list');
-    ctx.body = successMsg(list)
+    ctx.body = successMsg(list);
   }
   // 获取订单列表
   async getOrder() {
@@ -314,9 +314,9 @@ class OrderController extends Controller {
     const { id, return_address } = ctx.request.body;
     const agreeData = await app.mysql.get('goods_order_return', { id });
     const order = await app.mysql.get('goods_order', { id: agreeData.order_id });
-    ctx.logger.info(order, '同意退货的order')
+    ctx.logger.info(order, '同意退货的order');
 
-    if (!['50'].includes(order.order_status)) {
+    if (![ '50' ].includes(order.order_status)) {
       ctx.body = errorMsg('该订单状态不在退货中');
       return;
     }
@@ -339,7 +339,7 @@ class OrderController extends Controller {
     const { id, reason } = ctx.request.body;
     const agreeData = await app.mysql.get('goods_order_return', { id });
     const order = await app.mysql.get('goods_order', { id: agreeData.order_id });
-    if (!['50'].includes(order.order_status)) {
+    if (![ '50' ].includes(order.order_status)) {
       ctx.body = errorMsg('该订单状态不在退货中');
       return;
     }
@@ -364,7 +364,7 @@ class OrderController extends Controller {
     const order = await app.mysql.get('goods_order', { id: agreeData.order_id });
 
     // 只有退货中才可以收货
-    if (!['50'].includes(order.order_status)) {
+    if (![ '50' ].includes(order.order_status)) {
       ctx.body = errorMsg('该订单不能收货');
       return;
     }
@@ -409,7 +409,7 @@ class OrderController extends Controller {
       return;
     }
 
-    if (!['80'].includes(order.order_status)) {
+    if (![ '80' ].includes(order.order_status)) {
       ctx.body = errorMsg('该订单状态不在退款中');
       return;
     }
