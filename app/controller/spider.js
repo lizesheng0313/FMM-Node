@@ -17,9 +17,6 @@ class SpiderController extends Controller {
         "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/115.0.0.0 Safari/537.36",
         "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/115.0.0.0 Safari/537.36",
         "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/116.0.0.0 Safari/537.36",
-        // Firefox User-Agents
-        "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:92.0) Gecko/20100101 Firefox/92.0",
-        "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:91.0) Gecko/20100101 Firefox/91.0",
         // Safari User-Agents
         "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/14.0.3 Safari/605.1.15",
         "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/14.0.2 Safari/605.1.15",
@@ -69,28 +66,31 @@ class SpiderController extends Controller {
         currentScrollHeight = await page.evaluate(() => {
           return window.pageYOffset;
         });
+        console.log(currentScrollHeight, "---currentScrollHeight");
         scrollTimes++;
       }
-      // await page.waitForSelector(".content-detail", { timeout: 100000 });
-      // await page.waitForSelector(".content-detail", { timeout: 100000 });
+      // 等待图片加载完成
+      await page.waitForSelector(".content-detail img", { timeout: 10000 }); // 等待content-detail下的img元素出现
+      await page.waitForSelector(".detail-gallery-wrapper img", {
+        timeout: 10000,
+      }); // 等待detail-gallery-wrapper下的img元素出现
       const pageContent = await page.content();
       console.log(pageContent, "---pageContent");
       const $ = cheerio.load(pageContent);
       // 使用 $ 选择器获取指定 class 下的所有 img 标签
-      const imgElements = $(".content-detail img");
-      console.log(imgElements, "---imgElements");
-      const mainElements = $(".detail-gallery-turn-outter-wrapper img");
+      const mainElements = $(".detail-gallery-wrapper img");
       // 使用 each 方法遍历 img 标签，并获取它们的 src 属性
       const imgSrcList = [];
       const manImageList = [];
-      imgElements.each((index, element) => {
-        console.log(element, "---element");
-        const src = element.attribs["data-lazyload-src"];
-        imgSrcList.push(src);
-      });
       mainElements.each((index, element) => {
+        console.log(element, "---element");
         const src = element.attribs["src"];
         manImageList.push(src);
+      });
+      const imgElements = $(".content-detail img");
+      imgElements.each((index, element) => {
+        const src = element.attribs["data-lazyload-src"];
+        imgSrcList.push(src);
       });
       console.log(imgSrcList, "----imgElements");
       console.log(manImageList, "---manImageList");

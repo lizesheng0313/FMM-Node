@@ -5,6 +5,12 @@
 module.exports = (app) => {
   const { router, controller, middleware } = app;
   const jwtErr = middleware.jwtErr(app.config.jwt);
+  // 控制台
+  router.get(
+    "/api/admin/getOrderCounts",
+    jwtErr,
+    controller.dashboard.getOrderCounts
+  );
   // 权限操作
   router.post("/api/admin/manage/menu/add", jwtErr, controller.menu.add);
   router.post("/api/admin/manage/menu/update", jwtErr, controller.menu.update);
