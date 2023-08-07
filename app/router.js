@@ -6,62 +6,84 @@ module.exports = (app) => {
   const { router, controller, middleware } = app;
   const jwtErr = middleware.jwtErr(app.config.jwt);
   // 权限操作
-  router.post("/api/manage/menu/add", jwtErr, controller.menu.add);
-  router.post("/api/manage/menu/update", jwtErr, controller.menu.update);
-  router.get("/api/manage/get/menu", jwtErr, controller.menu.get);
+  router.post("/api/admin/manage/menu/add", jwtErr, controller.menu.add);
+  router.post("/api/admin/manage/menu/update", jwtErr, controller.menu.update);
+  router.get("/api/admin/manage/get/menu", jwtErr, controller.menu.get);
   // 商品操作
-  router.get("/api/manage/getGoods", jwtErr, controller.goods.get);
-  router.post("/api/manage/addGoods", jwtErr, controller.goods.add);
-  router.post("/api/manage/updateGoods", jwtErr, controller.goods.update);
-  router.post("/api/manage/deleteGoods", jwtErr, controller.goods.delete);
-  router.get("/api/manage/getDetails", jwtErr, controller.goods.getDetails);
+  router.get("/api/admin/manage/getGoods", jwtErr, controller.goods.get);
+  router.post("/api/admin/manage/addGoods", jwtErr, controller.goods.add);
+  router.post("/api/admin/manage/updateGoods", jwtErr, controller.goods.update);
+  router.post("/api/admin/manage/deleteGoods", jwtErr, controller.goods.delete);
+  router.get(
+    "/api/admin/manage/getDetails",
+    jwtErr,
+    controller.goods.getDetails
+  );
 
   // 分类相关接口
   router.get(
-    "/api/getClassiFication",
+    "/api/admin/getClassiFication",
     jwtErr,
     controller.constant.getClassiFication
   );
-  router.post("/api/category/add", jwtErr, controller.category.addCategory);
-  router.post("/api/category/edit", jwtErr, controller.category.editCategory);
   router.post(
-    "/api/category/delete",
+    "/api/admin/category/add",
+    jwtErr,
+    controller.category.addCategory
+  );
+  router.post(
+    "/api/admin/category/edit",
+    jwtErr,
+    controller.category.editCategory
+  );
+  router.post(
+    "/api/admin/category/delete",
     jwtErr,
     controller.category.deleteCategory
   );
 
   // 订单
-  router.get("/api/order/list", jwtErr, controller.order.getOrder);
-  router.get("/api/order/returnList", jwtErr, controller.order.getReturnOrder);
-  router.post("/api/order/shipGoods", jwtErr, controller.order.shipGoods);
+  router.get("/api/admin/order/list", jwtErr, controller.order.getOrder);
+  router.get(
+    "/api/admin/order/returnList",
+    jwtErr,
+    controller.order.getReturnOrder
+  );
+  router.post("/api/admin/order/shipGoods", jwtErr, controller.order.shipGoods);
   router.post(
-    "/api/order/agreen",
+    "/api/admin/order/agreen",
     jwtErr,
     controller.order.goodsAgreenOperation
   );
   router.post(
-    "/api/order/refuse",
+    "/api/admin/order/refuse",
     jwtErr,
     controller.order.goodsRefuseOperation
   );
   router.post(
-    "/api/order/approveRefund",
+    "/api/admin/order/approveRefund",
     jwtErr,
     controller.order.approveRefund
   );
   router.post(
-    "/api/order/receivedGoods",
+    "/api/admin/order/receivedGoods",
     jwtErr,
     controller.order.receivedGoods
   );
-  router.post("/api/order/getLogList", jwtErr, controller.order.getLogList);
+  router.post(
+    "/api/admin/order/getLogList",
+    jwtErr,
+    controller.order.getLogList
+  );
   router.get(
-    "/api/order/getExpressList",
+    "/api/admin/order/getExpressList",
     jwtErr,
     controller.order.getExpressList
   );
   // 登录
-  router.post("/api/user/login", controller.user.login);
+  router.post("/api/admin/user/login", controller.user.login);
+  // 爬虫
+  router.get("/api/admin/manage/getTargetInfo", controller.spider.scrapeData);
 
   // 小程序
   // 用户
@@ -171,6 +193,4 @@ module.exports = (app) => {
   router.post("/api/uploadImage", jwtErr, controller.upload.uploadImage);
   // 埋点
   router.post("/api/events", controller.programTrack.add);
-  // 爬虫
-  router.get("/api/manage/getTargetInfo", controller.spider.scrapeData);
 };

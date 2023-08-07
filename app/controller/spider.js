@@ -14,28 +14,15 @@ class SpiderController extends Controller {
     try {
       const userAgents = [
         // Chrome User-Agents
-        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/94.0.4606.71 Safari/537.36",
-        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.164 Safari/537.36",
-        "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/94.0.4606.71 Safari/537.36",
-        "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.164 Safari/537.36",
-
+        "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/115.0.0.0 Safari/537.36",
+        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/115.0.0.0 Safari/537.36",
+        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/116.0.0.0 Safari/537.36",
         // Firefox User-Agents
-        "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:93.0) Gecko/20100101 Firefox/93.0",
-        "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:93.0) Gecko/20100101 Firefox/93.0",
+        "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:92.0) Gecko/20100101 Firefox/92.0",
         "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:91.0) Gecko/20100101 Firefox/91.0",
-        "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:91.0) Gecko/20100101 Firefox/91.0",
-
         // Safari User-Agents
-        "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/14.1.2 Safari/605.1.15",
-        "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/14.1.1 Safari/605.1.15",
-        "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/14.1 Safari/605.1",
         "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/14.0.3 Safari/605.1.15",
-
-        // Edge User-Agents
-        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/93.0.4577.82 Safari/537.36 Edg/93.0.961.38",
-        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/93.0.4577.82 Safari/537.36 Edg/93.0.961.38",
-        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/92.0.4515.107 Safari/537.36 Edg/92.0.902.84",
-        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/92.0.4515.107 Safari/537.36 Edg/92.0.902.84",
+        "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/14.0.2 Safari/605.1.15",
       ];
 
       const userAgent =
@@ -43,8 +30,6 @@ class SpiderController extends Controller {
 
       const browser = await puppeteer.launch({
         headless: true,
-        executablePath:
-          "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome",
         args: ["--disable-web-security"],
       });
 
@@ -53,7 +38,7 @@ class SpiderController extends Controller {
       // 设置随机延时
       // 设置额外的HTTP请求头，包括Origin和Referer
       await page.setExtraHTTPHeaders({
-        Referer: "https://detail.1688.com",
+        Referer: targetUrl,
       });
       await page.goto(targetUrl, {
         waitUntil: "domcontentloaded",
@@ -86,10 +71,10 @@ class SpiderController extends Controller {
         });
         scrollTimes++;
       }
-
-      await page.waitForSelector(".content-detail", { timeout: 100000 });
+      // await page.waitForSelector(".content-detail", { timeout: 100000 });
+      // await page.waitForSelector(".content-detail", { timeout: 100000 });
       const pageContent = await page.content();
-      // console.log(pageContent, "---pageContent");
+      console.log(pageContent, "---pageContent");
       const $ = cheerio.load(pageContent);
       // 使用 $ 选择器获取指定 class 下的所有 img 标签
       const imgElements = $(".content-detail img");
@@ -117,6 +102,7 @@ class SpiderController extends Controller {
         detailsList: imgSrcList,
       });
     } catch (error) {
+      console.log(error);
       ctx.status = 500;
       ctx.body = { error };
     }
