@@ -22,7 +22,7 @@ module.exports = (appInfo) => {
   const config = (exports = {});
   config.cluster = {
     listen: {
-      port: 7000,
+      port: 7002,
     },
   };
   config.logger = {
