@@ -15,6 +15,11 @@ module.exports = (app) => {
   router.post("/api/admin/manage/menu/add", jwtErr, controller.menu.add);
   router.post("/api/admin/manage/menu/update", jwtErr, controller.menu.update);
   router.get("/api/admin/manage/get/menu", jwtErr, controller.menu.get);
+  router.get(
+    "/api/admin/getUserList",
+    jwtErr,
+    controller.permission.getUserList
+  );
   // 商品操作
   router.get("/api/admin/manage/getGoods", jwtErr, controller.goods.get);
   router.post("/api/admin/manage/addGoods", jwtErr, controller.goods.add);

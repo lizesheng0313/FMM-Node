@@ -1,12 +1,3 @@
-/*
- * @Author: lizesheng
- * @Date: 2023-02-23 14:08:48
- * @LastEditors: lizesheng
- * @LastEditTime: 2023-03-17 10:56:54
- * @important: 重要提醒
- * @Description: 备注内容
- * @FilePath: /commerce_egg/app/controller/user.js
- */
 "use strict";
 const { successMsg } = require("../../utils/utils");
 const { Controller } = require("egg");

@@ -8,12 +8,12 @@
  * @FilePath: /commerce_egg/app/schedule/cancleOrder.js
  */
 
-'use strict';
+"use strict";
 module.exports = {
   schedule: {
-    interval: '1m', // 1分钟间隔
+    interval: "2m", // 1分钟间隔
     immediate: true, // 是否立即执行一次
-    type: 'all', // 指定所有的 worker 都需要执行
+    type: "all", // 指定所有的 worker 都需要执行
   },
   async task(ctx) {
     const { mysql } = ctx.app;
@@ -26,21 +26,21 @@ module.exports = {
       for (const order of orders) {
         ctx.logger.info(`取消订单${order.id},取消时间为${Date.now()}`);
         // 取消订单的逻辑
-        await mysql.update('goods_order', {
+        await mysql.update("goods_order", {
           id: order.id,
-          order_status: '60',
+          order_status: "60",
           cancle_time: Date.now(),
         });
         // 恢复库存的逻辑
-        const orderItems = await mysql.select('goods_order', {
+        const orderItems = await mysql.select("goods_order", {
           where: {
             id: order.id,
           },
         });
         for (const item of orderItems) {
           await mysql.query(
-            'UPDATE sku_goods SET skuStock = skuStock + ? WHERE goodsId = ? AND skuId = ?',
-            [ item.quantity, item.goods_id, item.sku_id ]
+            "UPDATE sku_goods SET skuStock = skuStock + ? WHERE goodsId = ? AND skuId = ?",
+            [item.quantity, item.goods_id, item.sku_id]
           );
         }
       }

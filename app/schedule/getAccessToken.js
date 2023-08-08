@@ -1,39 +1,34 @@
-/*
- * @Author: lizesheng
- * @Date: 2023-04-08 19:44:24
- * @LastEditors: lizesheng
- * @LastEditTime: 2023-04-23 23:20:57
- * @important: 重要提醒
- * @Description: 备注内容
- * @FilePath: /commerce_egg/app/schedule/getAccessToken.js
- */
 module.exports = {
   schedule: {
-    interval: '6840000', // 1.9小时执行一次
+    interval: "6840000", // 1.9小时执行一次
     immediate: true,
-    type: 'all', // 指定所有的 worker 都需要执行
+    type: "all", // 指定所有的 worker 都需要执行
   },
   async task(ctx) {
-    const url = 'https://api.weixin.qq.com/cgi-bin/token';
-    const data = {
-      grant_type: 'client_credential',
-      appid: 'wx67961123d36e6395',
-      secret: '2db66db1355c7d96c94385477890b0c9',
-    };
     try {
-      const result = await ctx.curl(url, {
-        data,
-        dataType: 'json',
-      });
-      if (result.data.access_token) {
-        const row = {
-          id: 1,
-          access_token: result.data.access_token,
+      const programSecrets = await ctx.app.mysql.select("program_secret");
+      for (const programSecret of programSecrets) {
+        const url = "https://api.weixin.qq.com/cgi-bin/token";
+        const data = {
+          grant_type: "client_credential",
+          appid: programSecret.appid,
+          secret: programSecret.secret,
         };
-        ctx.app.mysql.update('token', row);
+        const result = await ctx.curl(url, {
+          data,
+          dataType: "json",
+        });
+
+        if (result.data.access_token) {
+          await ctx.app.mysql.update(
+            "token",
+            { access_token: result.data.access_token },
+            { where: { appid: programSecret.appid } }
+          );
+        }
       }
-    } catch {
-      ctx.logger.err('1.9小时获取token失败了');
+    } catch (error) {
+      ctx.logger.error("1.9小时获取token失败了");
     }
   },
 };

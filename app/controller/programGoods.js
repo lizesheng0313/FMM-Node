@@ -7,9 +7,9 @@
  * @Description: 备注内容
  * @FilePath: /commerce_egg/app/controller/programGoods.js
  */
-'use strict';
-const { successMsg } = require('../../utils/utils');
-const { Controller } = require('egg');
+"use strict";
+const { successMsg } = require("../../utils/utils");
+const { Controller } = require("egg");
 
 class ProgrmGoodsController extends Controller {
   async getDetails() {
@@ -24,14 +24,20 @@ class ProgrmGoodsController extends Controller {
     // 获取商品图片列表
     const pictureSQL = `SELECT url FROM goods_picture_list WHERE goodsId = ${id}`;
     const pictureResult = await this.app.mysql.query(pictureSQL);
-    const pictureList = pictureResult.map(item => item.url);
+    const pictureList = pictureResult.map((item) => item.url);
 
     // 获取SKU信息
     const skuSQL = `SELECT * FROM sku_goods WHERE goodsId = ${id}`;
     const skuResult = await this.app.mysql.query(skuSQL);
-    const sku = skuResult.map(item => {
-      const skuIdArr = item.skuId.split(',');
-      const skuObj = { skuId: item.skuId, skuStock: item.skuStock, skuPrice: item.skuPrice, goods_picture: item.goods_picture, skuOriginPrice: item.skuOriginPrice };
+    const sku = skuResult.map((item) => {
+      const skuIdArr = item.skuId.split(",");
+      const skuObj = {
+        skuId: item.skuId,
+        skuStock: item.skuStock,
+        skuPrice: item.skuPrice,
+        goods_picture: item.goods_picture,
+        skuOriginPrice: item.skuOriginPrice,
+      };
       skuIdArr.forEach((name, index) => {
         skuObj[`name${index}`] = name;
       });
@@ -51,17 +57,18 @@ class ProgrmGoodsController extends Controller {
   async getClassiFication() {
     const { ctx } = this;
     const { typeId } = ctx.query;
-    const arrList = await this.app.mysql.select('class_ification', {
+    const arrList = await this.app.mysql.select("class_ification", {
       where: {
+        eid: ctx.user.eid,
         type_value: typeId,
       },
-      orders: [[ 'order', 'ASC' ]],
+      orders: [["order", "ASC"]],
     });
-    const leftList = arrList.filter(item => item.parentId === 1);
+    const leftList = arrList.filter((item) => item.parentId === 1);
     const rightList = [];
     leftList.forEach((item, index) => {
       rightList[index] = [];
-      arrList.forEach(it => {
+      arrList.forEach((it) => {
         if (item.value === it.parentId) {
           rightList[index].push(it);
         }
@@ -74,6 +81,5 @@ class ProgrmGoodsController extends Controller {
     });
   }
 }
-
 
 module.exports = ProgrmGoodsController;

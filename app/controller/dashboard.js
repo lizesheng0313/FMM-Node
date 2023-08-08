@@ -99,5 +99,3 @@ class DashBoardController extends Controller {
 }
 
 module.exports = DashBoardController;
-
-module.exports = DashBoardController;

@@ -7,9 +7,9 @@
  * @Description: 备注内容
  * @FilePath: /commerce_egg/app/controller/programTrack.js
  */
-'use strict';
-const { successMsg } = require('../../utils/utils');
-const { Controller } = require('egg');
+"use strict";
+const { successMsg } = require("../../utils/utils");
+const { Controller } = require("egg");
 
 class ProgramTrackController extends Controller {
   async add() {
@@ -17,15 +17,15 @@ class ProgramTrackController extends Controller {
     const user_id = ctx.user?.user_id;
     const rows = {
       ...ctx.request.body,
+      eid: ctx.user.eid,
       create_time: Date.now(),
-      user_id: user_id || '',
+      user_id: user_id || "",
     };
-    const result = await this.app.mysql.insert('tracking_data', rows);
+    const result = await this.app.mysql.insert("tracking_data", rows);
     if (result.affectedRows === 1) {
       ctx.body = successMsg();
     }
   }
 }
-
 
 module.exports = ProgramTrackController;
