@@ -23,12 +23,12 @@ module.exports = {
           await ctx.app.mysql.update(
             "token",
             { access_token: result.data.access_token },
-            { where: { appid: programSecret.appid } }
+            { where: { eid: programSecret.appid } }
           );
         }
       }
     } catch (error) {
-      ctx.logger.error("1.9小时获取token失败了");
+      ctx.logger.error("1.9小时获取token失败了", error);
     }
   },
 };

@@ -20,6 +20,12 @@ module.exports = (app) => {
     jwtErr,
     controller.permission.getUserList
   );
+  // 上传分类
+  router.post(
+    "/api/admin/uploadTypeImage",
+    jwtErr,
+    controller.upload.uploadTypeImage
+  );
   // 商品操作
   router.get("/api/admin/manage/getGoods", jwtErr, controller.goods.get);
   router.post("/api/admin/manage/addGoods", jwtErr, controller.goods.add);
@@ -202,6 +208,7 @@ module.exports = (app) => {
 
   // 上传
   router.post("/api/uploadImage", jwtErr, controller.upload.uploadImage);
+
   // 埋点
   router.post("/api/events", controller.programTrack.add);
 };

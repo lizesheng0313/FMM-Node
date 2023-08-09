@@ -23,8 +23,8 @@ class ProgrmHomeController extends Controller {
   // 获取分类
   async getClassifcation() {
     const { ctx } = this;
-    const { typeId, is_show_home, eid } = ctx.query;
-    const where = { type_value: typeId, eid };
+    const { is_show_home, eid } = ctx.query;
+    const where = { eid };
     if (is_show_home !== undefined) {
       where.is_show_home = is_show_home;
     }
@@ -125,7 +125,7 @@ class ProgrmHomeController extends Controller {
           (SELECT url FROM goods_picture_list WHERE goodsId = g.id LIMIT 1) AS pictureUrl, 
           (SELECT skuPrice FROM sku_goods WHERE goodsId = g.id LIMIT 1) AS price 
         FROM goods g 
-        LEFT JOIN class_ification c ON g.classification LIKE CONCAT('%', c.value, '%')
+        LEFT JOIN class_ification c ON g.classification LIKE CONCAT('%', c.id, '%')
         WHERE g.is_deleted != ? AND g.eid = ? AND (
           g.name LIKE ? OR g.introduction LIKE ? OR c.label LIKE ?
         ) AND g.online = 1 
@@ -135,7 +135,7 @@ class ProgrmHomeController extends Controller {
       ),
       ctx.app.mysql.query(
         `SELECT COUNT(DISTINCT g.id) AS totalCount FROM goods g
-        LEFT JOIN class_ification c ON g.classification LIKE CONCAT('%', c.value, '%')
+        LEFT JOIN class_ification c ON g.classification LIKE CONCAT('%', c.id, '%')
         WHERE g.is_deleted != ? AND g.eid = ? AND (
           g.name LIKE ? OR g.introduction LIKE ? OR c.label LIKE ?
         ) AND g.online = 1`,

@@ -1,37 +1,33 @@
-/*
- * @Author: lizesheng
- * @Date: 2023-02-23 14:08:48
- * @LastEditors: lizesheng
- * @LastEditTime: 2023-04-22 21:50:05
- * @important: 重要提醒
- * @Description: 备注内容
- * @FilePath: /commerce_egg/app/controller/constant.js
- */
-"use strict";
 const { successMsg } = require("../../utils/utils");
 const { Controller } = require("egg");
 
 class ConstantController extends Controller {
   async getClassiFication() {
     const { ctx } = this;
-    let classiFicationList = await this.app.mysql.select("class_ification", {
-      where: { eid: ctx.user.eid },
-    });
-    classiFicationList &&
-      classiFicationList.forEach((item) => {
-        if (item.parentId) {
-          const parentItem = classiFicationList.find(
-            (element) => item.parentId === element.value
-          );
-          if (!parentItem?.children) {
-            parentItem.children = [];
+    const eid = ctx.user.eid; // 获取动态的 eid 值
+    const query = `
+      SELECT * FROM class_ification
+      WHERE eid = ? 
+      AND (is_delete = 0 OR is_delete IS NULL) ORDER BY \`order\` ASC;
+      `;
+    const classiFicationList = await this.app.mysql.query(query, [eid]);
+
+    const buildTree = (items, parentId) => {
+      const result = [];
+      for (const item of items) {
+        if (item.parentId === parentId) {
+          const children = buildTree(items, item.id);
+          if (children.length > 0) {
+            item.children = children;
           }
-          parentItem.children.push(item);
+          result.push(item);
         }
-      });
-    classiFicationList = classiFicationList.filter((item) => !item.parentId);
+      }
+      return result;
+    };
+    const topLevelItems = buildTree(classiFicationList, null);
     ctx.body = successMsg({
-      list: classiFicationList,
+      list: topLevelItems,
     });
   }
 }

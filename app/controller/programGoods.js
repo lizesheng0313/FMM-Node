@@ -56,20 +56,17 @@ class ProgrmGoodsController extends Controller {
   // 分类页面
   async getClassiFication() {
     const { ctx } = this;
-    const { typeId } = ctx.query;
-    const arrList = await this.app.mysql.select("class_ification", {
+    const leftList = await this.app.mysql.select("class_ification", {
       where: {
         eid: ctx.user.eid,
-        type_value: typeId,
       },
       orders: [["order", "ASC"]],
     });
-    const leftList = arrList.filter((item) => item.parentId === 1);
     const rightList = [];
     leftList.forEach((item, index) => {
       rightList[index] = [];
-      arrList.forEach((it) => {
-        if (item.value === it.parentId) {
+      leftList.forEach((it) => {
+        if (item.id === it.parentId) {
           rightList[index].push(it);
         }
       });

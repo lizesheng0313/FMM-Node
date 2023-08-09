@@ -7,72 +7,92 @@
  * @Description: 备注内容
  * @FilePath: /commerce_egg/app/controller/category.js
  */
-'use strict';
-const { successMsg, errorMsg } = require('../../utils/utils');
-const { Controller } = require('egg');
+"use strict";
+const { successMsg, errorMsg } = require("../../utils/utils");
+const { Controller } = require("egg");
 
 class CategoryController extends Controller {
   async addCategory() {
     const { ctx } = this;
-    const { name, parentId } = ctx.request.body;
-    // 检查分类名是否已存在
-    const category = await this.app.mysql.get('category', { name });
-    if (category) {
-      ctx.body = errorMsg('该分类名已存在');
-      return;
-    }
-    // 添加分类
-    const result = await this.app.mysql.insert('category', { name, parentId });
+    const {
+      parentId,
+      label,
+      icon = null,
+      order,
+      is_show_home = null,
+    } = ctx.request.body;
+    const result = await this.app.mysql.insert("class_ification", {
+      parentId,
+      label,
+      icon,
+      is_show_home,
+      order,
+      eid: ctx.user.eid,
+    });
     if (result.affectedRows === 1) {
-      ctx.body = successMsg(result.insertId, '添加分类成功');
+      ctx.body = successMsg(result.insertId);
     } else {
-      ctx.body = errorMsg('添加分类失败');
+      ctx.body = errorMsg("添加分类失败");
     }
   }
   async editCategory() {
     const { ctx } = this;
-    const { id, name } = ctx.request.body;
+    const {
+      id,
+      parentId,
+      label,
+      icon = null,
+      order,
+      is_show_home = null,
+    } = ctx.request.body;
     // 检查分类是否存在
-    const category = await this.app.mysql.get('category', { id });
+    const category = await this.app.mysql.get("class_ification", { id });
     if (!category) {
-      ctx.body = errorMsg('该分类不存在');
+      ctx.body = errorMsg("该分类不存在");
       return;
     }
-    // 检查分类名是否已存在
-    const existingCategory = await this.app.mysql.get('category', { name });
-    if (existingCategory && existingCategory.id !== category.id) {
-      ctx.body = errorMsg('该分类名已存在');
-      return;
-    }
-    // 编辑分类
-    const result = await this.app.mysql.update('category', { name }, { where: { id } });
+    const result = await this.app.mysql.update(
+      "class_ification",
+      {
+        parentId,
+        label,
+        icon,
+        order,
+        is_show_home,
+      },
+      { where: { id } }
+    );
     if (result.affectedRows === 1) {
-      ctx.body = successMsg(null, '编辑分类成功');
+      ctx.body = successMsg(null, "编辑分类成功");
     } else {
-      ctx.body = errorMsg('编辑分类失败');
+      ctx.body = errorMsg("编辑分类失败");
     }
   }
   async deleteCategory() {
     const { ctx } = this;
-    const { id } = ctx.params;
-    // 检查分类是否存在
-    const category = await this.app.mysql.get('category', { id });
+    const { id } = ctx.request.body;
+    const category = await this.app.mysql.get("class_ification", { id });
     if (!category) {
-      ctx.body = errorMsg('该分类不存在');
+      ctx.body = errorMsg("该分类不存在");
       return;
     }
     // 检查是否有子分类
-    const children = await this.app.mysql.select('category', { where: { parentId: id } });
+    const children = await this.app.mysql.select("class_ification", {
+      where: { parentId: id },
+    });
     if (children.length > 0) {
-      ctx.body = errorMsg('该分类存在子分类，无法删除');
+      ctx.body = errorMsg("该分类存在子分类，无法删除");
       return;
     }
     // 删除分类
-    const result = await this.app.mysql.delete('category', { id });
+    const result = await this.app.mysql.update("class_ification", {
+      id,
+      is_delete: 1,
+    });
     if (result.affectedRows === 1) {
-      ctx.body = successMsg(null, '删除分类成功');
+      ctx.body = successMsg();
     } else {
-      ctx.body = errorMsg('删除分类失败');
+      ctx.body = errorMsg("删除分类失败");
     }
   }
 }
