@@ -56,22 +56,28 @@ class ProgrmGoodsController extends Controller {
   // 分类页面
   async getClassiFication() {
     const { ctx } = this;
-    const leftList = await this.app.mysql.select("class_ification", {
-      where: {
-        eid: ctx.user.eid,
-      },
-      orders: [["order", "ASC"]],
+    const parentSql = `
+    SELECT id
+    FROM class_ification
+    WHERE eid = ? AND parentId IS NULL`;
+    const parentIdResult = await this.app.mysql.query(parentSql, [
+      ctx.query.eid,
+    ]);
+    if (parentIdResult.length !== 1) {
+      ctx.status = 400;
+      ctx.body = errorMsg("Invalid parentId count");
+      return;
+    }
+    const parentId = parentIdResult[0].id;
+    const leftSql = `
+    SELECT *
+    FROM class_ification
+    WHERE eid = ? AND (is_delete = 0 OR is_delete IS NULL)`;
+    const allList = await this.app.mysql.query(leftSql, [ctx.query.eid]);
+    const leftList = allList.filter((item) => item.parentId === parentId);
+    const rightList = leftList.map((item) => {
+      return allList.filter((it) => it.parentId === item.id);
     });
-    const rightList = [];
-    leftList.forEach((item, index) => {
-      rightList[index] = [];
-      leftList.forEach((it) => {
-        if (item.id === it.parentId) {
-          rightList[index].push(it);
-        }
-      });
-    });
-
     ctx.body = successMsg({
       leftList,
       rightList,

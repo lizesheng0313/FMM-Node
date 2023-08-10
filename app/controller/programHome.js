@@ -7,6 +7,7 @@ class ProgrmHomeController extends Controller {
   async getBanner() {
     const { ctx } = this;
     const { eid } = ctx.query;
+    console.log(eid, "---eid");
     try {
       const result = await this.app.mysql.select("program_swiper", {
         where: { eid },
@@ -24,17 +25,37 @@ class ProgrmHomeController extends Controller {
   async getClassifcation() {
     const { ctx } = this;
     const { is_show_home, eid } = ctx.query;
-    const where = { eid };
+    const whereConditions = [`eid = ?`, `(is_delete = 0 OR is_delete IS NULL)`];
+    const queryParams = [eid];
     if (is_show_home !== undefined) {
-      where.is_show_home = is_show_home;
+      whereConditions.push(`is_show_home = ?`);
+      queryParams.push(is_show_home);
     }
-    const result = await this.app.mysql.select("class_ification", {
-      where,
-      orders: [["order", "ASC"]],
-    });
-    ctx.body = successMsg({
-      list: result,
-    });
+    const sql = `
+    SELECT *,
+      CASE 
+        WHEN parentId IS NULL THEN id
+        ELSE parentId
+      END AS newParentId
+    FROM class_ification
+    WHERE ${whereConditions.join(" AND ")}
+    ORDER BY \`order\` ASC
+  `;
+    try {
+      const result = await this.app.mysql.query(sql, queryParams);
+      result.forEach((item) => {
+        if (item.newParentId === null) {
+          item.newParentId = item.id;
+        }
+      });
+      ctx.body = successMsg({
+        list: result,
+      });
+    } catch (error) {
+      ctx.logger.error("getClassificationList", error);
+      ctx.status = 500;
+      ctx.body = errorMsg(error);
+    }
   }
 
   // 获取推荐
@@ -82,7 +103,6 @@ class ProgrmHomeController extends Controller {
   async getClassGoods() {
     const { ctx } = this;
     const { classification, pageIndex = 1, pageSize = 10, eid } = ctx.query;
-    console.log(eid, "---ctx.queryeid");
     const limit = parseInt(pageSize);
     const offset = (pageIndex - 1) * pageSize;
 
@@ -114,10 +134,9 @@ class ProgrmHomeController extends Controller {
   // 搜索接口
   async searchGoods() {
     const { ctx } = this;
-    const { keyword, pageIndex = 1, pageSize = 10 } = ctx.query;
+    const { keyword, pageIndex = 1, pageSize = 10, eid } = ctx.query;
     const limit = parseInt(pageSize);
     const offset = (pageIndex - 1) * pageSize;
-    const eid = ctx.user.eid;
 
     const [result, totalCount] = await Promise.all([
       ctx.app.mysql.query(
