@@ -42,7 +42,7 @@ class ProgrmUserController extends Controller {
           eid: appid,
           create_time: Date.now(),
           user_id: wxResponse.data.openid,
-          ch: ch || "",
+          ch: ch === "undefined" || !ch ? "" : ch,
           unionid: wxResponse.data?.unionid,
         });
       }
