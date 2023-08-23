@@ -21,12 +21,13 @@ class PermissionController extends Controller {
         LEFT JOIN goods_order o1 ON u.user_id = o1.user_id
         WHERE u.eid = ?
         ORDER BY 
-          o1.create_time DESC, 
-          u.create_time DESC;
+          CASE
+            WHEN u.create_time IS NOT NULL THEN u.create_time
+            ELSE o1.create_time
+          END DESC; 
       `;
       const userList = await this.app.mysql.query(userListQuery, [eid]);
 
-      // Process userList to group goods_order records by user_id and create JSON arrays
       const processedUserList = userList.reduce((result, user) => {
         const existingUser = result.find(
           (item) => item.user_id === user.user_id
@@ -35,19 +36,20 @@ class PermissionController extends Controller {
           if (user.order_id) {
             existingUser.children.push({
               order_id: user.order_id,
-              create_time: user.order_create_time,
+              order_create_time: user.order_create_time,
               goods_name: user.goods_name,
             });
           }
         } else {
+          const { order_id, order_create_time, goods_name, ...rest } = user;
           const newUser = {
-            ...user,
-            children: user.order_id
+            ...rest,
+            children: order_id
               ? [
                   {
-                    order_id: user.order_id,
-                    create_time: user.order_create_time,
-                    goods_name: user.goods_name,
+                    order_id,
+                    order_create_time,
+                    goods_name,
                   },
                 ]
               : [],
@@ -58,14 +60,8 @@ class PermissionController extends Controller {
       }, []);
 
       const paginatedUserList = processedUserList.slice(offset, offset + limit);
-
-      const strippedPaginatedUserList = paginatedUserList.map((user) => {
-        const { goods_name, order_id, create_time, ...rest } = user;
-        return rest;
-      });
-
       ctx.body = successMsg({
-        list: strippedPaginatedUserList,
+        list: paginatedUserList,
         total: processedUserList.length,
         pageIndex: parseInt(pageIndex),
         pageSize: limit,
