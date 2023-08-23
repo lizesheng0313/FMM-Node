@@ -11,6 +11,7 @@ class CategoryController extends Controller {
       icon = null,
       order,
       is_show_home = null,
+      recommend_class = 0,
     } = ctx.request.body;
     const result = await this.app.mysql.insert("class_ification", {
       parentId,
@@ -19,6 +20,7 @@ class CategoryController extends Controller {
       is_show_home,
       order,
       eid: ctx.user.eid,
+      recommend_class,
     });
     if (result.affectedRows === 1) {
       ctx.body = successMsg(result.insertId);
@@ -35,6 +37,7 @@ class CategoryController extends Controller {
       icon = null,
       order,
       is_show_home = null,
+      recommend_class,
     } = ctx.request.body;
     // 检查分类是否存在
     const category = await this.app.mysql.get("class_ification", { id });
@@ -50,6 +53,7 @@ class CategoryController extends Controller {
         icon,
         order,
         is_show_home,
+        recommend_class,
       },
       { where: { id } }
     );

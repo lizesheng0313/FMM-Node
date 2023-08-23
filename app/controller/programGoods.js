@@ -72,7 +72,8 @@ class ProgrmGoodsController extends Controller {
     const leftSql = `
     SELECT *
     FROM class_ification
-    WHERE eid = ? AND (is_delete = 0 OR is_delete IS NULL)`;
+    WHERE eid = ? AND (is_delete = 0 OR is_delete IS NULL)
+    ORDER BY \`order\` ASC`; // 注意在 ORDER BY 子句中对 "order" 进行了反引号处理
     const allList = await this.app.mysql.query(leftSql, [ctx.query.eid]);
     const leftList = allList.filter((item) => item.parentId === parentId);
     const rightList = leftList.map((item) => {

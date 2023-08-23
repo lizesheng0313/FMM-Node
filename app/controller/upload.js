@@ -1,12 +1,3 @@
-/*
- * @Author: lizesheng
- * @Date: 2023-04-09 16:01:04
- * @LastEditors: lizesheng
- * @LastEditTime: 2023-04-11 15:31:28
- * @important: 重要提醒
- * @Description: 备注内容
- * @FilePath: /commerce_egg/app/controller/upload.js
- */
 "use strict";
 const path = require("path");
 const fs = require("fs");

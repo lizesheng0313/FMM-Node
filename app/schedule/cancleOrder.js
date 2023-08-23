@@ -1,13 +1,3 @@
-/*
- * @Author: lizesheng
- * @Date: 2023-03-24 16:58:09
- * @LastEditors: lizesheng
- * @LastEditTime: 2023-04-23 23:22:05
- * @important: 重要提醒
- * @Description: 取消订单
- * @FilePath: /commerce_egg/app/schedule/cancleOrder.js
- */
-
 "use strict";
 module.exports = {
   schedule: {

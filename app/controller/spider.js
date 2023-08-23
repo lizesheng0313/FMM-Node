@@ -1,7 +1,9 @@
 const { Controller } = require("egg");
 const puppeteer = require("puppeteer");
 const cheerio = require("cheerio");
+const axios = require("axios");
 const { successMsg } = require("../../utils/utils");
+
 // 动态生成滚动间隔时间，范围在 500 毫秒到 2000 毫秒之间
 function generateScrollInterval() {
   return Math.random() * 1500 + 500;
@@ -9,44 +11,42 @@ function generateScrollInterval() {
 class SpiderController extends Controller {
   async scrapeData() {
     const { ctx } = this;
-    const targetUrl = ctx.query.targetUrl; // 接收传入的目标网址
-
     try {
-      const userAgents = [
-        // Chrome User-Agents
-        "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/115.0.0.0 Safari/537.36",
-        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/115.0.0.0 Safari/537.36",
-        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/116.0.0.0 Safari/537.36",
-        // Safari User-Agents
-        "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/14.0.3 Safari/605.1.15",
-        "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/14.0.2 Safari/605.1.15",
-      ];
-
-      const userAgent =
-        userAgents[Math.floor(Math.random() * userAgents.length)];
-
+      const targetUrl = ctx.query.targetUrl; // 接收传入的目标网
+      // const proxyServer = `https://tps.kdlapi.com/api/gettps/?secret_id=oq09yz2dto4zwtb618af&num=1&signature=w1ta8d0klnddbcwecvu5qrci9yy60elq&pt=1&format=json&sep=1`;
+      // const response = await axios.get(proxyServer);
+      // const ip = await response.data?.data?.proxy_list;
+      // const browser = await puppeteer.launch({
+      //   headless: false,
+      //   args: [`--proxy-server=http://${ip}`],
+      // });
       const browser = await puppeteer.launch({
-        headless: true,
-        args: ["--disable-web-security"],
+        headless: false,
+        // args: [`--proxy-server=http://proxy.stormip.cn`],
       });
-
       const page = await browser.newPage();
-      await page.setUserAgent(userAgent);
-      // 设置随机延时
+      // await page.authenticate({
+      //   username: "t19215058077636",
+      //   password: "jwi96jst",
+      // });
+      await page.setUserAgent(
+        "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/115.0.0.0 Safari/537.36"
+      );
       // 设置额外的HTTP请求头，包括Origin和Referer
       await page.setExtraHTTPHeaders({
-        Referer: targetUrl,
+        Accept:
+          "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7",
       });
       await page.goto(targetUrl, {
-        waitUntil: "domcontentloaded",
         timeout: 0,
+        waitUntil: "domcontentloaded", // 等待 DOMContentLoaded 事件触发
       });
+      await page.waitForSelector(".detail-gallery-wrapper");
       // 设置滚动的次数和间隔时间
       const maxScrollTimes = 20; // 最大滚动次数
       const maxScrollHeight = await page.evaluate(() => {
         return document.body.scrollHeight;
       });
-
       let currentScrollHeight = 0;
       let scrollTimes = 0;
 
@@ -64,16 +64,11 @@ class SpiderController extends Controller {
         await page.waitForTimeout(scrollInterval);
 
         currentScrollHeight = await page.evaluate(() => {
-          return window.pageYOffset;
+          return window.scrollY;
         });
-        console.log(currentScrollHeight, "---currentScrollHeight");
         scrollTimes++;
       }
-      // 等待图片加载完成
-      await page.waitForSelector(".content-detail img", { timeout: 10000 }); // 等待content-detail下的img元素出现
-      await page.waitForSelector(".detail-gallery-wrapper img", {
-        timeout: 10000,
-      }); // 等待detail-gallery-wrapper下的img元素出现
+      await page.waitForSelector(".content-detail img");
       const pageContent = await page.content();
       console.log(pageContent, "---pageContent");
       const $ = cheerio.load(pageContent);
@@ -96,7 +91,7 @@ class SpiderController extends Controller {
       console.log(manImageList, "---manImageList");
       const randomCloseWait = (min, max) => Math.random() * (max - min) + min;
       await page.waitForTimeout(randomCloseWait(2000, 4000));
-      await browser.close();
+      // await browser.close();
       ctx.body = successMsg({
         mainList: manImageList,
         detailsList: imgSrcList,

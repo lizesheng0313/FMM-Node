@@ -70,7 +70,7 @@ class OrderController extends Controller {
       const result = await this.app.mysql.insert("logistics", rows);
       await this.app.mysql.update(
         "goods_order",
-        { order_status: "20" },
+        { order_status: "20", delivery_time: Date.now() },
         {
           where: {
             id,

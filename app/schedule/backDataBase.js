@@ -1,12 +1,3 @@
-/*
- * @Author: lizesheng
- * @Date: 2023-03-24 16:58:09
- * @LastEditors: lizesheng
- * @LastEditTime: 2023-04-26 18:07:46
- * @important: 重要提醒
- * @Description: 数据库备份
- * @FilePath: /commerce_egg/app/schedule/backDataBase.js
- */
 const { exec } = require("child_process");
 const path = require("path");
 const moment = require("moment");

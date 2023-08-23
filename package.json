@@ -13,6 +13,7 @@
     "egg-jwt": "^3.1.7",
     "egg-mysql": "^3.4.0",
     "egg-scripts": "^2",
+    "proxy-chain": "^2.3.0",
     "puppeteer": "^21.0.0",
     "wechatpay-node-v3": "2.1.1"
   },

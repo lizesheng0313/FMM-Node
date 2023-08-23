@@ -7,7 +7,6 @@ class ProgrmHomeController extends Controller {
   async getBanner() {
     const { ctx } = this;
     const { eid } = ctx.query;
-    console.log(eid, "---eid");
     try {
       const result = await this.app.mysql.select("program_swiper", {
         where: { eid },
@@ -53,6 +52,43 @@ class ProgrmHomeController extends Controller {
       });
     } catch (error) {
       ctx.logger.error("getClassificationList", error);
+      ctx.status = 500;
+      ctx.body = errorMsg(error);
+    }
+  }
+
+  // 获取推荐分类
+  async getClassRecommendIfcation() {
+    const { ctx } = this;
+    const { eid } = ctx.query;
+    const whereConditions = [
+      `eid = ?`,
+      `(is_delete = 0 OR is_delete IS NULL)`,
+      `recommend_class = 1`,
+    ];
+    const queryParams = [eid];
+    const sql = `
+    SELECT *,
+      CASE 
+        WHEN parentId IS NULL THEN id
+        ELSE parentId
+      END AS newParentId
+    FROM class_ification
+    WHERE ${whereConditions.join(" AND ")}
+    ORDER BY \`order\` ASC
+   `;
+    try {
+      const result = await this.app.mysql.query(sql, queryParams);
+      result.forEach((item) => {
+        if (item.newParentId === null) {
+          item.newParentId = item.id;
+        }
+      });
+      ctx.body = successMsg({
+        list: result,
+      });
+    } catch (error) {
+      ctx.logger.error("获取推荐分类报错", error);
       ctx.status = 500;
       ctx.body = errorMsg(error);
     }

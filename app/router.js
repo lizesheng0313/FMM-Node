@@ -121,9 +121,12 @@ module.exports = (app) => {
     controller.programHome.getClassifcation
   );
   router.get("/api/home/getHomeGoods", controller.programHome.getHomeGoods);
+  router.get(
+    "/api/home/getClassRecommendIfcation",
+    controller.programHome.getClassRecommendIfcation
+  );
   router.get("/api/home/getClassGoods", controller.programHome.getClassGoods);
   router.get("/api/searchGoods", controller.programHome.searchGoods);
-
   // 收件人
   router.post("/api/address/add", jwtErr, controller.programAddress.add);
   router.post("/api/address/update", jwtErr, controller.programAddress.update);

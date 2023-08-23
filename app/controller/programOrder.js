@@ -1,12 +1,3 @@
-/*
- * @Author: lizesheng
- * @Date: 2023-02-23 14:08:48
- * @LastEditors: lizesheng
- * @LastEditTime: 2023-05-06 11:25:29
- * @important: 重要提醒
- * @Description: 备注内容
- * @FilePath: /commerce_egg/app/controller/programOrder.js
- */
 "use strict";
 
 const { successMsg, errorMsg } = require("../../utils/utils");
@@ -77,7 +68,8 @@ class ProgramOrderController extends Controller {
         goods_name,
         act_price,
         ctx.user.user_id,
-        ctx
+        ctx,
+        app
       );
       if (result.affectedRows === 1) {
         await conn.commit();
@@ -498,7 +490,7 @@ class ProgramOrderController extends Controller {
   }
   // 立即支付
   async payment() {
-    const { ctx } = this;
+    const { ctx, app } = this;
     const { order_id, name } = ctx.request.body;
     const response = await this.app.mysql.get("goods_order", {
       id: order_id,
@@ -508,7 +500,8 @@ class ProgramOrderController extends Controller {
       name,
       response?.act_price,
       ctx.user.user_id,
-      ctx
+      ctx,
+      app
     );
     ctx.body = successMsg(info);
   }
@@ -609,8 +602,8 @@ class ProgramOrderController extends Controller {
 
 module.exports = ProgramOrderController;
 
-async function payInfo(out_trade_no, description, act_price, userId, ctx) {
-  const currentApp = await this.app.mysql.get("program_secret", {
+async function payInfo(out_trade_no, description, act_price, userId, ctx, app) {
+  const currentApp = await app.mysql.get("program_secret", {
     appid: ctx.user.eid,
   });
   const pay = new WxPay({
