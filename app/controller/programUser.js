@@ -5,7 +5,7 @@ const { Controller } = require("egg");
 class ProgrmUserController extends Controller {
   async login() {
     const { ctx, app } = this;
-    const { appid } = ctx.query;
+    const { appid, ch } = ctx.query;
     const appObj = await this.app.mysql.get("program_secret", { appid });
     // 配置化参数
     const data = {
@@ -42,7 +42,7 @@ class ProgrmUserController extends Controller {
           eid: appid,
           create_time: Date.now(),
           user_id: wxResponse.data.openid,
-          ch: ctx.query?.ch ? ctx.query?.ch : "",
+          ch: ch || "",
           unionid: wxResponse.data?.unionid,
         });
       }
