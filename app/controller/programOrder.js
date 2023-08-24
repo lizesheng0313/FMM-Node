@@ -508,12 +508,15 @@ class ProgramOrderController extends Controller {
   // 支付回调
   async payNotify() {
     const { ctx, app } = this;
+    const { header } = ctx.request;
     ctx.logger.info(ctx, "----ctx");
+    ctx.logger.info(header, "----header");
     const currentApp = await this.app.mysql.get("program_secret", {
-      appid: ctx.user.eid,
+      wechatpay_serial: header["wechatpay-serial"],
     });
+    ctx.logger.info(currentApp, "----currentApp");
     const pay = new WxPay({
-      appid: ctx.user.eid,
+      appid: currentApp.appid,
       mchid: currentApp.mchid,
       publicKey: fs.readFileSync(__dirname + currentApp.public_key), // 公钥
       privateKey: fs.readFileSync(__dirname + currentApp.private_key), // 私钥
