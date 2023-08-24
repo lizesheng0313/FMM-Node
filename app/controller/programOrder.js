@@ -617,7 +617,7 @@ async function payInfo(out_trade_no, description, act_price, userId, ctx, app) {
   const params = {
     description,
     out_trade_no,
-    notify_url: `https://zjkdongao.com/qq/api/order/payNotify?eid=${ctx.user.eid}`,
+    notify_url: `https://zjkdongao.com/qq/api/order/payNotify`,
     amount: {
       total: act_price * 100, // 单位是分
     },
