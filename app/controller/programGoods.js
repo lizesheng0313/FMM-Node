@@ -8,7 +8,7 @@
  * @FilePath: /commerce_egg/app/controller/programGoods.js
  */
 "use strict";
-const { successMsg } = require("../../utils/utils");
+const { successMsg, errorMsg } = require("../../utils/utils");
 const { Controller } = require("egg");
 
 class ProgrmGoodsController extends Controller {

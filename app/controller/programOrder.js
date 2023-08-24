@@ -508,6 +508,7 @@ class ProgramOrderController extends Controller {
   // 支付回调
   async payNotify() {
     const { ctx, app } = this;
+    ctx.logger.info(ctx, "----ctx");
     const currentApp = await this.app.mysql.get("program_secret", {
       appid: ctx.user.eid,
     });
@@ -616,7 +617,7 @@ async function payInfo(out_trade_no, description, act_price, userId, ctx, app) {
   const params = {
     description,
     out_trade_no,
-    notify_url: "https://zjkdongao.com/qq/api/order/payNotify",
+    notify_url: `https://zjkdongao.com/qq/api/order/payNotify?eid=${ctx.user.eid}`,
     amount: {
       total: act_price * 100, // 单位是分
     },
