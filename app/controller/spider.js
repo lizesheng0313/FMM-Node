@@ -13,22 +13,19 @@ class SpiderController extends Controller {
     const { ctx } = this;
     try {
       const targetUrl = ctx.query.targetUrl; // 接收传入的目标网
-      // const proxyServer = `https://tps.kdlapi.com/api/gettps/?secret_id=oq09yz2dto4zwtb618af&num=1&signature=w1ta8d0klnddbcwecvu5qrci9yy60elq&pt=1&format=json&sep=1`;
-      // const response = await axios.get(proxyServer);
-      // const ip = await response.data?.data?.proxy_list;
-      // const browser = await puppeteer.launch({
-      //   headless: false,
-      //   args: [`--proxy-server=http://${ip}`],
-      // });
+      const proxyServer = `https://tps.kdlapi.com/api/gettps/?secret_id=oa7bk3t07an2r8x8zzyx&num=1&signature=ee82dl0gr9k7jby154hktetp5hnmil67&pt=1&sep=1`;
+      const response = await axios.get(proxyServer);
+      const ip = await response.data;
       const browser = await puppeteer.launch({
-        headless: false,
-        // args: [`--proxy-server=http://proxy.stormip.cn`],
+        headless: true,
+        args: [`--proxy-server=${ip}`],
       });
       const page = await browser.newPage();
-      // await page.authenticate({
-      //   username: "t19215058077636",
-      //   password: "jwi96jst",
-      // });
+      await page.setDefaultNavigationTimeout(60000);
+      await page.authenticate({
+        username: "t19391239520320",
+        password: "n8yp8t9k",
+      });
       await page.setUserAgent(
         "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/115.0.0.0 Safari/537.36"
       );
@@ -37,11 +34,14 @@ class SpiderController extends Controller {
         Accept:
           "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7",
       });
-      await page.goto(targetUrl, {
-        timeout: 0,
-        waitUntil: "domcontentloaded", // 等待 DOMContentLoaded 事件触发
+      await page.goto(targetUrl); // 设置导航超时时间为60秒
+      await page.waitForTimeout(2000);
+      await page.reload();
+      // await page.waitForNavigation({ waitUntil: "domcontentloaded" });
+      await page.waitForSelector(".detail-gallery-wrapper", {
+        timeout: 10000,
       });
-      await page.waitForSelector(".detail-gallery-wrapper");
+      console.log("等待时间到了");
       // 设置滚动的次数和间隔时间
       const maxScrollTimes = 20; // 最大滚动次数
       const maxScrollHeight = await page.evaluate(() => {
@@ -70,31 +70,86 @@ class SpiderController extends Controller {
       }
       await page.waitForSelector(".content-detail img");
       const pageContent = await page.content();
-      console.log(pageContent, "---pageContent");
       const $ = cheerio.load(pageContent);
       // 使用 $ 选择器获取指定 class 下的所有 img 标签
       const mainElements = $(".detail-gallery-wrapper img");
       // 使用 each 方法遍历 img 标签，并获取它们的 src 属性
       const imgSrcList = [];
       const manImageList = [];
-      mainElements.each((index, element) => {
-        console.log(element, "---element");
+      mainElements.each((_, element) => {
         const src = element.attribs["src"];
         manImageList.push(src);
       });
       const imgElements = $(".content-detail img");
-      imgElements.each((index, element) => {
+      imgElements.each((_, element) => {
         const src = element.attribs["data-lazyload-src"];
         imgSrcList.push(src);
       });
-      console.log(imgSrcList, "----imgElements");
-      console.log(manImageList, "---manImageList");
+      const columnList = [];
+      const tagList = $(".sku-prop-module-name");
+
+      // 没有规格时获取产品名称
+      const attrItems = $(".offer-attr-item");
+      let productNames = "";
+      attrItems.each((index, element) => {
+        const itemNameElement = $(element).find(".offer-attr-item-name");
+        if (
+          itemNameElement.length &&
+          itemNameElement.text().trim() === "产品名称"
+        ) {
+          const itemValueElement = $(element).find(".offer-attr-item-value");
+          productNames = itemValueElement.text().trim();
+        }
+      });
+
+      tagList.each((index, element) => {
+        const text = $(element).text();
+        columnList.push({
+          prop: "name" + index,
+          label: text === "采购量" ? "规格" : text,
+        });
+      });
+      // 获取规格图片
+      const specTable = [];
+      const tableList = $(".sku-item-wrapper");
+      tableList.each((index, element) => {
+        const countWidgetWrapper = $(element);
+        const skuItemName = countWidgetWrapper.find(".sku-item-name").text();
+        const skuImage = countWidgetWrapper.find(".sku-item-image");
+        const styleAttributeValue = skuImage.attr("style");
+        let backgroundURLMatch;
+        if (styleAttributeValue) {
+          console.log(styleAttributeValue, "---styleAttributeValue");
+          backgroundURLMatch = styleAttributeValue.match(
+            /url\(["']?([^"']+)["']?\)/
+          );
+        }
+        let price = countWidgetWrapper.find(".discountPrice-price").text();
+        price = price.replace("元", ""); // 去掉 "元" 字符
+        const roundedPrice = Math.ceil(parseFloat(price) * 2);
+        const min = 400;
+        const max = 900;
+        const randomInteger = Math.floor(Math.random() * (max - min + 1)) + min;
+        specTable.push({
+          name0: skuItemName,
+          goods_picture:
+            backgroundURLMatch?.length > 0
+              ? backgroundURLMatch[1]
+              : manImageList[4],
+          skuPrice: roundedPrice,
+          skuOriginPrice: roundedPrice + 20,
+          cost_price: price,
+          skuStock: randomInteger,
+        });
+      });
       const randomCloseWait = (min, max) => Math.random() * (max - min) + min;
       await page.waitForTimeout(randomCloseWait(2000, 4000));
-      // await browser.close();
+      await browser.close();
       ctx.body = successMsg({
         mainList: manImageList,
         detailsList: imgSrcList,
+        columnList,
+        specTable,
       });
     } catch (error) {
       console.log(error);
