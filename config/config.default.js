@@ -67,6 +67,7 @@ module.exports = (appInfo) => {
       ignore: (ctx) => {
         // 忽略所有 GET 请求和 /api/user/login 请求的 CSRF 校验
         if (
+          ctx.path === "/api/admin/user/login" ||
           ctx.path === "/api/user/login" ||
           ctx.path === "/api/program/user/login" ||
           ctx.path === "/api/order/payNotify" ||
@@ -74,11 +75,6 @@ module.exports = (appInfo) => {
         ) {
           return true;
         }
-        // 忽略 authorization 头带有 JWT Token 的请求的 CSRF 校验
-        if (ctx.get("authorization")) {
-          return true;
-        }
-        return false;
       },
     },
   };
