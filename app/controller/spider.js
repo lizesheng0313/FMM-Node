@@ -17,8 +17,9 @@ class SpiderController extends Controller {
       const response = await axios.get(proxyServer);
       const ip = await response.data;
       const browser = await puppeteer.launch({
-        headless: true,
+        headless: false,
         args: [`--proxy-server=${ip}`],
+        defaultViewport: null,
       });
       const page = await browser.newPage();
       await page.setDefaultNavigationTimeout(60000);
@@ -29,14 +30,35 @@ class SpiderController extends Controller {
       await page.setUserAgent(
         "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/115.0.0.0 Safari/537.36"
       );
-      // 设置额外的HTTP请求头，包括Origin和Referer
-      await page.setExtraHTTPHeaders({
-        Accept:
-          "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7",
-      });
-      await page.goto(targetUrl); // 设置导航超时时间为60秒
-      await page.waitForTimeout(2000);
-      await page.reload();
+      const expirationDate1 = new Date("2025-01-11T13:45:19.631Z");
+      const expires1 = Math.floor(expirationDate1.getTime() / 1000);
+      const expirationDate2 = new Date("2025-01-11T13:45:19.523Z");
+      const expires2 = Math.floor(expirationDate2.getTime() / 1000);
+      const cookies = [
+        {
+          name: "cna",
+          value: "rQX6HaXJ1kwCAW/F/od3dqby",
+          domain: ".mmstat.com",
+          path: "/",
+          expires: expires1, // 过期时间
+          httpOnly: true, // 可以通过非HTTP访问cookie
+          secure: false, // 仅通过HTTPS传输cookie
+        },
+        {
+          name: "cna",
+          value: "rQX6HaXJ1kwCAW/F/od3dqby",
+          domain: ".1688.com",
+          path: "/",
+          expires: expires2, // 过期时间
+          httpOnly: true, // 可以通过非HTTP访问cookie
+          secure: false, // 仅通过HTTPS传输cookie
+        },
+      ];
+
+      await page.setCookie(...cookies);
+      await page.goto(targetUrl);
+      // await page.waitForTimeout(2000);
+      // await page.reload();
       // await page.waitForNavigation({ waitUntil: "domcontentloaded" });
       await page.waitForSelector(".detail-gallery-wrapper", {
         timeout: 10000,

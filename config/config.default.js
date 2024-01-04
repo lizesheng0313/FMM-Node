@@ -31,8 +31,8 @@ module.exports = (appInfo) => {
   config.mysql = {
     // 单数据库信息配置
     client: {
-      // host: "localhost",
-      host: "101.200.188.81",
+      host: "localhost",
+      // host: "101.200.188.81",
       // 端口号
       port: "3306",
       // 用户名
@@ -65,6 +65,10 @@ module.exports = (appInfo) => {
   config.security = {
     csrf: {
       ignore: (ctx) => {
+        // 忽略 authorization 头带有 JWT Token 的请求的 CSRF 校验
+        if (ctx.get("authorization")) {
+          return true;
+        }
         // 忽略所有 GET 请求和 /api/user/login 请求的 CSRF 校验
         if (
           ctx.path === "/api/admin/user/login" ||
