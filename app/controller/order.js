@@ -125,20 +125,40 @@ class OrderController extends Controller {
       orderId = null,
       username = null,
     } = ctx.query;
-    let whereClause = "";
+
+    let whereClause = "WHERE o.eid = ?";
+    const params = [ctx.user.eid];
+
     if (payStatus) {
-      whereClause += ` AND pay_status = '${payStatus}'`;
+      whereClause += ` AND o.pay_status = ?`;
+      params.push(payStatus);
     }
     if (orderStatus) {
-      whereClause += ` AND order_status = '${orderStatus}'`;
+      whereClause += ` AND o.order_status = ?`;
+      params.push(orderStatus);
     }
     if (orderId) {
-      whereClause += ` AND o.id = '${orderId}'`;
+      whereClause += ` AND o.id = ?`;
+      params.push(orderId);
     }
     if (username) {
-      whereClause += ` AND p.name = '${username}'`;
+      whereClause += ` AND p.name = ?`;
+      params.push(username);
     }
-    const SQL = `
+
+    // 查询总数
+    const totalSQL = `
+      SELECT COUNT(*) AS total
+      FROM goods_order o
+      LEFT JOIN address p ON o.address_id = p.id
+      INNER JOIN goods g ON o.goods_id = g.id
+      ${whereClause}
+    `;
+    const totalResult = await this.app.mysql.query(totalSQL, params);
+    const total = totalResult[0]?.total || 0;
+
+    // 查询数据列表
+    const dataSQL = `
       SELECT
         o.id,
         o.user_id,
@@ -163,29 +183,26 @@ class OrderController extends Controller {
         p.address AS address_detail,
         p.province,
         p.city,
-        p.streetName,
-        (SELECT COUNT(*) FROM goods_order) AS total
+        p.streetName
       FROM
         goods_order o
         LEFT JOIN address p ON o.address_id = p.id
         INNER JOIN goods g ON o.goods_id = g.id
-      WHERE
-      o.eid = ? ${whereClause} 
+      ${whereClause}
       ORDER BY
         o.create_time DESC
       LIMIT
-        ${parseInt(pageSize)}
+        ?
       OFFSET
-        ${(pageIndex - 1) * pageSize}
+        ?
     `;
 
-    const result = await this.app.mysql.query(SQL, [
-      ctx.user.eid,
-      parseInt(pageSize),
-      (pageIndex - 1) * pageSize,
-    ]);
+    params.push(parseInt(pageSize));
+    params.push((pageIndex - 1) * pageSize);
 
-    const mappedResult = result.map((item) => ({
+    const dataResult = await this.app.mysql.query(dataSQL, params);
+
+    const mappedResult = dataResult.map((item) => ({
       ...item,
       order_status_str: ORDERSTATUS[item.order_status],
       pay_status_str: PAYSTATUS[item.pay_status],
@@ -193,11 +210,12 @@ class OrderController extends Controller {
 
     ctx.body = successMsg({
       list: mappedResult,
-      total: mappedResult[0]?.total || 0,
+      total,
       pageSize,
       pageIndex,
     });
   }
+
   // 获取退货订单列表
   async getReturnOrder() {
     const { ctx } = this;
