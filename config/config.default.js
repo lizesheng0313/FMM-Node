@@ -9,7 +9,7 @@
  */
 /* eslint valid-jsdoc: "off" */
 
-"use strict";
+'use strict';
 
 /**
  * @param {Egg.EggAppInfo} appInfo app info
@@ -26,21 +26,21 @@ module.exports = (appInfo) => {
     },
   };
   config.logger = {
-    level: "DEBUG",
+    level: 'DEBUG',
   };
   config.mysql = {
     // 单数据库信息配置
     client: {
-      host: "localhost",
-      // host: "101.200.188.81",
+      host: 'localhost',
+      // host: '101.200.188.81',
       // 端口号
-      port: "3306",
+      port: '3306',
       // 用户名
-      user: "root",
+      user: 'root',
       // 密码
-      password: "@lizesheng123@",
+      password: '123456',
       // 数据库名
-      database: "e_commerce",
+      database: 'e_commerce',
     },
     // 是否加载到 app 上，默认开启
     app: true,
@@ -48,10 +48,10 @@ module.exports = (appInfo) => {
     agent: false,
   };
   // use for cookie sign key, should change to your own and keep security
-  config.keys = appInfo.name + "_1677132511139_1119";
+  config.keys = appInfo.name + '_1677132511139_1119';
 
   // add your middleware config here
-  config.middleware = ["errorHandler"];
+  config.middleware = ['errorHandler'];
   // add your user config here
   const userConfig = {
     // myAppName: 'egg',
@@ -59,24 +59,18 @@ module.exports = (appInfo) => {
 
   config.jwt = {
     // jwt配置项
-    secret: "@xiaoze_secret_13932377015@",
+    secret: '@xiaoze_secret_13932377015@',
   };
 
   config.security = {
     csrf: {
       ignore: (ctx) => {
         // 忽略 authorization 头带有 JWT Token 的请求的 CSRF 校验
-        if (ctx.get("authorization")) {
+        if (ctx.get('authorization')) {
           return true;
         }
         // 忽略所有 GET 请求和 /api/user/login 请求的 CSRF 校验
-        if (
-          ctx.path === "/api/admin/user/login" ||
-          ctx.path === "/api/user/login" ||
-          ctx.path === "/api/program/user/login" ||
-          ctx.path === "/api/order/payNotify" ||
-          ctx.path === "/api/events"
-        ) {
+        if (ctx.path === '/api/admin/user/login' || ctx.path === '/api/user/login' || ctx.path === '/api/program/user/login' || ctx.path === '/api/order/payNotify' || ctx.path === '/api/events') {
           return true;
         }
       },

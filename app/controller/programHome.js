@@ -1,6 +1,6 @@
-"use strict";
-const { successMsg, errorMsg } = require("../../utils/utils");
-const { Controller } = require("egg");
+'use strict';
+const { successMsg, errorMsg } = require('../../utils/utils');
+const { Controller } = require('egg');
 
 class ProgrmHomeController extends Controller {
   // 获取banner
@@ -8,14 +8,14 @@ class ProgrmHomeController extends Controller {
     const { ctx } = this;
     const { eid } = ctx.query;
     try {
-      const result = await this.app.mysql.select("program_swiper", {
-        where: { eid },
+      const result = await this.app.mysql.select('program_swiper', {
+        where: { eid, display: 1 },
       });
       ctx.body = successMsg({
         list: result,
       });
     } catch (error) {
-      ctx.logger.error("swiper", error);
+      ctx.logger.error('swiper', error);
       ctx.status = 500;
       ctx.body = errorMsg(error);
     }
@@ -37,7 +37,7 @@ class ProgrmHomeController extends Controller {
         ELSE parentId
       END AS newParentId
     FROM class_ification
-    WHERE ${whereConditions.join(" AND ")}
+    WHERE ${whereConditions.join(' AND ')}
     ORDER BY \`order\` ASC
   `;
     try {
@@ -51,7 +51,7 @@ class ProgrmHomeController extends Controller {
         list: result,
       });
     } catch (error) {
-      ctx.logger.error("getClassificationList", error);
+      ctx.logger.error('getClassificationList', error);
       ctx.status = 500;
       ctx.body = errorMsg(error);
     }
@@ -61,11 +61,7 @@ class ProgrmHomeController extends Controller {
   async getClassRecommendIfcation() {
     const { ctx } = this;
     const { eid } = ctx.query;
-    const whereConditions = [
-      `eid = ?`,
-      `(is_delete = 0 OR is_delete IS NULL)`,
-      `recommend_class = 1`,
-    ];
+    const whereConditions = [`eid = ?`, `(is_delete = 0 OR is_delete IS NULL)`, `recommend_class = 1`];
     const queryParams = [eid];
     const sql = `
     SELECT *,
@@ -74,7 +70,7 @@ class ProgrmHomeController extends Controller {
         ELSE parentId
       END AS newParentId
     FROM class_ification
-    WHERE ${whereConditions.join(" AND ")}
+    WHERE ${whereConditions.join(' AND ')}
     ORDER BY \`order\` ASC
    `;
     try {
@@ -88,7 +84,7 @@ class ProgrmHomeController extends Controller {
         list: result,
       });
     } catch (error) {
-      ctx.logger.error("获取推荐分类报错", error);
+      ctx.logger.error('获取推荐分类报错', error);
       ctx.status = 500;
       ctx.body = errorMsg(error);
     }
@@ -99,15 +95,15 @@ class ProgrmHomeController extends Controller {
     const { ctx } = this;
     const { recommend, latest, eid } = ctx.query;
     // 构建查询条件和参数
-    const conditions = ["g.is_deleted != 1", "g.online = 1", "g.eid = ?"];
+    const conditions = ['g.is_deleted != 1', 'g.online = 1', 'g.eid = ?'];
     const params = [eid];
     if (latest) {
-      conditions.push("g.latest = 1");
+      conditions.push('g.latest = 1');
     }
     if (recommend) {
-      conditions.push("g.recommend = 1");
+      conditions.push('g.recommend = 1');
     }
-    const conditionsStr = conditions.join(" AND ");
+    const conditionsStr = conditions.join(' AND ');
     const SQL = `
     SELECT g.id, g.name, g.online, g.volume,
     (SELECT sku_goods.skuPrice
@@ -129,7 +125,7 @@ class ProgrmHomeController extends Controller {
         list: result,
       });
     } catch (error) {
-      ctx.logger.error("home_get_recommed", error);
+      ctx.logger.error('home_get_recommed', error);
       ctx.status = 500;
       ctx.body = errorMsg(error);
     }
@@ -155,10 +151,7 @@ class ProgrmHomeController extends Controller {
     );
 
     // 查询商品总数
-    const totalResult = await ctx.app.mysql.query(
-      "SELECT COUNT(*) as total FROM goods WHERE is_deleted != 1 AND JSON_CONTAINS(classification, ?) AND online = 1 AND eid = ?",
-      [classification, eid]
-    );
+    const totalResult = await ctx.app.mysql.query('SELECT COUNT(*) as total FROM goods WHERE is_deleted != 1 AND JSON_CONTAINS(classification, ?) AND online = 1 AND eid = ?', [classification, eid]);
     const total = totalResult[0].total;
 
     ctx.body = successMsg({

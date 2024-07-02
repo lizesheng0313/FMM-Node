@@ -1,27 +1,24 @@
-"use strict";
-const { successMsg } = require("../../utils/utils");
-const { Controller } = require("egg");
+'use strict';
+const { successMsg } = require('../../utils/utils');
+const { Controller } = require('egg');
 
 class ProgrmUserController extends Controller {
   async login() {
     const { ctx, app } = this;
     const { appid, ch } = ctx.query;
-    const appObj = await this.app.mysql.get("program_secret", { appid });
+    const appObj = await this.app.mysql.get('program_secret', { appid });
     // 配置化参数
     const data = {
       appid,
       secret: appObj.secret,
       js_code: ctx.query.code,
-      grant_type: "authorizastion_code",
+      grant_type: 'authorizastion_code',
     };
     // 换openid
-    const wxResponse = await ctx.curl(
-      "https://api.weixin.qq.com/sns/jscode2session",
-      {
-        data,
-        dataType: "json",
-      }
-    );
+    const wxResponse = await ctx.curl('https://api.weixin.qq.com/sns/jscode2session', {
+      data,
+      dataType: 'json',
+    });
     if (wxResponse.data.errmsg) {
       ctx.body = {
         code: 101,
@@ -29,24 +26,21 @@ class ProgrmUserController extends Controller {
       };
     } else {
       // 登录token
-      const token = app.jwt.sign(
-        { user_id: wxResponse.data.openid, appid, eid: appid },
-        app.config.jwt.secret
-      );
-      const result = await this.app.mysql.get("program_user", {
+      const token = app.jwt.sign({ user_id: wxResponse.data.openid, appid, eid: appid }, app.config.jwt.secret);
+      const result = await this.app.mysql.get('program_user', {
         user_id: wxResponse.data.openid,
       });
       // 注册用户
       if (!result) {
-        await this.app.mysql.insert("program_user", {
+        await this.app.mysql.insert('program_user', {
           eid: appid,
           create_time: Date.now(),
           user_id: wxResponse.data.openid,
-          ch: ch === "undefined" || !ch ? "" : ch,
+          ch: ch === 'undefined' || !ch ? '' : ch,
           unionid: wxResponse.data?.unionid,
         });
       }
-      const userInfo = await this.app.mysql.select("program_user", {
+      const userInfo = await this.app.mysql.select('program_user', {
         where: { user_id: wxResponse.data.openid },
       });
       if (userInfo[0]) {
@@ -55,7 +49,7 @@ class ProgrmUserController extends Controller {
       ctx.set({ authorization: token });
       ctx.body = {
         code: 0,
-        message: "",
+        message: '',
         data: userInfo[0],
       };
     }
@@ -71,7 +65,7 @@ class ProgrmUserController extends Controller {
         user_id: ctx.user.user_id,
       },
     };
-    const result = await this.app.mysql.update("program_user", row, options);
+    const result = await this.app.mysql.update('program_user', row, options);
     if (result.affectedRows === 1) {
       ctx.body = successMsg();
     }
@@ -79,14 +73,14 @@ class ProgrmUserController extends Controller {
   // 获取用户信息
   async get() {
     const { ctx } = this;
-    const result = await this.app.mysql.select("program_user", {
+    const result = await this.app.mysql.select('program_user', {
       where: { user_id: ctx.user.user_id },
     });
     ctx.body = successMsg(result[0]);
   }
   async getToken() {
     try {
-      const result = await this.app.mysql.select("token", {
+      const result = await this.app.mysql.select('token', {
         where: { eid: ctx.user.eid }, // 使用 where 条件进行查询，匹配 eid 字段的值
       });
 
@@ -95,11 +89,11 @@ class ProgrmUserController extends Controller {
       } else {
         // 如果没有找到匹配的 token，可以返回自定义错误信息
         ctx.status = 404;
-        ctx.body = { error: "Token not found" };
+        ctx.body = { error: 'Token not found' };
       }
     } catch (error) {
       ctx.status = 500;
-      ctx.body = { error: "Internal server error" };
+      ctx.body = { error: 'Internal server error' };
     }
   }
 }

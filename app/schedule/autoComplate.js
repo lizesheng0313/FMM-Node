@@ -1,8 +1,8 @@
 module.exports = {
   schedule: {
-    interval: "1d", // 每天执行一次
+    interval: '1d', // 每天执行一次
     immediate: true, // 是否立即执行一次
-    type: "worker", // 指定一个 worker 执行
+    type: 'worker', // 指定一个 worker 执行
   },
   async task(ctx) {
     const { mysql } = ctx.app;

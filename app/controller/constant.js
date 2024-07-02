@@ -1,5 +1,5 @@
-const { successMsg } = require("../../utils/utils");
-const { Controller } = require("egg");
+const { successMsg } = require('../../utils/utils');
+const { Controller } = require('egg');
 
 class ConstantController extends Controller {
   async getClassiFication() {

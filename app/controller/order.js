@@ -7,10 +7,10 @@
  * @Description: 备注内容
  * @FilePath: /commerce_egg/app/controller/order.js
  */
-"use strict";
-const { successMsg, errorMsg } = require("../../utils/utils");
-const { Controller } = require("egg");
-const { ORDERSTATUS, PAYSTATUS, RETURNSTATUS } = require("../../const/index");
+'use strict';
+const { successMsg, errorMsg } = require('../../utils/utils');
+const { Controller } = require('egg');
+const { ORDERSTATUS, PAYSTATUS, RETURNSTATUS } = require('../../const/index');
 
 class OrderController extends Controller {
   // 删除订单
@@ -26,39 +26,35 @@ class OrderController extends Controller {
   // 发货并更改订单状态
   async shipGoods() {
     const { ctx } = this;
-    const { id, logistics_company, logistics_no, address_phone, user_id } =
-      ctx.request.body;
-    const order = await this.app.mysql.get("goods_order", { id });
-    if (order.order_status === "10" && order.pay_status === "1") {
-      const token = await ctx.app.mysql.get("token", { id: 1 });
-      const logistic_no = await ctx.curl(
-        `https://api.weixin.qq.com/cgi-bin/express/delivery/open_msg/trace_waybill?access_token=${token.access_token}`,
-        {
-          method: "POST",
-          headers: {
-            "Content-type": "application/json",
+    const { id, logistics_company, logistics_no, address_phone, user_id } = ctx.request.body;
+    const order = await this.app.mysql.get('goods_order', { id });
+    if (order.order_status === '10' && order.pay_status === '1') {
+      const token = await ctx.app.mysql.get('token', { id: 1 });
+      const logistic_no = await ctx.curl(`https://api.weixin.qq.com/cgi-bin/express/delivery/open_msg/trace_waybill?access_token=${token.access_token}`, {
+        method: 'POST',
+        headers: {
+          'Content-type': 'application/json',
+        },
+        data: {
+          openid: user_id,
+          delivery_id: logistics_company,
+          receiver_phone: address_phone,
+          waybill_id: logistics_no,
+          trans_id: order.trans_id,
+          goods_info: {
+            detail_list: [
+              {
+                goods_name: order.goods_name,
+                goods_img_url: order.goods_picture,
+              },
+            ],
           },
-          data: {
-            openid: user_id,
-            delivery_id: logistics_company,
-            receiver_phone: address_phone,
-            waybill_id: logistics_no,
-            trans_id: order.trans_id,
-            goods_info: {
-              detail_list: [
-                {
-                  goods_name: order.goods_name,
-                  goods_img_url: order.goods_picture,
-                },
-              ],
-            },
-          },
-        }
-      );
+        },
+      });
       const bufferData = Buffer.from(logistic_no?.data);
-      const dataStr = bufferData.toString("utf8");
+      const dataStr = bufferData.toString('utf8');
       const dataObj = JSON.parse(dataStr);
-      ctx.logger.info(dataObj, "----传单");
+      ctx.logger.info(dataObj, '----传单');
       const rows = {
         waybill_token: dataObj?.waybill_token,
         order_id: id,
@@ -67,10 +63,10 @@ class OrderController extends Controller {
         create_time: Date.now(),
       };
 
-      const result = await this.app.mysql.insert("logistics", rows);
+      const result = await this.app.mysql.insert('logistics', rows);
       await this.app.mysql.update(
-        "goods_order",
-        { order_status: "20", delivery_time: Date.now() },
+        'goods_order',
+        { order_status: '20', delivery_time: Date.now() },
         {
           where: {
             id,
@@ -81,7 +77,7 @@ class OrderController extends Controller {
         ctx.body = successMsg();
       }
     } else {
-      ctx.body = errorMsg("当前状态不是待发货状态", {
+      ctx.body = errorMsg('当前状态不是待发货状态', {
         order_status: order.order_status,
       });
     }
@@ -89,44 +85,34 @@ class OrderController extends Controller {
   // 更新运力id列表
   async getLogList() {
     const { ctx } = this;
-    const token = await ctx.app.mysql.get("token", { id: 1 });
-    const result = await ctx.curl(
-      `https://api.weixin.qq.com/cgi-bin/express/delivery/open_msg/get_delivery_list?access_token=${token.access_token}`,
-      {
-        method: "POST",
-        headers: {
-          "Content-type": "application/json",
-        },
-        data: {},
-      }
-    );
-    ctx.logger.info("微信运力接口", result);
+    const token = await ctx.app.mysql.get('token', { id: 1 });
+    const result = await ctx.curl(`https://api.weixin.qq.com/cgi-bin/express/delivery/open_msg/get_delivery_list?access_token=${token.access_token}`, {
+      method: 'POST',
+      headers: {
+        'Content-type': 'application/json',
+      },
+      data: {},
+    });
+    ctx.logger.info('微信运力接口', result);
     const bufferData = Buffer.from(result?.data);
-    const dataStr = bufferData.toString("utf8");
+    const dataStr = bufferData.toString('utf8');
     const dataObj = JSON.parse(dataStr);
-    await this.app.mysql.insert("delivery_list", dataObj?.delivery_list);
+    await this.app.mysql.insert('delivery_list', dataObj?.delivery_list);
     ctx.body = successMsg(dataObj);
   }
   // 获取快递列表
   async getExpressList() {
     const { ctx } = this;
-    const list = await ctx.app.mysql.select("delivery_list");
+    const list = await ctx.app.mysql.select('delivery_list');
     ctx.body = successMsg(list);
   }
   // 获取订单列表
   async getOrder() {
     const { ctx } = this;
     const role = ctx.user.role;
-    const {
-      pageIndex = 1,
-      pageSize = 10,
-      payStatus = null,
-      orderStatus = null,
-      orderId = null,
-      username = null,
-    } = ctx.query;
+    const { pageIndex = 1, pageSize = 10, payStatus = null, orderStatus = null, orderId = null, username = null } = ctx.query;
 
-    let whereClause = "WHERE o.eid = ?";
+    let whereClause = 'WHERE o.eid = ?';
     const params = [ctx.user.eid];
 
     if (payStatus) {
@@ -173,7 +159,7 @@ class OrderController extends Controller {
         g.name,
         g.href,
         o.order_status,
-        ${role === "0" || role === "1" ? "o.cost_price," : ""}
+        ${role === '0' || role === '1' ? 'o.cost_price,' : ''}
         o.response_price,
         o.address_id,
         o.sku_id,
@@ -220,14 +206,8 @@ class OrderController extends Controller {
   async getReturnOrder() {
     const { ctx } = this;
     const role = ctx.user.role;
-    const {
-      pageIndex = 1,
-      pageSize = 10,
-      returnStatus = null,
-      orderId = null,
-      username = null,
-    } = ctx.query;
-    let whereClause = "";
+    const { pageIndex = 1, pageSize = 10, returnStatus = null, orderId = null, username = null } = ctx.query;
+    let whereClause = '';
     if (returnStatus) {
       whereClause += ` AND status = '${returnStatus}'`;
     }
@@ -249,7 +229,7 @@ class OrderController extends Controller {
       r.return_receive_time,
       r.refund_time,
       r.reason,
-      ${role === "0" || role === "1" ? "o.cost_price," : ""}
+      ${role === '0' || role === '1' ? 'o.cost_price,' : ''}
       o.user_id,
       o.total_price,
       o.quantity,
@@ -288,14 +268,12 @@ class OrderController extends Controller {
     OFFSET
     ${(pageIndex - 1) * pageSize}
   `;
-    const result = (await this.app.mysql.query(SQL, [ctx.user.eid])).map(
-      (item) => ({
-        ...item,
-        order_status_str: ORDERSTATUS[item.order_status],
-        order_return_status_start: RETURNSTATUS[item.status],
-        picture_list: item.picture_list?.split(","),
-      })
-    );
+    const result = (await this.app.mysql.query(SQL, [ctx.user.eid])).map((item) => ({
+      ...item,
+      order_status_str: ORDERSTATUS[item.order_status],
+      order_return_status_start: RETURNSTATUS[item.status],
+      picture_list: item.picture_list?.split(','),
+    }));
 
     ctx.body = successMsg({
       list: result,
@@ -308,22 +286,22 @@ class OrderController extends Controller {
   async goodsAgreenOperation() {
     const { ctx, app } = this;
     const { id, return_address } = ctx.request.body;
-    const agreeData = await app.mysql.get("goods_order_return", { id });
-    const order = await app.mysql.get("goods_order", {
+    const agreeData = await app.mysql.get('goods_order_return', { id });
+    const order = await app.mysql.get('goods_order', {
       id: agreeData.order_id,
     });
-    ctx.logger.info(order, "同意退货的order");
+    ctx.logger.info(order, '同意退货的order');
 
-    if (!["50"].includes(order.order_status)) {
-      ctx.body = errorMsg("该订单状态不在退货中");
+    if (!['50'].includes(order.order_status)) {
+      ctx.body = errorMsg('该订单状态不在退货中');
       return;
     }
-    if (agreeData.status !== "1") {
-      ctx.body = errorMsg("未在审核状态");
+    if (agreeData.status !== '1') {
+      ctx.body = errorMsg('未在审核状态');
       return;
     }
     const result = await app.mysql.update(
-      "goods_order_return",
+      'goods_order_return',
       { status: 2, return_address },
       {
         where: {
@@ -339,21 +317,21 @@ class OrderController extends Controller {
   async goodsRefuseOperation() {
     const { ctx, app } = this;
     const { id, reason } = ctx.request.body;
-    const agreeData = await app.mysql.get("goods_order_return", { id });
-    const order = await app.mysql.get("goods_order", {
+    const agreeData = await app.mysql.get('goods_order_return', { id });
+    const order = await app.mysql.get('goods_order', {
       id: agreeData.order_id,
     });
-    if (!["50"].includes(order.order_status)) {
-      ctx.body = errorMsg("该订单状态不在退货中");
+    if (!['50'].includes(order.order_status)) {
+      ctx.body = errorMsg('该订单状态不在退货中');
       return;
     }
-    if (agreeData.status !== "1") {
-      ctx.body = errorMsg("未在审核状态");
+    if (agreeData.status !== '1') {
+      ctx.body = errorMsg('未在审核状态');
       return;
     }
     const result = await this.app.mysql.update(
-      "goods_order_return",
-      { status: "3", refuse_reason: reason },
+      'goods_order_return',
+      { status: '3', refuse_reason: reason },
       {
         where: {
           id,
@@ -368,18 +346,18 @@ class OrderController extends Controller {
   async receivedGoods() {
     const { ctx, app } = this;
     const { id } = ctx.request.body;
-    const agreeData = await app.mysql.get("goods_order_return", { id });
-    const order = await app.mysql.get("goods_order", {
+    const agreeData = await app.mysql.get('goods_order_return', { id });
+    const order = await app.mysql.get('goods_order', {
       id: agreeData.order_id,
     });
 
     // 只有退货中才可以收货
-    if (!["50"].includes(order.order_status)) {
-      ctx.body = errorMsg("该订单不能收货");
+    if (!['50'].includes(order.order_status)) {
+      ctx.body = errorMsg('该订单不能收货');
       return;
     }
-    if (agreeData.status !== "4") {
-      ctx.body = errorMsg("用户还未开始退货");
+    if (agreeData.status !== '4') {
+      ctx.body = errorMsg('用户还未开始退货');
       return;
     }
 
@@ -387,16 +365,8 @@ class OrderController extends Controller {
     const conn = await app.mysql.beginTransaction();
 
     try {
-      await conn.update(
-        "goods_order_return",
-        { status: "20" },
-        { where: { id } }
-      );
-      await conn.update(
-        "goods_order",
-        { order_status: "80" },
-        { where: { id: agreeData.order_id } }
-      );
+      await conn.update('goods_order_return', { status: '20' }, { where: { id } });
+      await conn.update('goods_order', { order_status: '80' }, { where: { id: agreeData.order_id } });
 
       // 提交事务
       await conn.commit();
@@ -413,37 +383,37 @@ class OrderController extends Controller {
   async approveRefund() {
     const { ctx, app } = this;
     const { id } = ctx.request.body;
-    const agreeData = await app.mysql.get("goods_order_return", { id });
-    const order = await app.mysql.get("goods_order", {
+    const agreeData = await app.mysql.get('goods_order_return', { id });
+    const order = await app.mysql.get('goods_order', {
       id: agreeData.order_id,
     });
 
     if (!agreeData) {
-      ctx.body = errorMsg("退货记录不存在");
+      ctx.body = errorMsg('退货记录不存在');
       return;
     }
 
     // 检查退货记录状态是否为待退货而且不为待退款
-    if (agreeData.status !== "6" && agreeData.status !== "20") {
-      ctx.body = errorMsg("还未收到货不允许退款");
+    if (agreeData.status !== '6' && agreeData.status !== '20') {
+      ctx.body = errorMsg('还未收到货不允许退款');
       return;
     }
 
-    if (!["80"].includes(order.order_status)) {
-      ctx.body = errorMsg("该订单状态不在退款中");
+    if (!['80'].includes(order.order_status)) {
+      ctx.body = errorMsg('该订单状态不在退款中');
       return;
     }
     // 更新退货记录状态为已退款
-    await app.mysql.update("goods_order_return", {
+    await app.mysql.update('goods_order_return', {
       id,
-      status: "5",
+      status: '5',
       refund_time: Date.now(),
     });
 
     // 更新订单状态为已退款
-    await app.mysql.update("goods_order", {
+    await app.mysql.update('goods_order', {
       id: agreeData.order_id,
-      order_status: "90",
+      order_status: '90',
     });
     ctx.body = successMsg();
   }
@@ -459,17 +429,17 @@ class OrderController extends Controller {
       // 生成前14位时间串
       const date = new Date();
       const year = date.getFullYear().toString().slice(-2);
-      const month = (date.getMonth() + 1).toString().padStart(2, "0");
-      const day = date.getDate().toString().padStart(2, "0");
-      const hour = date.getHours().toString().padStart(2, "0");
-      const minute = date.getMinutes().toString().padStart(2, "0");
-      const second = date.getSeconds().toString().padStart(2, "0");
+      const month = (date.getMonth() + 1).toString().padStart(2, '0');
+      const day = date.getDate().toString().padStart(2, '0');
+      const hour = date.getHours().toString().padStart(2, '0');
+      const minute = date.getMinutes().toString().padStart(2, '0');
+      const second = date.getSeconds().toString().padStart(2, '0');
       const timeString = year + month + day + hour + minute + second;
 
       // 生成后6位随机数
       const randomString = Math.floor(Math.random() * 1000000)
         .toString()
-        .padStart(6, "0");
+        .padStart(6, '0');
 
       // 拼接生成订单号
       orderId = timeString + randomString;

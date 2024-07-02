@@ -21,4 +21,3 @@ module.exports = {
     package: 'egg-jwt',
   },
 };
-

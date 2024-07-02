@@ -7,9 +7,9 @@
  * @Description: 备注内容
  * @FilePath: /commerce_egg/app/controller/programGoods.js
  */
-"use strict";
-const { successMsg, errorMsg } = require("../../utils/utils");
-const { Controller } = require("egg");
+'use strict';
+const { successMsg, errorMsg } = require('../../utils/utils');
+const { Controller } = require('egg');
 
 class ProgrmGoodsController extends Controller {
   async getDetails() {
@@ -30,7 +30,7 @@ class ProgrmGoodsController extends Controller {
     const skuSQL = `SELECT * FROM sku_goods WHERE goodsId = ${id}`;
     const skuResult = await this.app.mysql.query(skuSQL);
     const sku = skuResult.map((item) => {
-      const skuIdArr = item.skuId.split(",");
+      const skuIdArr = item.skuId.split(',');
       const skuObj = {
         skuId: item.skuId,
         skuStock: item.skuStock,
@@ -60,12 +60,10 @@ class ProgrmGoodsController extends Controller {
     SELECT id
     FROM class_ification
     WHERE eid = ? AND parentId IS NULL`;
-    const parentIdResult = await this.app.mysql.query(parentSql, [
-      ctx.query.eid,
-    ]);
+    const parentIdResult = await this.app.mysql.query(parentSql, [ctx.query.eid]);
     if (parentIdResult.length !== 1) {
       ctx.status = 400;
-      ctx.body = errorMsg("Invalid parentId count");
+      ctx.body = errorMsg('Invalid parentId count');
       return;
     }
     const parentId = parentIdResult[0].id;

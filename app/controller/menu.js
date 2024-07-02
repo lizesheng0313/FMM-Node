@@ -23,11 +23,15 @@ class MenuController extends Controller {
   async update() {
     const { ctx } = this;
     const { title, order, icon, display, menuUrl, funCode, parentId, id } = ctx.request.body;
-    const result = await this.app.mysql.update('menu', { title, order, icon, display, menuUrl, funCode, parentId }, {
-      where: {
-        id,
-      },
-    });
+    const result = await this.app.mysql.update(
+      'menu',
+      { title, order, icon, display, menuUrl, funCode, parentId },
+      {
+        where: {
+          id,
+        },
+      }
+    );
     if (result.affectedRows === 1) {
       ctx.body = successMsg();
     }
@@ -35,16 +39,17 @@ class MenuController extends Controller {
   async get() {
     const { ctx } = this;
     let menuList = await this.app.mysql.select('menu');
-    menuList && menuList.forEach(item => {
-      if (item.parentId) {
-        const parentItem = menuList.find(element => item.parentId === element.id);
-        if (!parentItem?.children) {
-          parentItem.children = [];
+    menuList &&
+      menuList.forEach((item) => {
+        if (item.parentId) {
+          const parentItem = menuList.find((element) => item.parentId === element.id);
+          if (!parentItem?.children) {
+            parentItem.children = [];
+          }
+          parentItem.children.push(item);
         }
-        parentItem.children.push(item);
-      }
-    });
-    menuList = menuList.filter(item => !item.parentId);
+      });
+    menuList = menuList.filter((item) => !item.parentId);
     ctx.body = successMsg({
       list: menuList,
     });

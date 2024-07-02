@@ -1,7 +1,7 @@
-"use strict";
-const { successMsg } = require("../../utils/utils");
-const { Controller } = require("egg");
-const moment = require("moment");
+'use strict';
+const { successMsg } = require('../../utils/utils');
+const { Controller } = require('egg');
+const moment = require('moment');
 
 class DashBoardController extends Controller {
   async getOrderCounts() {
@@ -10,8 +10,8 @@ class DashBoardController extends Controller {
 
     try {
       // 获取当天开始和结束的时间戳
-      const startOfDay = moment().startOf("day").valueOf();
-      const endOfDay = moment().endOf("day").valueOf();
+      const startOfDay = moment().startOf('day').valueOf();
+      const endOfDay = moment().endOf('day').valueOf();
 
       // 辅助函数，用于获取订单数量
       const getOrdersCount = async (query, params) => {
@@ -82,7 +82,7 @@ class DashBoardController extends Controller {
     } catch (error) {
       ctx.body = {
         code: -1,
-        message: "获取订单数量失败",
+        message: '获取订单数量失败',
         error,
       };
     }

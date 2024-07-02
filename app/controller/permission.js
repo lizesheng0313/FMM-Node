@@ -1,6 +1,6 @@
-"use strict";
-const { successMsg, errorMsg } = require("../../utils/utils");
-const { Controller } = require("egg");
+'use strict';
+const { successMsg, errorMsg } = require('../../utils/utils');
+const { Controller } = require('egg');
 
 class PermissionController extends Controller {
   async getUserList() {
@@ -29,9 +29,7 @@ class PermissionController extends Controller {
       const userList = await this.app.mysql.query(userListQuery, [eid]);
 
       const processedUserList = userList.reduce((result, user) => {
-        const existingUser = result.find(
-          (item) => item.user_id === user.user_id
-        );
+        const existingUser = result.find((item) => item.user_id === user.user_id);
         if (existingUser) {
           if (user.order_id) {
             existingUser.children.push({

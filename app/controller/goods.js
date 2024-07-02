@@ -7,9 +7,9 @@
  * @Description: 备注内容
  * @FilePath: /commerce_egg/app/controller/goods.js
  */
-"use strict";
-const { successMsg, errorMsg } = require("../../utils/utils");
-const { Controller } = require("egg");
+'use strict';
+const { successMsg, errorMsg } = require('../../utils/utils');
+const { Controller } = require('egg');
 
 class GoodsController extends Controller {
   async add() {
@@ -27,12 +27,12 @@ class GoodsController extends Controller {
     };
     delete rows.sku; // sku表
     delete rows.pictureList; // goods表没有图片列表字段
-    const result = await this.app.mysql.insert("goods", rows);
+    const result = await this.app.mysql.insert('goods', rows);
     await skuProcess(result.insertId, pictureList, sku, this);
     if (result.affectedRows === 1) {
       ctx.body = successMsg();
     } else {
-      ctx.body = errorMsg("添加错误");
+      ctx.body = errorMsg('添加错误');
     }
   }
 
@@ -46,22 +46,20 @@ class GoodsController extends Controller {
     };
     delete rows.sku; // sku表
     delete rows.pictureList; // goods表没有图片列表字段
-    const result = await this.app.mysql.update("goods", rows, {
+    const result = await this.app.mysql.update('goods', rows, {
       where: {
         id,
       },
     });
     if (pictureList) {
-      await this.app.mysql.query(
-        `DELETE FROM goods_picture_list WHERE goodsId = ${id}`
-      );
+      await this.app.mysql.query(`DELETE FROM goods_picture_list WHERE goodsId = ${id}`);
       await this.app.mysql.query(`DELETE FROM sku_goods WHERE goodsId = ${id}`);
       await skuProcess(id, pictureList, sku, this);
     }
     if (result.affectedRows === 1) {
       ctx.body = successMsg();
     } else {
-      ctx.body = errorMsg("更新错误");
+      ctx.body = errorMsg('更新错误');
     }
   }
   async getDetails() {
@@ -82,7 +80,7 @@ class GoodsController extends Controller {
     const skuSQL = `SELECT * FROM sku_goods WHERE goodsId = ${id}`;
     const skuResult = await this.app.mysql.query(skuSQL);
     const sku = skuResult.map((item) => {
-      const skuIdArr = item.skuId.split(",");
+      const skuIdArr = item.skuId.split(',');
       const skuObj = {
         skuStock: item.skuStock,
         skuPrice: item.skuPrice,
@@ -113,15 +111,14 @@ class GoodsController extends Controller {
     if (result.affectedRows > 0) {
       ctx.body = successMsg();
     } else {
-      ctx.body = errorMsg("Delete failed");
+      ctx.body = errorMsg('Delete failed');
     }
   }
   async get() {
     const { ctx } = this;
     const { pageIndex = 1, pageSize = 10 } = ctx.query;
 
-    const TOTALSQL =
-      "SELECT COUNT(*) as total FROM goods WHERE is_deleted != 1 AND eid = ?;";
+    const TOTALSQL = 'SELECT COUNT(*) as total FROM goods WHERE is_deleted != 1 AND eid = ?;';
     const total = await this.app.mysql.query(TOTALSQL, [ctx.user.eid]);
 
     const SQL = `
@@ -135,15 +132,11 @@ class GoodsController extends Controller {
     `;
 
     const offset = (parseInt(pageIndex) - 1) * parseInt(pageSize);
-    const result = await this.app.mysql.query(SQL, [
-      ctx.user.eid,
-      parseInt(pageSize),
-      offset,
-    ]);
+    const result = await this.app.mysql.query(SQL, [ctx.user.eid, parseInt(pageSize), offset]);
 
     result.forEach((item) => {
       if (item.pictureList) {
-        item.pictureList = item.pictureList.split(",");
+        item.pictureList = item.pictureList.split(',');
       }
     });
 
@@ -162,10 +155,10 @@ async function skuProcess(goodsId, pictureList, sku, that) {
     type: 0,
     url,
   }));
-  await that.app.mysql.insert("goods_picture_list", goodsPictUreList);
+  await that.app.mysql.insert('goods_picture_list', goodsPictUreList);
   // sku插入
   const skuRows = sku.map((item) => {
-    const nameList = Object.keys(item).filter((key) => key.startsWith("name"));
+    const nameList = Object.keys(item).filter((key) => key.startsWith('name'));
     return {
       goodsId,
       skuStock: item.skuStock,
@@ -173,10 +166,10 @@ async function skuProcess(goodsId, pictureList, sku, that) {
       skuOriginPrice: item.skuOriginPrice,
       goods_picture: item.goods_picture,
       cost_price: item.cost_price,
-      skuId: nameList.map((key) => item[key]).join(","),
+      skuId: nameList.map((key) => item[key]).join(','),
     };
   });
-  await that.app.mysql.insert("sku_goods", skuRows);
+  await that.app.mysql.insert('sku_goods', skuRows);
 }
 
 module.exports = GoodsController;

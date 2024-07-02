@@ -8,7 +8,7 @@
  * @FilePath: /commerce_egg/utils/utils.js
  */
 module.exports = {
-  successMsg: data => {
+  successMsg: (data) => {
     return {
       code: 0,
       message: '',
