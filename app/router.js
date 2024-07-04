@@ -12,8 +12,6 @@ module.exports = (app) => {
   router.post('/api/admin/manage/menu/update', jwtErr, controller.menu.update);
   router.get('/api/admin/manage/get/menu', jwtErr, controller.menu.get);
   router.get('/api/admin/getUserList', jwtErr, controller.permission.getUserList);
-  // 上传分类
-  router.post('/api/admin/uploadTypeImage', jwtErr, controller.upload.uploadTypeImage);
   // 商品操作
   router.get('/api/admin/manage/getGoods', jwtErr, controller.goods.get);
   router.post('/api/admin/manage/addGoods', jwtErr, controller.goods.add);
@@ -26,10 +24,10 @@ module.exports = (app) => {
   router.post('/api/admin/category/edit', jwtErr, controller.category.editCategory);
   router.post('/api/admin/category/delete', jwtErr, controller.category.deleteCategory);
   // 广告相关接口
-  router.get('/api/admin/fetchAdList', jwtErr, controller.ad.fetchAdList);
-  router.post('/api/admin/fetchAddAd', jwtErr, controller.ad.fetchAddAd);
-  router.post('/api/admin/fetchUpdateAd', jwtErr, controller.ad.fetchUpdateAd);
-  router.post('/api/admin/fetchDeleteAd', jwtErr, controller.ad.fetchDeleteAd);
+  router.get('/api/admin/ad/get', jwtErr, controller.ad.fetchAdList);
+  router.post('/api/admin/ad/add', jwtErr, controller.ad.fetchAddAd);
+  router.post('/api/admin/ad/update', jwtErr, controller.ad.fetchUpdateAd);
+  router.post('/api/admin/ad/delete', jwtErr, controller.ad.fetchDeleteAd);
   // 订单
   router.get('/api/admin/order/list', jwtErr, controller.order.getOrder);
   router.get('/api/admin/order/returnList', jwtErr, controller.order.getReturnOrder);
@@ -40,6 +38,12 @@ module.exports = (app) => {
   router.post('/api/admin/order/receivedGoods', jwtErr, controller.order.receivedGoods);
   router.post('/api/admin/order/getLogList', jwtErr, controller.order.getLogList);
   router.get('/api/admin/order/getExpressList', jwtErr, controller.order.getExpressList);
+  // 用户管理
+  router.get('/api/admin/user/get', jwtErr, controller.user.fetchUserList);
+  router.post('/api/admin/user/add', jwtErr, controller.user.fetchAddUser);
+  router.post('/api/admin/user/update', jwtErr, controller.user.fetchUpdateUser);
+  router.post('/api/admin/user/delete', jwtErr, controller.user.fetchDeleteUser);
+
   // 登录
   router.post('/api/admin/user/login', controller.user.login);
   // 爬虫
@@ -87,9 +91,9 @@ module.exports = (app) => {
   // 分类
   router.get('/api/goods/getClassiFication', controller.programGoods.getClassiFication);
 
-  // 上传
-  router.post('/api/uploadImage', jwtErr, controller.upload.uploadImage);
-
   // 埋点
   router.post('/api/events', controller.programTrack.add);
+
+  // 通用
+  router.post('/api/admin/upload', controller.upload.upload);
 };

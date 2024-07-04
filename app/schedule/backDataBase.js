@@ -2,6 +2,7 @@ const { exec } = require('child_process');
 const path = require('path');
 const moment = require('moment');
 const fs = require('fs');
+const { FILE_PATHS } = require('../../const');
 
 module.exports = {
   schedule: {
@@ -10,7 +11,11 @@ module.exports = {
     type: 'all', // 指定所有的 worker 都需要执行
   },
   async task() {
-    const backupDir = path.join(__dirname, '..', '..', '..', 'back');
+    const backupDir = path.join(FILE_PATHS.MYSQL_FILES_DIR);
+    // 确保备份目录存在
+    if (!fs.existsSync(backupDir)) {
+      fs.mkdirSync(backupDir, { recursive: true });
+    }
     const now = moment().format('YYYY-MM-DD_HH-mm-ss');
     const backupFilePath = path.join(backupDir, `backup-${now}.sql`);
     const cmd = `mysqldump -u root -p@lizesheng123@ --single-transaction  e_commerce > ${backupFilePath}`;

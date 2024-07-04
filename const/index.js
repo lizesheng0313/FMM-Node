@@ -1,12 +1,3 @@
-/*
- * @Author: lizesheng
- * @Date: 2023-03-06 10:09:19
- * @LastEditors: lizesheng
- * @LastEditTime: 2023-04-28 18:31:18
- * @important: 重要提醒
- * @Description: 备注内容
- * @FilePath: /commerce_egg/const/index.js
- */
 const PAYSTATUS = {
   0: '待支付',
   1: '已支付',
@@ -36,7 +27,23 @@ const RETURNSTATUS = {
   20: '待退款',
 };
 
+// 文件路径常量
+const BASE_DIR = '/var/web/fmm_zero_files';
+const IMAGE_DIR = `${BASE_DIR}/images`;
+const FILE_DIR = `${BASE_DIR}/files`;
+
+const FILE_PATHS = {
+  BASE_DIR,
+  IMAGE_DIR,
+  USER_AVATARS_DIR: `${IMAGE_DIR}/user_avatars`, // 用户头像
+  RETURN_IMAGES_DIR: `${IMAGE_DIR}/return_images`, // 退货图片
+  CATEGORY_IMAGES_DIR: `${IMAGE_DIR}/category_images`, // 分类图片
+  MINIPROGRAM_PAYMENT_FILES_DIR: `${FILE_DIR}/miniprogram_payment_files`, // 小程序支付文件
+  MYSQL_FILES_DIR: `${FILE_DIR}/mysql_files`, // mysql文件
+};
+
 module.exports = {
+  FILE_PATHS,
   PAYSTATUS,
   ORDERSTATUS,
   RETURNSTATUS,

@@ -18,6 +18,30 @@ class ConstantController extends Controller {
       ctx.body = { code: -1, message: '用户名或密码错误' };
     }
   }
+
+  async fetchUserList() {
+    const { ctx, service } = this;
+    const userList = await service.user.fetchUserList();
+    ctx.body = successMsg(userList);
+  }
+
+  async fetchAddUser() {
+    const { ctx, service } = this;
+    const result = await service.user.fetchAddUser(ctx.request.body);
+    ctx.body = successMsg(result);
+  }
+
+  async fetchUpdateUser() {
+    const { ctx, service } = this;
+    const result = await service.user.fetchUpdateUser(ctx.request.body);
+    ctx.body = successMsg(result);
+  }
+
+  async fetchDeleteUser() {
+    const { ctx, service } = this;
+    const result = await service.user.fetchDeleteUser(ctx.request.body);
+    ctx.body = successMsg(result);
+  }
 }
 
 module.exports = ConstantController;

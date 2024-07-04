@@ -469,8 +469,8 @@ class ProgramOrderController extends Controller {
     const pay = new WxPay({
       appid: currentApp.appid,
       mchid: currentApp.mchid,
-      publicKey: fs.readFileSync(__dirname + currentApp.public_key), // 公钥
-      privateKey: fs.readFileSync(__dirname + currentApp.private_key), // 私钥
+      publicKey: fs.readFileSync(currentApp.public_key), // 公钥
+      privateKey: fs.readFileSync(currentApp.private_key), // 私钥
     });
     // 申请的APIv3
     const { ciphertext, associated_data, nonce } = ctx.request.body.resource;
@@ -563,14 +563,14 @@ async function payInfo(out_trade_no, description, act_price, userId, ctx, app) {
   const pay = new WxPay({
     appid: ctx.user.eid,
     mchid: currentApp.mchid,
-    publicKey: fs.readFileSync(__dirname + currentApp.public_key), // 公钥
-    privateKey: fs.readFileSync(__dirname + currentApp.private_key), // 私钥
+    publicKey: fs.readFileSync(currentApp.public_key), // 公钥
+    privateKey: fs.readFileSync(currentApp.private_key), // 私钥
   });
   ctx.logger.info('商品信息加密', act_price, userId);
   const params = {
     description,
     out_trade_no,
-    notify_url: `https://zjkdongao.com/qq/api/order/payNotify`,
+    notify_url: `${currentApp.mini_program_domain}/qq/api/order/payNotify`,
     amount: {
       total: act_price * 100, // 单位是分
     },
