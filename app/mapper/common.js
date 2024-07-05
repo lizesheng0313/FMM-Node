@@ -1,3 +1,3 @@
 module.exports = {
-  getAppIdList: 'SELECT appid FROM user WHERE is_del = 0 or is_del is NULL',
+  getAppIdList: 'SELECT eid FROM user WHERE is_delete = 0 or is_delete is NULL',
 };
