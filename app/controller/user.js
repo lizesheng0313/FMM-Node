@@ -22,25 +22,25 @@ class ConstantController extends Controller {
   async fetchUserList() {
     const { ctx, service } = this;
     const userList = await service.user.fetchUserList();
-    ctx.body = successMsg(userList);
+    ctx.body = userList;
   }
 
   async fetchAddUser() {
     const { ctx, service } = this;
     const result = await service.user.fetchAddUser(ctx.request.body);
-    ctx.body = successMsg(result);
+    ctx.body = result;
   }
 
   async fetchUpdateUser() {
     const { ctx, service } = this;
     const result = await service.user.fetchUpdateUser(ctx.request.body);
-    ctx.body = successMsg(result);
+    ctx.body = result;
   }
 
   async fetchDeleteUser() {
     const { ctx, service } = this;
     const result = await service.user.fetchDeleteUser(ctx.request.body);
-    ctx.body = successMsg(result);
+    ctx.body = result;
   }
 }
 

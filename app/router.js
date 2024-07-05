@@ -43,7 +43,12 @@ module.exports = (app) => {
   router.post('/api/admin/user/add', jwtErr, controller.user.fetchAddUser);
   router.post('/api/admin/user/update', jwtErr, controller.user.fetchUpdateUser);
   router.post('/api/admin/user/delete', jwtErr, controller.user.fetchDeleteUser);
-
+  // 基础设置
+  router.get('/api/admin/basic/get', jwtErr, controller.basic.fetchBasic);
+  router.post('/api/admin/basic/add', jwtErr, controller.basic.fetchAddBasic);
+  router.post('/api/admin/basic/update', jwtErr, controller.basic.fetchUpdateBasic);
+  // 公共
+  router.get('/api/admin/common/getAppIdList', jwtErr, controller.common.getAppIdList);
   // 登录
   router.post('/api/admin/user/login', controller.user.login);
   // 爬虫

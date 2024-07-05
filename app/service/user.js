@@ -1,15 +1,16 @@
 'use strict';
 
 const Service = require('egg').Service;
-const { fetchUserList, fetchAddUser, fetchUpdateUser, fetchDeleteUser, fetchUserByUsername, fetchUserByUsernameOrAppid } = require('../mapper/user');
+const { fetchUserList, fetchAddUser, fetchUpdateUser, fetchDeleteUser, fetchUserByUsernameOrAppid } = require('../mapper/user');
 const { fetchAddSecret, fetchUpdateSecret } = require('../mapper/program_secret');
+const { successMsg, errorMsg } = require('../../utils/utils');
 
 class UserService extends Service {
   // 获取用户列表
   async fetchUserList() {
     const { ctx } = this;
     const userList = await ctx.app.mysql.query(fetchUserList);
-    return userList;
+    return successMsg(userList);
   }
 
   // 添加用户
@@ -19,7 +20,7 @@ class UserService extends Service {
     // 判断appid是否已存在
     const existingAppid = await ctx.app.mysql.query(fetchUserByUsernameOrAppid, [username, appid]);
     if (existingAppid.length > 0) {
-      return { code: 1, msg: '用户名或 appid 已存在' };
+      return errorMsg('用户名或 appid 已存在');
     }
     // 插入到user表
     const userResult = await ctx.app.mysql.query(fetchAddUser, [appid, username, password, role, avatar, new Date().getTime(), new Date().getTime()]);
@@ -27,7 +28,7 @@ class UserService extends Service {
     const secretResult = await ctx.app.mysql.query(fetchAddSecret, [appid, secret, mchid, public_key, private_key]);
     ctx.logger.info('添加用户', userResult);
     ctx.logger.info('添加密钥', secretResult);
-    return { userResult, secretResult };
+    return successMsg({ userResult, secretResult });
   }
 
   // 更新用户
@@ -40,7 +41,7 @@ class UserService extends Service {
     const secretResult = await ctx.app.mysql.query(fetchUpdateSecret, [secret, mchid, public_key, private_key, appid]);
     ctx.logger.info('更新用户', userResult);
     ctx.logger.info('更新密钥', secretResult);
-    return { userResult, secretResult };
+    return successMsg({ userResult, secretResult });
   }
 
   // 删除用户
@@ -49,7 +50,7 @@ class UserService extends Service {
     const { appid } = data;
     const userResult = await ctx.app.mysql.query(fetchDeleteUser, [appid]);
     ctx.logger.info('删除用户', userResult);
-    return userResult;
+    return successMsg(userResult);
   }
 }
 
