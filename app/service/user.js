@@ -34,11 +34,11 @@ class UserService extends Service {
   // 更新用户
   async fetchUpdateUser(data) {
     const { ctx } = this;
-    const { appid, username, password, email, role, avatar, secret, mchid, public_key, private_key } = data;
+    const { eid, username, password, email, role, avatar, secret, mchid, public_key, private_key } = data;
     // 更新user表
-    const userResult = await ctx.app.mysql.query(fetchUpdateUser, [username, password, email, role, avatar, new Date().getTime(), appid]);
+    const userResult = await ctx.app.mysql.query(fetchUpdateUser, [username, password, email, role, avatar, new Date().getTime(), eid]);
     // 更新program_secret表
-    const secretResult = await ctx.app.mysql.query(fetchUpdateSecret, [secret, mchid, public_key, private_key, appid]);
+    const secretResult = await ctx.app.mysql.query(fetchUpdateSecret, [secret, mchid, public_key, private_key, eid]);
     ctx.logger.info('更新用户', userResult);
     ctx.logger.info('更新密钥', secretResult);
     return successMsg({ userResult, secretResult });
