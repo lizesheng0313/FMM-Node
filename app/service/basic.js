@@ -20,7 +20,7 @@ class BasicService extends Service {
   async fetchAddBasic(data) {
     const { ctx } = this;
     const eid = ctx.user.eid;
-    const { domin, privacy_policy, user_agreement, contact_phone, contact_email, company_address, company_description } = data;
+    const { domin, privacy_policy, user_agreement, contact_phone, contact_email, company_address, company_description, title } = data;
     const result = await ctx.app.mysql.query(fetchAddBasic, [
       eid,
       domin,
@@ -30,6 +30,7 @@ class BasicService extends Service {
       contact_email,
       company_address,
       company_description,
+      title,
       new Date().getTime(),
       new Date().getTime(),
     ]);
@@ -40,8 +41,19 @@ class BasicService extends Service {
   async fetchUpdateBasic(data) {
     const { ctx } = this;
     const eid = ctx.user.eid;
-    const { domin, privacy_policy, user_agreement, contact_phone, contact_email, company_address, company_description } = data;
-    const result = await this.app.mysql.query(fetchUpdateBasic, [domin, privacy_policy, user_agreement, contact_phone, contact_email, company_address, company_description, new Date().getTime(), eid]);
+    const { domin, privacy_policy, user_agreement, contact_phone, contact_email, company_address, company_description, title } = data;
+    const result = await this.app.mysql.query(fetchUpdateBasic, [
+      domin,
+      privacy_policy,
+      user_agreement,
+      contact_phone,
+      contact_email,
+      company_address,
+      company_description,
+      title,
+      new Date().getTime(),
+      eid,
+    ]);
     return successMsg(result);
   }
 }

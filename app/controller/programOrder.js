@@ -465,7 +465,7 @@ class ProgramOrderController extends Controller {
     const currentApp = await this.app.mysql.get('program_secret', {
       wechatpay_serial: header['wechatpay-serial'],
     });
-    ctx.logger.info(currentApp, '----currentApp');
+    ctx.logger.info(currentApp, '----program_secret');
     const pay = new WxPay({
       appid: currentApp.appid,
       mchid: currentApp.mchid,
@@ -557,6 +557,9 @@ class ProgramOrderController extends Controller {
 module.exports = ProgramOrderController;
 
 async function payInfo(out_trade_no, description, act_price, userId, ctx, app) {
+  const basicInfo = await app.mysql.get('basic_config', {
+    eid: ctx.user.eid,
+  });
   const currentApp = await app.mysql.get('program_secret', {
     appid: ctx.user.eid,
   });
@@ -570,7 +573,7 @@ async function payInfo(out_trade_no, description, act_price, userId, ctx, app) {
   const params = {
     description,
     out_trade_no,
-    notify_url: `${currentApp.mini_program_domain}/qq/api/order/payNotify`,
+    notify_url: `${basicInfo.domin}/qq/api/order/payNotify`,
     amount: {
       total: act_price * 100, // 单位是分
     },
