@@ -54,6 +54,10 @@ class OrderController extends Controller {
       const bufferData = Buffer.from(logistic_no?.data);
       const dataStr = bufferData.toString('utf8');
       const dataObj = JSON.parse(dataStr);
+      if (!dataObj.waybill_token) {
+        ctx.body = errorMsg('发货失败', dataObj);
+        return;
+      }
       ctx.logger.info(dataObj, '----传单');
       const rows = {
         waybill_token: dataObj?.waybill_token,
