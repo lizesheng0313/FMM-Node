@@ -42,4 +42,14 @@ module.exports = {
     }
     return `${year}-${month}-${day}`;
   },
+  getTodayTimestamps: () => {
+    const start = new Date();
+    start.setHours(0, 0, 0, 0); // 设置为今天的开始时间
+    const end = new Date();
+    end.setHours(23, 59, 59, 999); // 设置为今天的结束时间
+    return {
+      start: start.getTime(),
+      end: end.getTime(),
+    };
+  },
 };

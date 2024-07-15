@@ -87,6 +87,11 @@ class DashBoardController extends Controller {
       };
     }
   }
+  async getCharts() {
+    const { ctx, service } = this;
+    const result = await service.dashboard.fetchCharts();
+    ctx.body = result;
+  }
 }
 
 module.exports = DashBoardController;
